@@ -63,7 +63,7 @@ services:
    # Prometheus exporter for Docker metrics
    # https://github.com/google/cadvisor
    cadvisor:
-      image: gcr.io/cadvisor/cadvisor:v0.47.0
+      image: gcr.io/cadvisor/cadvisor:v0.51.0
       container_name: cadvisor
       ports:
          - 8080:8080
