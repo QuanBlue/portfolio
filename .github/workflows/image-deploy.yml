@@ -39,7 +39,7 @@ jobs:
          # https://github.com/docker/login-action
          - name: Log in to the Container registry ${{ env.REGISTRY }}
            if: github.event_name != 'pull_request'
-           uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+           uses: docker/login-action@327cd5a69de6c009b9ce71bce8395f28e651bf99
            with:
               registry: ${{ env.REGISTRY }}
               username: ${{ github.actor }}
@@ -80,7 +80,7 @@ jobs:
          # https://github.com/docker/login-action
          - name: Log in to the Container registry ${{ env.REGISTRY }}
            if: github.event_name != 'pull_request'
-           uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+           uses: docker/login-action@327cd5a69de6c009b9ce71bce8395f28e651bf99
            with:
               registry: ${{ env.REGISTRY }}
               username: ${{ github.actor }}
