@@ -90,8 +90,9 @@ const { identity } = portfolioData;
           </div>
         </div>
 
-        <!-- VIEW A: EXACT "HOW I SHIP" DIAGRAM (git push -> Trivy + SBOM -> Sign + Verify -> Jenkins) -->
-        <div id="hw-view-map">
+        <div class="grid grid-cols-1">
+          <!-- VIEW A: EXACT "HOW I SHIP" DIAGRAM (git push -> Trivy + SBOM -> Sign + Verify -> Jenkins) -->
+          <div id="hw-view-map" class="col-start-1 row-start-1 w-full transition-opacity duration-150">
           <div class="relative">
             <span class="flow flow-x" style="--d: 0s; --c: var(--signal)" aria-hidden="true"><i></i></span>
             <ol class="relative grid grid-cols-4 gap-2" aria-label="Delivery pipeline">
@@ -201,35 +202,36 @@ const { identity } = portfolioData;
           </p>
         </div>
 
-        <!-- VIEW B: INTERACTIVE TERMINAL (Đồng bộ Sáng / Tối + Full Terminal Engine) -->
-        <div id="hw-view-term" class="hidden">
-          <div
-            id="terminal-logs"
-            class="rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] p-3.5 font-mono text-xs text-[var(--muted-fg)] space-y-1.5 h-[275px] overflow-y-auto cursor-text select-text custom-scrollbar"
-            role="region"
-            aria-label="Interactive Terminal System Log"
-          >
-            <div id="terminal-history" class="space-y-1" aria-live="polite">
-              <div># Interactive Shell — Type <span class="text-[var(--signal)] font-semibold">help</span>, <span class="text-[var(--signal)] font-semibold">whoami</span>, <span class="text-[var(--signal)] font-semibold">experience</span>, <span class="text-[var(--signal)] font-semibold">projects</span>, <span class="text-[var(--signal)] font-semibold">skills</span>, <span class="text-[var(--signal)] font-semibold">neofetch</span></div>
-              <div class="text-[var(--signal)]">✔ Jenkins supply-chain verified (Trivy + SBOM + Signature OK)</div>
-            </div>
+          <!-- VIEW B: INTERACTIVE TERMINAL (Đồng bộ Sáng / Tối + Full Terminal Engine, khớp 100% kích thước với Pipeline) -->
+          <div id="hw-view-term" class="col-start-1 row-start-1 relative w-full h-full invisible opacity-0 pointer-events-none transition-opacity duration-150">
+            <div
+              id="terminal-logs"
+              class="absolute inset-0 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] p-3.5 font-mono text-xs text-[var(--muted-fg)] space-y-1.5 overflow-y-auto cursor-text select-text custom-scrollbar"
+              role="region"
+              aria-label="Interactive Terminal System Log"
+            >
+              <div id="terminal-history" class="space-y-1" aria-live="polite">
+                <div># Interactive Shell — Type <span class="text-[var(--signal)] font-semibold">help</span>, <span class="text-[var(--signal)] font-semibold">whoami</span>, <span class="text-[var(--signal)] font-semibold">experience</span>, <span class="text-[var(--signal)] font-semibold">projects</span>, <span class="text-[var(--signal)] font-semibold">skills</span>, <span class="text-[var(--signal)] font-semibold">neofetch</span></div>
+                <div class="text-[var(--signal)]">✔ Jenkins supply-chain verified (Trivy + SBOM + Signature OK)</div>
+              </div>
 
-            <div class="text-[var(--signal)] pt-1 flex items-center flex-wrap" id="active-cli-line">
-              <span class="font-semibold select-none">ntquan@devops:~$&nbsp;</span>
-              <span id="cli-display-text" class="text-[var(--fg)] font-mono whitespace-pre"></span>
-              <span class="blinking-cursor"></span>
-            </div>
+              <div class="text-[var(--signal)] pt-1 flex items-center flex-wrap" id="active-cli-line">
+                <span class="font-semibold select-none">ntquan@devops:~$&nbsp;</span>
+                <span id="cli-display-text" class="text-[var(--fg)] font-mono whitespace-pre"></span>
+                <span class="blinking-cursor"></span>
+              </div>
 
-            <input
-              type="text"
-              id="cli-input"
-              class="opacity-0 absolute -left-[9999px]"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="off"
-              spellcheck="false"
-              aria-label="Terminal command input"
-            />
+              <input
+                type="text"
+                id="cli-input"
+                class="opacity-0 absolute -left-[9999px]"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="Terminal command input"
+              />
+            </div>
           </div>
         </div>
       </figure>
@@ -260,8 +262,14 @@ const { identity } = portfolioData;
 
     function switchHeroWidget(mode: 'map' | 'term') {
       const isMap = mode === 'map';
-      viewMap?.classList.toggle('hidden', !isMap);
-      viewTerm?.classList.toggle('hidden', isMap);
+      viewMap?.classList.toggle('invisible', !isMap);
+      viewMap?.classList.toggle('opacity-0', !isMap);
+      viewMap?.classList.toggle('pointer-events-none', !isMap);
+
+      viewTerm?.classList.toggle('invisible', isMap);
+      viewTerm?.classList.toggle('opacity-0', isMap);
+      viewTerm?.classList.toggle('pointer-events-none', isMap);
+
       if (label) label.textContent = isMap ? 'How I ship' : 'ntquan@devops-engineer: ~';
       if (btnMap && btnTerm) {
         if (isMap) {
