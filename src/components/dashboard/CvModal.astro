@@ -1,0 +1,441 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { safeUrl } from '../../lib/render';
+const { identity, experience, projects, education = [], skills } = portfolioData;
+---
+
+<div
+  id="cv-modal"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md hidden opacity-0 transition-opacity duration-250 p-3 sm:p-6"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cv-modal-title"
+>
+  <div
+    id="cv-modal-content"
+    class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border border-[var(--line-strong)] bg-[var(--card)] shadow-2xl transform scale-95 transition-transform duration-250 overflow-hidden"
+  >
+    <!-- Top Sticky Modal Toolbar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-[var(--border)] bg-[var(--muted-bg)]/70 shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="grid size-9 place-items-center rounded-lg border border-[var(--signal)]/40 bg-emerald-500/10 text-[var(--signal)] shrink-0">
+          <i class="fa-regular fa-file-lines text-sm"></i>
+        </span>
+        <div class="min-w-0">
+          <h2 id="cv-modal-title" class="text-sm sm:text-base font-bold text-[var(--fg)] truncate">
+            Curriculum Vitae — <span data-bind="name">{identity.name}</span>
+          </h2>
+          <p class="font-mono text-[11px] text-[var(--muted-fg)] truncate">
+            <span data-bind="role">{identity.role}</span> · <span data-bind="location">{identity.location}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Optional View Switcher (shown when a custom PDF URL is uploaded in /admin) -->
+        <div id="cv-mode-switcher" class="hidden inline-flex rounded-lg border border-[var(--border)] bg-[var(--bg)] p-0.5 font-mono text-[11px]">
+          <button type="button" id="cv-tab-web" class="px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition">Web CV</button>
+          <button type="button" id="cv-tab-pdf" class="px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition">PDF File</button>
+        </div>
+
+        <button
+          id="cv-download-btn"
+          type="button"
+          class="inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--signal)] px-3.5 text-xs font-mono font-semibold text-zinc-950 hover:opacity-90 active:scale-[0.98] cursor-pointer transition"
+        >
+          <i class="fa-solid fa-download text-xs"></i>
+          <span>Download CV</span>
+        </button>
+
+        <button
+          id="cv-close-btn"
+          type="button"
+          aria-label="Close CV modal"
+          class="inline-flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--muted-fg)] hover:text-[var(--fg)] hover:border-[var(--line-strong)] cursor-pointer transition"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable CV Body -->
+    <div class="flex-1 overflow-y-auto p-5 sm:p-8 bg-[var(--bg)] custom-scrollbar">
+      <!-- View 1: Live Formatted Engineering CV Sheet -->
+      <article
+        id="cv-sheet-view"
+        class="mx-auto max-w-3xl rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-10 shadow-sm space-y-7"
+      >
+        <!-- CV Header -->
+        <header class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-[var(--border)] pb-6">
+          <div>
+            <h1 id="cv-sheet-name" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--fg)]">
+              {identity.name}
+            </h1>
+            <p id="cv-sheet-role" class="font-mono text-sm font-semibold text-[var(--signal)] mt-1">
+              {identity.role}
+            </p>
+          </div>
+          <div class="font-mono text-xs text-[var(--muted-fg)] space-y-1 sm:text-right">
+            <div id="cv-sheet-location"><i class="fa-solid fa-location-dot text-[var(--signal)] mr-1.5"></i>{identity.location}</div>
+            <div>
+              <a id="cv-sheet-email" href={`mailto:${identity.email}`} class="hover:text-[var(--fg)] underline-offset-2 hover:underline">
+                {identity.email}
+              </a>
+            </div>
+            <div class="flex sm:justify-end gap-3 pt-0.5">
+              <a id="cv-sheet-github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="text-[var(--primary)] hover:underline">
+                GitHub ({identity.github.handle})
+              </a>
+              <span>·</span>
+              <a id="cv-sheet-linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="text-[var(--primary)] hover:underline">
+                LinkedIn
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <!-- Summary -->
+        <section>
+          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-2">
+            01 · Executive Summary
+          </h3>
+          <p id="cv-sheet-bio" class="text-sm leading-relaxed text-[var(--muted-fg)]">
+            {identity.bio}
+          </p>
+        </section>
+
+        <!-- Work Experience -->
+        <section>
+          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-3.5">
+            02 · Work Experience
+          </h3>
+          <div id="cv-sheet-experience" class="space-y-5">
+            {experience.map((exp) => (
+              <div class="border-l-2 border-[var(--border)] pl-4">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                  <h4 class="text-sm font-bold text-[var(--fg)]">
+                    {exp.role} <span class="text-[var(--signal)] font-mono text-xs font-semibold">@ {exp.company}</span>
+                  </h4>
+                  <span class="font-mono text-xs text-[var(--muted-fg)]">{exp.period}</span>
+                </div>
+                <ul class="mt-2 space-y-1 text-xs sm:text-sm text-[var(--muted-fg)]">
+                  {exp.bullets.map((b) => (
+                    <li>• {b}</li>
+                  ))}
+                </ul>
+                <div class="mt-2 flex flex-wrap gap-1.5 font-mono text-[11px] text-[var(--faint)]">
+                  {exp.tags.map((t) => (
+                    <span>#{t}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- Key Projects -->
+        <section>
+          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-3.5">
+            03 · Featured Infrastructure Projects
+          </h3>
+          <div id="cv-sheet-projects" class="grid gap-3.5 sm:grid-cols-2">
+            {projects.map((p) => (
+              <div class="rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/40 p-3.5">
+                <div class="flex items-center justify-between gap-2">
+                  <h4 class="font-mono text-xs font-bold text-[var(--fg)]">{p.title}</h4>
+                  <span class="font-mono text-[10px] text-[var(--signal)]">{p.status}</span>
+                </div>
+                <p class="mt-1.5 text-xs text-[var(--muted-fg)] leading-relaxed">{p.description || p.shortDesc}</p>
+                <div class="mt-2 flex flex-wrap gap-1 font-mono text-[10px] text-[var(--faint)]">
+                  {p.tags.map((t) => (
+                    <span class="rounded bg-[var(--card)] px-1.5 py-0.5 border border-[var(--border)]">{t}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- Education -->
+        <section>
+          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-3">
+            04 · Education
+          </h3>
+          <div id="cv-sheet-education" class="space-y-3">
+            {education.map((ed) => (
+              <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                <div>
+                  <span class="text-sm font-bold text-[var(--fg)]">{ed.degree}</span>
+                  <span class="text-xs text-[var(--muted-fg)]"> — {ed.school}</span>
+                </div>
+                <span class="font-mono text-xs text-[var(--muted-fg)] shrink-0">{ed.period}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- Technical Skills -->
+        <section>
+          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-2.5">
+            05 · Core Technical Stack
+          </h3>
+          <div id="cv-sheet-skills" class="flex flex-wrap gap-1.5 font-mono text-xs">
+            {skills.map((s) => (
+              <span class="rounded-md border border-[var(--border)] bg-[var(--muted-bg)] px-2.5 py-1 text-[var(--fg)]">
+                {s.name} <span class="text-[var(--faint)] text-[10px]">{s.tag}</span>
+              </span>
+            ))}
+          </div>
+        </section>
+      </article>
+
+      <!-- View 2: Embedded PDF Viewer (when identity.cvUrl is configured) -->
+      <div id="cv-pdf-view" class="hidden h-[72vh] w-full rounded-xl border border-[var(--border)] overflow-hidden bg-[var(--card)]">
+        <iframe id="cv-pdf-iframe" src="" title="CV PDF Preview" class="w-full h-full border-0"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { portfolioData, type PortfolioData } from '../../data/portfolio';
+  import { esc, safeUrl } from '../../lib/render';
+
+  function initCvModal() {
+    const modal = document.getElementById('cv-modal');
+    const content = document.getElementById('cv-modal-content');
+    const closeBtn = document.getElementById('cv-close-btn');
+    const downloadBtn = document.getElementById('cv-download-btn');
+    const modeSwitcher = document.getElementById('cv-mode-switcher');
+    const tabWeb = document.getElementById('cv-tab-web');
+    const tabPdf = document.getElementById('cv-tab-pdf');
+    const sheetView = document.getElementById('cv-sheet-view');
+    const pdfView = document.getElementById('cv-pdf-view');
+    const pdfIframe = document.getElementById('cv-pdf-iframe') as HTMLIFrameElement | null;
+
+    if (!modal || !content) return;
+
+    let currentData: PortfolioData = (window as any).__PORTFOLIO__ ?? portfolioData;
+
+    function switchCvTab(mode: 'web' | 'pdf') {
+      const isWeb = mode === 'web';
+      sheetView?.classList.toggle('hidden', !isWeb);
+      pdfView?.classList.toggle('hidden', isWeb);
+      if (tabWeb && tabPdf) {
+        tabWeb.className = isWeb
+          ? 'px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition'
+          : 'px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition';
+        tabPdf.className = !isWeb
+          ? 'px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition'
+          : 'px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition';
+      }
+    }
+
+    function syncCvData(d: PortfolioData) {
+      currentData = d;
+      const { identity, experience = [], projects = [], education = [], skills = [] } = d;
+
+      const setTxt = (id: string, val: string) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+      setTxt('cv-sheet-name', identity.name);
+      setTxt('cv-sheet-role', identity.role);
+      setTxt('cv-sheet-bio', identity.bio);
+
+      const locEl = document.getElementById('cv-sheet-location');
+      if (locEl) locEl.innerHTML = `<i class="fa-solid fa-location-dot text-[var(--signal)] mr-1.5"></i>${esc(identity.location)}`;
+
+      const emailEl = document.getElementById('cv-sheet-email') as HTMLAnchorElement | null;
+      if (emailEl) {
+        emailEl.textContent = identity.email;
+        emailEl.href = `mailto:${identity.email}`;
+      }
+
+      const ghEl = document.getElementById('cv-sheet-github') as HTMLAnchorElement | null;
+      if (ghEl) {
+        ghEl.textContent = `GitHub (${identity.github.handle})`;
+        ghEl.href = safeUrl(identity.github.url);
+      }
+
+      const liEl = document.getElementById('cv-sheet-linkedin') as HTMLAnchorElement | null;
+      if (liEl) {
+        liEl.href = safeUrl(identity.linkedin.url);
+      }
+
+      const expEl = document.getElementById('cv-sheet-experience');
+      if (expEl) {
+        expEl.innerHTML = experience
+          .map(
+            (exp) => `<div class="border-l-2 border-[var(--border)] pl-4">
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <h4 class="text-sm font-bold text-[var(--fg)]">${esc(exp.role)} <span class="text-[var(--signal)] font-mono text-xs font-semibold">@ ${esc(exp.company)}</span></h4>
+                <span class="font-mono text-xs text-[var(--muted-fg)]">${esc(exp.period)}</span>
+              </div>
+              <ul class="mt-2 space-y-1 text-xs sm:text-sm text-[var(--muted-fg)]">
+                ${exp.bullets.map((b) => `<li>• ${esc(b)}</li>`).join('')}
+              </ul>
+              <div class="mt-2 flex flex-wrap gap-1.5 font-mono text-[11px] text-[var(--faint)]">
+                ${exp.tags.map((t) => `<span>#${esc(t)}</span>`).join('')}
+              </div>
+            </div>`,
+          )
+          .join('');
+      }
+
+      const projEl = document.getElementById('cv-sheet-projects');
+      if (projEl) {
+        projEl.innerHTML = projects
+          .map(
+            (p) => `<div class="rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/40 p-3.5">
+              <div class="flex items-center justify-between gap-2">
+                <h4 class="font-mono text-xs font-bold text-[var(--fg)]">${esc(p.title)}</h4>
+                <span class="font-mono text-[10px] text-[var(--signal)]">${esc(p.status)}</span>
+              </div>
+              <p class="mt-1.5 text-xs text-[var(--muted-fg)] leading-relaxed">${esc(p.description || p.shortDesc)}</p>
+              <div class="mt-2 flex flex-wrap gap-1 font-mono text-[10px] text-[var(--faint)]">
+                ${p.tags.map((t) => `<span class="rounded bg-[var(--card)] px-1.5 py-0.5 border border-[var(--border)]">${esc(t)}</span>`).join('')}
+              </div>
+            </div>`,
+          )
+          .join('');
+      }
+
+      const eduEl = document.getElementById('cv-sheet-education');
+      if (eduEl) {
+        eduEl.innerHTML = education
+          .map(
+            (ed) => `<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+              <div>
+                <span class="text-sm font-bold text-[var(--fg)]">${esc(ed.degree)}</span>
+                <span class="text-xs text-[var(--muted-fg)]"> — ${esc(ed.school)}</span>
+              </div>
+              <span class="font-mono text-xs text-[var(--muted-fg)] shrink-0">${esc(ed.period)}</span>
+            </div>`,
+          )
+          .join('');
+      }
+
+      const skillsEl = document.getElementById('cv-sheet-skills');
+      if (skillsEl) {
+        skillsEl.innerHTML = skills
+          .map(
+            (s) => `<span class="rounded-md border border-[var(--border)] bg-[var(--muted-bg)] px-2.5 py-1 text-[var(--fg)]">${esc(s.name)} <span class="text-[var(--faint)] text-[10px]">${esc(s.tag)}</span></span>`,
+          )
+          .join('');
+      }
+
+      const cvUrl = (identity.cvUrl || '').trim();
+      const hasPdf = Boolean(cvUrl && /^(https?:\/\/|\/|data:application\/pdf)/i.test(cvUrl));
+      modeSwitcher?.classList.toggle('hidden', !hasPdf);
+      if (hasPdf && pdfIframe) {
+        pdfIframe.src = cvUrl;
+      } else {
+        switchCvTab('web');
+      }
+    }
+
+    function downloadOrPrintCv() {
+      const cvUrl = (currentData.identity?.cvUrl || '').trim();
+      if (cvUrl && /^(https?:\/\/|\/|data:application\/pdf)/i.test(cvUrl)) {
+        const a = document.createElement('a');
+        a.href = cvUrl;
+        a.download = `CV-${(currentData.identity.name || 'DevOps-Engineer').replace(/\s+/g, '-')}.pdf`;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.click();
+        return;
+      }
+
+      // Clean A4 Print-to-PDF fallback using the formatted CV sheet
+      const sheetHtml = sheetView?.innerHTML || '';
+      const printWin = window.open('', '_blank', 'width=900,height=1100');
+      if (!printWin) return;
+      printWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>CV — ${esc(currentData.identity.name)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; color: #161615; background: #fff; padding: 32px 40px; line-height: 1.5; font-size: 13px; }
+    header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #161615; padding-bottom: 16px; margin-bottom: 20px; }
+    h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+    h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #059669; margin: 18px 0 8px; border-bottom: 1px solid #e2dfd7; padding-bottom: 4px; }
+    h4 { font-size: 13.5px; font-weight: 700; margin-top: 8px; }
+    p, li { color: #3f3f46; font-size: 12.5px; }
+    ul { list-style: none; margin-top: 4px; }
+    a { color: #2563eb; text-decoration: none; }
+    @media print { body { padding: 12px 16px; } }
+  </style>
+</head>
+<body>
+  ${sheetHtml}
+  <script>window.onload = function() { setTimeout(function() { window.print(); }, 250); };<\/script>
+</body>
+</html>`);
+      printWin.document.close();
+    }
+
+    function openCvModal() {
+      syncCvData((window as any).__PORTFOLIO__ ?? portfolioData);
+      modal.classList.remove('hidden');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+    }
+
+    function closeCvModal() {
+      modal.classList.add('opacity-0');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 250);
+    }
+
+    tabWeb?.addEventListener('click', () => switchCvTab('web'));
+    tabPdf?.addEventListener('click', () => switchCvTab('pdf'));
+    closeBtn?.addEventListener('click', closeCvModal);
+    downloadBtn?.addEventListener('click', downloadOrPrintCv);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeCvModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeCvModal();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const openTrigger = target.closest?.('[data-open-cv]');
+      if (openTrigger) {
+        e.preventDefault();
+        openCvModal();
+        return;
+      }
+      const dlTrigger = target.closest?.('[data-download-cv]');
+      if (dlTrigger) {
+        e.preventDefault();
+        syncCvData((window as any).__PORTFOLIO__ ?? portfolioData);
+        downloadOrPrintCv();
+      }
+    });
+
+    window.addEventListener('portfolio:data', (e) => {
+      const detail = (e as CustomEvent<PortfolioData>).detail;
+      if (detail) syncCvData(detail);
+    });
+
+    (window as any).openCvModal = openCvModal;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCvModal);
+  } else {
+    initCvModal();
+  }
+</script>

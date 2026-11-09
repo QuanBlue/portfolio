@@ -61,6 +61,42 @@ const { identity } = portfolioData;
           </p>
         </li>
       </ul>
+
+      <!-- Compact Curriculum Vitae (CV) Trigger Card -->
+      <div class="reveal mt-8 panel p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-[var(--line-strong)] bg-[var(--muted-bg)]/40" style="--d: 0.32s">
+        <div class="flex items-center gap-3.5 min-w-0">
+          <span class="grid size-10 place-items-center rounded-xl border border-[var(--signal)]/40 bg-emerald-500/10 text-[var(--signal)] shrink-0">
+            <i class="fa-regular fa-file-lines text-base"></i>
+          </span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-sm font-bold text-[var(--fg)]">Curriculum Vitae (Resume)</h3>
+              <span class="rounded border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 font-mono text-[10px] font-semibold text-[var(--signal)]">PDF / A4</span>
+            </div>
+            <p class="text-xs text-[var(--muted-fg)] mt-0.5 truncate">
+              Tóm tắt kinh nghiệm làm việc, dự án hạ tầng Kubernetes HA &amp; kỹ năng chuyên môn.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            data-open-cv="1"
+            class="inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--fg)] px-4 text-xs font-mono font-semibold text-[var(--bg)] hover:opacity-90 active:scale-[0.98] cursor-pointer transition"
+          >
+            <i class="fa-regular fa-eye"></i>
+            <span>Xem CV</span>
+          </button>
+          <button
+            type="button"
+            data-download-cv="1"
+            class="inline-flex h-9 items-center gap-2 rounded-lg border border-[var(--line-strong)] bg-[var(--card)] px-3.5 text-xs font-mono font-semibold text-[var(--fg)] hover:border-[var(--signal)] hover:text-[var(--signal)] active:scale-[0.98] cursor-pointer transition"
+          >
+            <i class="fa-solid fa-download"></i>
+            <span>Download</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </section>

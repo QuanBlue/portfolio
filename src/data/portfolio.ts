@@ -16,6 +16,8 @@ export interface Identity {
   bio: string;
   /** Avatar image (data URL or path). Optional. */
   avatar?: string;
+  /** Optional CV / Resume PDF URL or uploaded file URL. */
+  cvUrl?: string;
 }
 
 export interface Skill {

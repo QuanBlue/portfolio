@@ -59,6 +59,15 @@ const { identity } = portfolioData;
           <span>See the projects</span>
         </a>
 
+        <button
+          type="button"
+          data-open-cv="1"
+          class="inline-flex h-12 items-center gap-2 rounded-xl border border-[var(--signal)]/50 bg-emerald-500/10 px-5 text-sm font-semibold text-[var(--signal)] hover:bg-emerald-500/20 active:scale-[0.98] cursor-pointer transition"
+        >
+          <i class="fa-regular fa-file-lines text-xs"></i>
+          <span>View CV</span>
+        </button>
+
         <ul class="flex items-center gap-1 sm:ml-1">
           <li>
             <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="grid size-11 place-items-center rounded-xl text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition" aria-label="GitHub">
@@ -339,6 +348,13 @@ const { identity } = portfolioData;
         if (lowerCmd === 'edu' || lowerCmd === 'education') {
           appendHistoryLine('B.Eng in Information Technology — Networks, Linux & Distributed Systems', 'text-[var(--signal)]');
           window.location.hash = '#education';
+          scrollToBottom();
+          return;
+        }
+
+        if (lowerCmd === 'cv' || lowerCmd === 'resume') {
+          appendHistoryLine('Opening Curriculum Vitae modal...', 'text-[var(--signal)]');
+          (window as any).openCvModal?.();
           scrollToBottom();
           return;
         }
