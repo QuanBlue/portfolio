@@ -60,9 +60,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </form>
 
-    <div id="admin-app" class="hidden grid grid-cols-1 md:grid-cols-[180px_1fr] gap-4 pb-20">
-      <nav id="admin-tabs" class="flex md:flex-col gap-1 overflow-x-auto text-xs"></nav>
-      <section id="admin-panel" class="dashboard-panel p-4 min-w-0"></section>
+    <div id="admin-app" class="hidden grid grid-cols-1 md:grid-cols-[200px_1fr] gap-5 pb-20">
+      <nav id="admin-tabs" class="flex md:flex-col gap-1.5 overflow-x-auto text-xs"></nav>
+      <section id="admin-panel" class="dashboard-panel p-5 sm:p-6 min-w-0"></section>
     </div>
 
     <!-- Floating Unsaved Bar -->
@@ -391,24 +391,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     tabs.innerHTML = SECTIONS.map((s) => {
       const count = s.kind === 'list' ? ` (${(data[s.id] as unknown[]).length})` : '';
       const on = s.id === active;
-      return `<button type="button" data-tab="${s.id}" class="text-left px-3 py-2 rounded border whitespace-nowrap cursor-pointer ${
+      return `<button type="button" data-tab="${s.id}" class="text-left px-3.5 py-2.5 rounded-xl border whitespace-nowrap cursor-pointer font-medium transition ${
         on
-          ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
-          : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
+          ? 'border-[var(--signal)] text-[var(--signal)] bg-emerald-500/10'
+          : 'border-[var(--border)] bg-[var(--card)] text-[var(--muted-fg)] hover:border-[var(--line-strong)] hover:text-[var(--fg)]'
       }">${s.title}${count}</button>`;
     }).join('');
 
     const section = SECTIONS.find((s) => s.id === active)!;
     if (section.kind === 'object') {
-      panel.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${section.fields
+      panel.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${section.fields
         .map((f) => fieldHtml(f, `${section.id}.`, getPath(data[section.id], f.key)))
         .join('')}</div>`;
       return;
     }
     const list = data[section.id] as any[];
     panel.innerHTML = `
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="font-bold text-sm text-[var(--heading)]">${section.title}</h2>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-bold text-base text-[var(--heading)]">${section.title}</h2>
         <div class="flex items-center gap-2">
           ${
             section.id === 'gallery'
@@ -420,20 +420,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <button type="button" data-add="${section.id}" class="adm-btn ${section.id === 'gallery' ? '' : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700'} text-xs">+ Add</button>
         </div>
       </div>
-      ${list.length === 0 ? '<p class="text-xs text-zinc-500">Empty. Click “+ Add”.</p>' : ''}
+      ${list.length === 0 ? '<p class="text-xs text-[var(--muted-fg)]">Empty. Click “+ Add”.</p>' : ''}
       <div class="space-y-3">
       ${list
         .map(
-          (item, i) => `<details class="border border-zinc-300 dark:border-zinc-700 rounded-lg" ${list.length <= 3 || i === 0 ? 'open' : ''}>
-        <summary class="px-3 py-2 cursor-pointer flex items-center justify-between gap-2 text-sm text-[var(--heading)]">
+          (item, i) => `<details class="border border-[var(--border)] bg-[var(--muted-bg)]/40 rounded-xl overflow-hidden" ${list.length <= 3 || i === 0 ? 'open' : ''}>
+        <summary class="px-4 py-2.5 cursor-pointer flex items-center justify-between gap-2 text-sm text-[var(--heading)] bg-[var(--muted-bg)]/60">
           <span class="truncate font-semibold">${esc(item[section.titleKey] || '(untitled)')}</span>
-          <span class="flex gap-1 text-xs shrink-0" data-stop>
+          <span class="flex gap-1.5 text-xs shrink-0" data-stop>
             <button type="button" class="adm-btn" data-move="${section.id}:${i}:-1" aria-label="Move up">↑</button>
             <button type="button" class="adm-btn" data-move="${section.id}:${i}:1" aria-label="Move down">↓</button>
             <button type="button" class="adm-btn text-red-600 dark:text-red-400" data-del="${section.id}:${i}">Delete</button>
           </span>
         </summary>
-        <div class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-zinc-200 dark:border-zinc-800">
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--border)] bg-[var(--card)]">
           ${section.fields.map((f) => fieldHtml(f, `${section.id}.${i}.`, item[f.key])).join('')}
         </div></details>`,
         )

@@ -293,6 +293,10 @@ body {
   .adm-input::placeholder {
     color: var(--faint);
   }
+  .adm-input option {
+    background-color: var(--card);
+    color: var(--fg);
+  }
   .adm-input:focus {
     outline: none;
     border-color: var(--signal);
