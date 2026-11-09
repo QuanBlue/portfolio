@@ -1,0 +1,42 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { skills } = portfolioData;
+---
+
+<div class="dashboard-panel flex-grow overflow-hidden flex flex-col">
+  <div class="panel-header text-zinc-800 dark:text-zinc-300">
+    <span>Active_Modules.d (Skills)</span>
+    <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono tracking-wider">
+      {skills.filter((s) => s.status === 'ACTIVE').length}/{skills.length} RUNNING
+    </span>
+  </div>
+  <div class="p-2 overflow-y-auto custom-scrollbar flex-grow bg-white dark:bg-[#0c0c0e]">
+    <div class="space-y-1.5 font-mono text-[11px]">
+      {skills.map((skill) => (
+        <div class="flex items-center justify-between p-2 bg-zinc-50 dark:bg-zinc-900/40 rounded border border-zinc-200 dark:border-zinc-800/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-default">
+          <div class="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+            <span class="text-zinc-400 dark:text-zinc-500 w-20">{skill.tag}</span>
+            <span class="font-bold">{skill.name}</span>
+          </div>
+          {skill.status === 'ACTIVE' ? (
+            <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold">
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_4px_#10b981]"
+                style={`animation-delay: ${skill.delay || '0s'}`}
+              ></span>
+              ACTIVE
+            </div>
+          ) : (
+            <div class="flex items-center gap-1.5 text-yellow-600 dark:text-yellow-500 text-[9px] font-bold">
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_4px_#eab308]"
+                style={`animation-delay: ${skill.delay || '0s'}`}
+              ></span>
+              SYNCING
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+---
+import Header from '../components/layout/Header.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  currentPath?: string;
+  isDashboard?: boolean;
+}
+
+const {
+  title = "Quan's DevOps Dashboard",
+  description = "DevOps Engineer portfolio featuring interactive cloud infrastructure monitoring, APM telemetry, and browser terminal.",
+  currentPath = '/',
+  isDashboard = false,
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    
+    <!-- OpenGraph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts matching mockup -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tránh giật màn hình (FOUC) khi load trang matching mockup -->
+    <script is:inline>
+      if (
+        localStorage.getItem('color-theme') === 'dark' ||
+        (!('color-theme' in localStorage) &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches)
+      ) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+  </head>
+  <body class={`flex flex-col ${isDashboard ? 'h-screen overflow-hidden' : 'min-h-screen'} relative transition-colors duration-300`}>
+    <div class="scanline" aria-hidden="true"></div>
+    <Header currentPath={currentPath} />
+    <slot />
+  </body>
+</html>

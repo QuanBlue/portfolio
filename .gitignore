@@ -1,0 +1,43 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+.astro/
+
+# Environment variables
+.env
+.env.production
+.env.development
+.env.local
+*.env
+*.env.*
+
+# Cloudflare Wrangler
+.wrangler/
+
+# Test and coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Operating System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE and Editor configurations
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary & scratch files
+*.tmp
+*.log

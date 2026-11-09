@@ -1,0 +1,174 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { calculateReadingTime } from '../../utils/reading-time';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft).catch(() => []);
+  
+  // Safely returns empty array if no articles exist, ensuring build never fails
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+if (!post) {
+  return Astro.redirect('/blog');
+}
+
+const { Content, headings } = await render(post);
+const readingTime = calculateReadingTime(post.body || '');
+const formattedDate = post.data.pubDate.toLocaleDateString('en-GB', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout
+  title={`${post.data.title} | Technical Blog`}
+  description={post.data.description}
+  currentPath={`/blog/${post.id}`}
+>
+  <main class="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full z-10">
+    <!-- Breadcrumb & Back -->
+    <div class="mb-6 flex items-center justify-between text-xs font-mono text-zinc-500 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+      <div class="flex items-center gap-2">
+        <a href="/" class="hover:text-emerald-500">[SYS.ADMIN_PORTFOLIO]</a>
+        <span>/</span>
+        <a href="/blog" class="hover:text-emerald-500">blog</a>
+        <span>/</span>
+        <span class="text-emerald-600 dark:text-emerald-400">{post.id}</span>
+      </div>
+      <a href="/blog" class="hover:underline flex items-center gap-1">
+        <span>←</span> [cd ..]
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Left/Sidebar: Metadata & TOC (4 cols) -->
+      <aside class="lg:col-span-4 space-y-4 lg:sticky lg:top-4">
+        <!-- Metadata Panel -->
+        <div class="dashboard-panel p-4">
+          <div class="panel-header mb-3 -mx-4 -mt-4">
+            <span>Metadata.env</span>
+          </div>
+          <div class="space-y-2 text-xs font-mono">
+            <div class="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1">
+              <span class="text-zinc-500">Published:</span>
+              <span class="text-zinc-700 dark:text-zinc-300">{formattedDate}</span>
+            </div>
+            <div class="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1">
+              <span class="text-zinc-500">Read Time:</span>
+              <span class="text-emerald-600 dark:text-emerald-400">{readingTime}</span>
+            </div>
+            <div class="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1">
+              <span class="text-zinc-500">Category:</span>
+              <span class="text-zinc-700 dark:text-zinc-300">{post.data.category}</span>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="text-[10px] font-mono text-zinc-500 uppercase mb-2">Tags</div>
+            <div class="flex flex-wrap gap-1 font-mono text-[10px]">
+              {post.data.tags.map((t) => (
+                <span class="bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 px-2 py-0.5 rounded text-zinc-700 dark:text-zinc-300">
+                  #{t}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <!-- Table of Contents Panel -->
+        {headings.length > 0 && (
+          <nav class="dashboard-panel p-4">
+            <div class="panel-header mb-3 -mx-4 -mt-4">
+              <span>Table_Of_Contents.idx</span>
+            </div>
+            <ul class="space-y-1.5 text-xs font-mono">
+              {headings.map((h) => (
+                <li class={`pl-${(h.depth - 2) * 3}`}>
+                  <a
+                    href={`#${h.slug}`}
+                    class="text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition block truncate"
+                  >
+                    # {h.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </aside>
+
+      <!-- Main Article Reader (8 cols) -->
+      <article class="lg:col-span-8 dashboard-panel p-6 md:p-8">
+        <header class="mb-8 border-b border-zinc-200 dark:border-zinc-800 pb-6">
+          <h1 class="text-2xl md:text-3xl font-bold font-mono text-zinc-900 dark:text-white mb-3">
+            {post.data.title}
+          </h1>
+          <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+            {post.data.description}
+          </p>
+        </header>
+
+        <!-- Markdown Body -->
+        <div class="prose dark:prose-invert max-w-none prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 font-sans text-sm md:text-base leading-relaxed text-zinc-800 dark:text-zinc-200" id="article-body">
+          <Content />
+        </div>
+      </article>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  // Add copy-to-clipboard functionality to all code blocks
+  function initCodeCopy() {
+    const preBlocks = document.querySelectorAll('pre');
+    preBlocks.forEach((pre) => {
+      // Avoid duplicate button injection
+      if (pre.querySelector('.code-copy-btn')) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'relative group';
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'code-copy-btn absolute top-2 right-2 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-mono rounded opacity-0 group-hover:opacity-100 transition border border-zinc-700 cursor-pointer';
+      copyBtn.textContent = 'COPY';
+      copyBtn.setAttribute('aria-label', 'Copy code to clipboard');
+
+      copyBtn.onclick = async () => {
+        const code = pre.querySelector('code')?.textContent || pre.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.textContent = 'COPIED!';
+          copyBtn.classList.add('text-emerald-400', 'border-emerald-500');
+          setTimeout(() => {
+            copyBtn.textContent = 'COPY';
+            copyBtn.classList.remove('text-emerald-400', 'border-emerald-500');
+          }, 2000);
+        } catch (err) {
+          copyBtn.textContent = 'FAILED';
+        }
+      };
+
+      wrapper.appendChild(copyBtn);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeCopy);
+  } else {
+    initCodeCopy();
+  }
+</script>

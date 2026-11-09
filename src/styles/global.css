@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Light Mode Variables */
+  --bg-body: #f4f4f5; /* zinc-100 */
+  --text-body: #3f3f46; /* zinc-700 */
+  --panel-bg: #ffffff;
+  --panel-border: #e4e4e7; /* zinc-200 */
+  --panel-header: #f4f4f5;
+  --scroll-track: #e4e4e7;
+  --scroll-thumb: #a1a1aa;
+  --scroll-thumb-hover: #71717a;
+}
+
+html.dark {
+  /* Dark Mode Variables */
+  --bg-body: #09090b; /* zinc-950 */
+  --text-body: #a1a1aa; /* zinc-400 */
+  --panel-bg: #121214;
+  --panel-border: #27272a;
+  --panel-header: #18181b;
+  --scroll-track: #18181b;
+  --scroll-thumb: #3f3f46;
+  --scroll-thumb-hover: #52525b;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-body);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dashboard-panel {
+  background-color: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.panel-header {
+  background-color: var(--panel-header);
+  border-bottom: 1px solid var(--panel-border);
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Terminal Cursor */
+.blinking-cursor::after {
+  content: '█';
+  animation: blink 1s step-end infinite;
+  color: #10b981; /* Emerald 500 */
+  margin-left: 4px;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.1)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.3;
+}
+html:not(.dark) .scanline {
+  opacity: 0.05;
+}
+
+/* Animations */
+.bar-grow {
+  animation: grow 1.5s ease-out forwards;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+@keyframes grow {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.trace-span {
+  animation: grow-fade 0.8s ease-out forwards;
+  transform-origin: left;
+  opacity: 0;
+  transform: scaleX(0);
+}
+@keyframes grow-fade {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.telemetry-bar {
+  width: 8px;
+  background-color: #10b981;
+  transition: height 0.3s ease, background-color 0.3s ease;
+}
+
+/* Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .blinking-cursor::after {
+    animation: none;
+    opacity: 1;
+  }
+}

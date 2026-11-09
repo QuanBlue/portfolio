@@ -1,0 +1,200 @@
+---
+import { portfolioData } from '../../data/portfolio';
+---
+
+<!-- Terminal Window matching mockup -->
+<div class="dashboard-panel flex-grow flex flex-col">
+  <div class="panel-header bg-zinc-200 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700">
+    <span class="flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      System.Log
+    </span>
+  </div>
+
+  <div
+    class="p-3 font-mono text-xs bg-slate-50 dark:bg-black flex-grow overflow-y-auto cursor-text select-text custom-scrollbar"
+    id="terminal-logs"
+    role="region"
+    aria-label="Interactive Terminal System Log"
+  >
+    <div id="terminal-history" class="space-y-0.5" aria-live="polite">
+      <div class="text-zinc-500">Initializing system... [OK]</div>
+      <div class="text-zinc-500">Loading user profile: {portfolioData.identity.name}... [OK]</div>
+      <div class="text-emerald-600 dark:text-emerald-400">Connection established.</div>
+    </div>
+
+    <!-- Active In-line Prompt matching mockup -->
+    <div class="text-blue-600 dark:text-blue-400 mt-2 flex items-center flex-wrap" id="active-cli-line">
+      <span class="select-none">quan@devops-node:~#&nbsp;</span>
+      <span id="cli-display-text" class="text-zinc-800 dark:text-zinc-100 font-mono whitespace-pre"></span>
+      <span class="blinking-cursor"></span>
+    </div>
+
+    <!-- Offscreen input to capture keyboard events on all devices -->
+    <input
+      type="text"
+      id="cli-input"
+      class="opacity-0 absolute -left-[9999px]"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+      aria-label="Terminal command input"
+    />
+  </div>
+</div>
+
+<script>
+  import { portfolioData } from '../../data/portfolio';
+  import {
+    COMMAND_LIST,
+    CommandHistoryManager,
+    getAutocompleteMatch,
+    getClosestCommand,
+  } from './terminal-engine';
+
+  function initTerminal() {
+    const terminal = document.getElementById('terminal-logs');
+    const historyEl = document.getElementById('terminal-history');
+    const displayEl = document.getElementById('cli-display-text');
+    const inputEl = document.getElementById('cli-input') as HTMLInputElement | null;
+    const historyManager = new CommandHistoryManager();
+
+    if (!terminal || !historyEl || !displayEl || !inputEl) return;
+
+    // Focus input when clicking anywhere in terminal
+    terminal.addEventListener('click', (e) => {
+      const selection = window.getSelection();
+      if (!selection || selection.toString().length === 0) {
+        inputEl.focus();
+      }
+    });
+
+    const scrollToBottom = () => {
+      terminal.scrollTop = terminal.scrollHeight;
+    };
+
+    const appendHistoryLine = (text: string, className: string = 'text-zinc-700 dark:text-zinc-300') => {
+      const line = document.createElement('div');
+      line.className = className;
+      line.textContent = text;
+      historyEl.appendChild(line);
+      scrollToBottom();
+    };
+
+    // Synchronize visible display with hidden input
+    inputEl.addEventListener('input', () => {
+      displayEl.textContent = inputEl.value;
+      scrollToBottom();
+    });
+
+    // Keyboard controls
+    inputEl.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        const raw = inputEl.value;
+        const trimmed = raw.trim();
+        inputEl.value = '';
+        displayEl.textContent = '';
+        historyManager.resetCursor();
+
+        // Print entered command prompt
+        appendHistoryLine(`quan@devops-node:~# ${raw}`, 'text-blue-600 dark:text-blue-400 mt-1');
+
+        if (!trimmed) {
+          scrollToBottom();
+          return;
+        }
+
+        historyManager.push(trimmed);
+        const [cmdName, ...args] = trimmed.split(/\s+/);
+        const lowerCmd = cmdName.toLowerCase();
+
+        const cmd = COMMAND_LIST[lowerCmd];
+        if (cmd) {
+          try {
+            const lines = await cmd.execute(args, {
+              portfolioData,
+              navigate: (url) => { window.location.href = url; },
+              openModal: (id) => { (window as any).openProjectModal?.(id); },
+              clearTerminal: () => { historyEl.innerHTML = ''; },
+              history: historyManager.getHistory(),
+            });
+
+            lines.forEach((l) => {
+              let colorClass = 'text-zinc-700 dark:text-zinc-300';
+              if (l.type === 'success') colorClass = 'text-emerald-600 dark:text-emerald-400';
+              else if (l.type === 'info') colorClass = 'text-blue-600 dark:text-blue-400';
+              else if (l.type === 'error') colorClass = 'text-red-500 dark:text-red-400';
+              else if (l.type === 'dim') colorClass = 'text-zinc-400 dark:text-zinc-500 text-[11px]';
+              else if (l.type === 'ascii') colorClass = 'text-emerald-500 dark:text-emerald-400 whitespace-pre font-mono text-[11px] leading-tight';
+
+              appendHistoryLine(l.text, colorClass);
+            });
+          } catch (err) {
+            appendHistoryLine(`[ERROR] ${err}`, 'text-red-500');
+          }
+        } else {
+          appendHistoryLine(`bash: ${cmdName}: command not found`, 'text-red-500 dark:text-red-400');
+          const closest = getClosestCommand(cmdName);
+          if (closest) {
+            appendHistoryLine(`Did you mean: ${closest}? (Type 'help' for commands)`, 'text-zinc-500 text-[11px]');
+          } else {
+            appendHistoryLine("Type 'help' for available commands.", 'text-zinc-500 text-[11px]');
+          }
+        }
+
+        scrollToBottom();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        inputEl.value = historyManager.navigateUp(inputEl.value);
+        displayEl.textContent = inputEl.value;
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        inputEl.value = historyManager.navigateDown();
+        displayEl.textContent = inputEl.value;
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const current = inputEl.value;
+        const { match, suggestions } = getAutocompleteMatch(current);
+        if (match) {
+          inputEl.value = match;
+          displayEl.textContent = match;
+        } else if (suggestions.length > 1) {
+          appendHistoryLine(`quan@devops-node:~# ${current}`, 'text-blue-600 dark:text-blue-400');
+          appendHistoryLine(`Available: ${suggestions.join('   ')}`, 'text-zinc-500 text-[11px]');
+          scrollToBottom();
+        }
+      }
+    });
+
+    // Provide global logAction for buttons from Middle Viewport
+    (window as any).logAction = (command: string) => {
+      appendHistoryLine(`> Executing: ${command}...`, 'text-zinc-700 dark:text-zinc-300 mt-1');
+      setTimeout(() => {
+        const resultLine = document.createElement('div');
+        resultLine.className = 'text-emerald-600 dark:text-emerald-400';
+        historyEl.appendChild(resultLine);
+
+        const msg = "[SUCCESS] Data retrieved and UI rendered.";
+        let i = 0;
+        const typeInterval = setInterval(() => {
+          resultLine.textContent += msg.charAt(i);
+          i++;
+          terminal.scrollTop = terminal.scrollHeight;
+          if (i >= msg.length) {
+            clearInterval(typeInterval);
+            scrollToBottom();
+          }
+        }, 25);
+      }, 300);
+    };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTerminal);
+  } else {
+    initTerminal();
+  }
+</script>

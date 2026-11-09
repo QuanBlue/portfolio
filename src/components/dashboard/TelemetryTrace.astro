@@ -1,0 +1,117 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { telemetry } = portfolioData;
+---
+
+<div class="dashboard-panel flex-shrink-0">
+  <div class="panel-header text-zinc-800 dark:text-zinc-300">
+    <span>System_Telemetry & APM_Trace</span>
+    <span class="text-[10px] text-emerald-600 dark:text-emerald-400 animate-pulse">● LIVE</span>
+  </div>
+  <div class="p-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+    <!-- Key Stats (4 columns) -->
+    <div class="md:col-span-4 flex gap-4 justify-around md:border-r border-zinc-200 dark:border-zinc-800 pr-2">
+      <div class="text-center">
+        <div class="text-2xl font-bold text-zinc-900 dark:text-white font-mono">{telemetry.uptimeSLA}</div>
+        <div class="text-[10px] font-mono text-zinc-500 mt-1 uppercase">UPTIME SLA</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-mono" id="req-count">
+          {telemetry.initialReqCount.toLocaleString('en-US')}
+        </div>
+        <div class="text-[10px] font-mono text-zinc-500 mt-1 uppercase">REQS/MIN</div>
+      </div>
+    </div>
+
+    <!-- APM Trace Spans (8 columns) -->
+    <div class="md:col-span-8 w-full flex flex-col gap-1.5 overflow-hidden py-1">
+      <div class="flex justify-between items-end mb-1">
+        <span class="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
+          TRACE: <span class="text-blue-600 dark:text-blue-400 font-bold">{telemetry.traceId}</span>
+        </span>
+        <span class="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
+          LATENCY: <span class="text-orange-600 dark:text-orange-400 font-bold">{telemetry.traceLatency}</span>
+        </span>
+      </div>
+
+      <div class="relative w-full border-l border-zinc-300 dark:border-zinc-700 pl-2 space-y-1.5 pb-1">
+        <!-- Background Grid Lines -->
+        <div class="absolute inset-0 left-2 flex justify-between pointer-events-none z-0" aria-hidden="true">
+          <div class="w-px h-full bg-zinc-200 dark:bg-zinc-800/50"></div>
+          <div class="w-px h-full bg-zinc-200 dark:bg-zinc-800/50"></div>
+          <div class="w-px h-full bg-zinc-200 dark:bg-zinc-800/50"></div>
+          <div class="w-px h-full bg-zinc-200 dark:bg-zinc-800/50"></div>
+          <div class="w-px h-full bg-zinc-200 dark:bg-zinc-800/50"></div>
+        </div>
+
+        <!-- Spans -->
+        {telemetry.spans.map((span) => {
+          const colorMap = {
+            emerald: {
+              bg: 'bg-emerald-100 dark:bg-emerald-500/20',
+              border: 'border-emerald-500 bg-emerald-200 dark:bg-emerald-500/40 group-hover:bg-emerald-300 dark:group-hover:bg-emerald-500/60',
+              text: 'text-emerald-900 dark:text-emerald-100',
+            },
+            blue: {
+              bg: 'bg-blue-100 dark:bg-blue-500/20',
+              border: 'border-blue-500 bg-blue-200 dark:bg-blue-500/40 group-hover:bg-blue-300 dark:group-hover:bg-blue-500/60',
+              text: 'text-blue-900 dark:text-blue-100',
+            },
+            purple: {
+              bg: 'bg-purple-100 dark:bg-purple-500/20',
+              border: 'border-purple-500 bg-purple-200 dark:bg-purple-500/40 group-hover:bg-purple-300 dark:group-hover:bg-purple-500/60',
+              text: 'text-purple-900 dark:text-purple-100',
+            },
+            orange: {
+              bg: 'bg-orange-100 dark:bg-orange-500/20',
+              border: 'border-orange-500 bg-orange-200 dark:bg-orange-500/40 group-hover:bg-orange-300 dark:group-hover:bg-orange-500/60',
+              text: 'text-orange-900 dark:text-orange-100',
+            },
+          };
+          const c = colorMap[span.color];
+
+          return (
+            <div
+              class="relative w-full h-4 flex items-center group cursor-crosshair z-10 trace-span"
+              style={`animation-delay: ${span.delay};`}
+            >
+              <div
+                class={`absolute h-full rounded-sm ${c.bg}`}
+                style={`left: ${span.leftPercent}%; width: ${span.widthPercent}%;`}
+              ></div>
+              <div
+                class={`absolute h-full border-l-[3px] rounded-sm transition-colors shadow-sm ${c.border}`}
+                style={`left: ${span.leftPercent}%; width: ${span.widthPercent}%;`}
+              ></div>
+              <span
+                class={`absolute text-[9px] font-mono leading-4 font-semibold px-2 ${c.text}`}
+                style={`left: ${span.leftPercent}%;`}
+              >
+                {span.name}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initTelemetry() {
+    const countEl = document.getElementById('req-count');
+    if (countEl) {
+      setInterval(() => {
+        let current = parseInt(countEl.textContent?.replace(/,/g, '') || '2489', 10);
+        current += Math.floor(Math.random() * 5) + 1;
+        countEl.textContent = current.toLocaleString('en-US');
+      }, 3000);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTelemetry);
+  } else {
+    initTelemetry();
+  }
+</script>

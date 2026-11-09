@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import IdentityCard from '../components/dashboard/IdentityCard.astro';
+import SkillsPanel from '../components/dashboard/SkillsPanel.astro';
+import Certifications from '../components/dashboard/Certifications.astro';
+import TelemetryTrace from '../components/dashboard/TelemetryTrace.astro';
+import MainViewport from '../components/dashboard/MainViewport.astro';
+import ProjectsList from '../components/dashboard/ProjectsList.astro';
+import InteractiveTerminal from '../components/terminal/InteractiveTerminal.astro';
+import ProjectModal from '../components/dashboard/ProjectModal.astro';
+---
+
+<BaseLayout title="Quan's DevOps Dashboard" currentPath="/" isDashboard={true}>
+  <!-- Main Grid Layout matching devops_dashboard_concept.html -->
+  <main class="flex-grow p-2 md:p-4 grid grid-cols-1 md:grid-cols-12 gap-4 h-[calc(100vh-32px)] z-10 overflow-y-auto md:overflow-hidden">
+    <!-- LEFT COLUMN: Profile & Resources (3/12) -->
+    <div class="md:col-span-3 flex flex-col gap-4 h-full">
+      <IdentityCard />
+      <SkillsPanel />
+      <Certifications />
+    </div>
+
+    <!-- MIDDLE COLUMN: Dynamic Content (6/12) -->
+    <div class="md:col-span-6 flex flex-col gap-4 h-full">
+      <TelemetryTrace />
+      <MainViewport />
+    </div>
+
+    <!-- RIGHT COLUMN: Projects & Interactive Terminal (3/12) -->
+    <div class="md:col-span-3 flex flex-col gap-4 h-full">
+      <ProjectsList />
+      <InteractiveTerminal />
+    </div>
+  </main>
+
+  <!-- Project Modal -->
+  <ProjectModal />
+</BaseLayout>

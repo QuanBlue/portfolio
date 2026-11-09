@@ -1,0 +1,102 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+---
+
+<!-- Top Navigation / Status Bar matching mockup -->
+<header class="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 text-xs font-mono p-2 flex justify-between items-center z-10 text-zinc-600 dark:text-zinc-400 transition-colors duration-300">
+  <div class="flex items-center gap-4">
+    <a href="/" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
+      SYS.ADMIN_PORTFOLIO
+    </a>
+    <span class="hidden md:inline">NODE: HCM-VNM-01</span>
+    <span class="hidden md:inline">IP: 192.168.1.104</span>
+    <a
+      href="/blog"
+      class={`transition-colors hover:text-emerald-500 ${
+        currentPath.startsWith('/blog')
+          ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+          : 'text-zinc-500 dark:text-zinc-400'
+      }`}
+    >
+      [BLOG]
+    </a>
+  </div>
+  <div class="flex items-center gap-4">
+    <span class="flex items-center gap-1">
+      <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+      CLUSTER ONLINE
+    </span>
+    <span id="clock" class="hidden sm:inline">00:00:00</span>
+    
+    <!-- Theme Toggle Button -->
+    <button
+      id="theme-toggle"
+      type="button"
+      class="text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-200 dark:focus:ring-zinc-700 rounded-lg text-sm p-1.5 transition-colors cursor-pointer"
+      aria-label="Toggle theme"
+    >
+      <svg id="theme-toggle-dark-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+      </svg>
+      <svg id="theme-toggle-light-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<script is:inline>
+  // --- Theme Toggle Logic matching mockup ---
+  const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+  const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+  if (
+    localStorage.getItem('color-theme') === 'dark' ||
+    (!('color-theme' in localStorage) &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches)
+  ) {
+    if (themeToggleLightIcon) themeToggleLightIcon.classList.remove('hidden');
+  } else {
+    if (themeToggleDarkIcon) themeToggleDarkIcon.classList.remove('hidden');
+  }
+
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', function () {
+      if (themeToggleDarkIcon) themeToggleDarkIcon.classList.toggle('hidden');
+      if (themeToggleLightIcon) themeToggleLightIcon.classList.toggle('hidden');
+
+      if (localStorage.getItem('color-theme')) {
+        if (localStorage.getItem('color-theme') === 'light') {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        }
+      } else {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        }
+      }
+    });
+  }
+
+  // --- Clock functionality matching mockup ---
+  function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-GB', { hour12: false });
+    const clockEl = document.getElementById('clock');
+    if (clockEl) clockEl.textContent = timeString;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>

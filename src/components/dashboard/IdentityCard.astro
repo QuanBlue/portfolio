@@ -1,0 +1,48 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { identity } = portfolioData;
+---
+
+<div class="dashboard-panel flex-shrink-0">
+  <div class="panel-header text-zinc-800 dark:text-zinc-300">
+    <span>Identity.cfg</span>
+    <span class="text-xs text-zinc-500">v1.0</span>
+  </div>
+  <div class="p-4 flex flex-col items-center">
+    <div class="w-24 h-24 rounded-full border-2 border-emerald-500 p-1 mb-4 relative">
+      <div class="absolute inset-0 rounded-full border border-emerald-500 animate-ping opacity-20"></div>
+      <!-- Avatar Graphic -->
+      <div class="w-full h-full bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center overflow-hidden transition-colors">
+        <svg class="w-12 h-12 text-zinc-400 dark:text-zinc-600" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+        </svg>
+      </div>
+    </div>
+    
+    <h1 class="text-xl font-bold text-zinc-900 dark:text-white mb-1">{identity.name}</h1>
+    <p class="text-emerald-600 dark:text-emerald-400 font-mono text-sm mb-4">{identity.role}</p>
+
+    <div class="w-full space-y-2 text-sm">
+      <div class="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1">
+        <span class="text-zinc-500">Location:</span>
+        <span class="text-zinc-700 dark:text-zinc-300">{identity.location}</span>
+      </div>
+      <div class="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1">
+        <span class="text-zinc-500">Email:</span>
+        <a href={`mailto:${identity.email}`} class="text-blue-600 dark:text-blue-400 hover:underline">{identity.email}</a>
+      </div>
+      <div class="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1">
+        <span class="text-zinc-500">LinkedIn:</span>
+        <a href={identity.linkedin.url} target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">
+          {identity.linkedin.handle}
+        </a>
+      </div>
+      <div class="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1">
+        <span class="text-zinc-500">GitHub:</span>
+        <a href={identity.github.url} target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">
+          {identity.github.handle}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

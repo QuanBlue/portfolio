@@ -1,0 +1,40 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  readingTime?: string;
+}
+
+const { post, readingTime = '3 min read' } = Astro.props;
+const formattedDate = post.data.pubDate.toLocaleDateString('en-GB', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<article class="dashboard-panel p-5 hover:border-emerald-500 transition group relative">
+  <div class="flex items-center justify-between text-xs font-mono text-zinc-500 mb-2">
+    <time datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
+    <span class="text-emerald-600 dark:text-emerald-400 font-semibold">{readingTime}</span>
+  </div>
+
+  <h2 class="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-emerald-500 transition mb-2 font-mono">
+    <a href={`/blog/${post.id}`}>
+      {post.data.title}
+    </a>
+  </h2>
+
+  <p class="text-xs text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-2">
+    {post.data.description}
+  </p>
+
+  <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+    {post.data.tags.map((tag) => (
+      <span class="bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded text-zinc-600 dark:text-zinc-400">
+        #{tag}
+      </span>
+    ))}
+  </div>
+</article>

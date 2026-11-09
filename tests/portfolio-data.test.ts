@@ -1,0 +1,55 @@
+import { describe, it, expect } from 'vitest';
+import { portfolioData } from '../src/data/portfolio';
+
+describe('Portfolio Central Data Model', () => {
+  it('contains authentic identity matching the mockup', () => {
+    expect(portfolioData.identity.name).toBe('Nguyễn Thanh Quân');
+    expect(portfolioData.identity.role).toBe('DevOps Engineer');
+    expect(portfolioData.identity.location).toBe('Ho Chi Minh, VN');
+    expect(portfolioData.identity.email).toBe('quan.devops@email.com');
+    expect(portfolioData.identity.github.handle).toBe('@QuanBlue');
+    expect(portfolioData.identity.linkedin.handle).toBe('in/quanblue');
+  });
+
+  it('contains 7 skills matching the active modules in the mockup', () => {
+    expect(portfolioData.skills).toHaveLength(7);
+    const skillNames = portfolioData.skills.map((s) => s.name);
+    expect(skillNames).toEqual([
+      'Kubernetes',
+      'Docker',
+      'Ansible',
+      'Prometheus',
+      'Linux/Ubuntu',
+      'HAProxy',
+      'Istio',
+    ]);
+  });
+
+  it('contains both certifications from the mockup', () => {
+    expect(portfolioData.certifications).toHaveLength(2);
+    expect(portfolioData.certifications[0].name).toContain('CKA');
+    expect(portfolioData.certifications[1].name).toContain('AWS Solutions Architect');
+  });
+
+  it('contains authentic experience history', () => {
+    expect(portfolioData.experience).toHaveLength(2);
+    expect(portfolioData.experience[0].company).toBe('Viettel');
+    expect(portfolioData.experience[0].role).toBe('DevOps Engineer');
+    expect(portfolioData.experience[1].company).toBe('Tech Company XYZ');
+  });
+
+  it('contains featured projects with valid repository links', () => {
+    expect(portfolioData.projects).toHaveLength(2);
+    expect(portfolioData.projects[0].title).toBe('ansible-airgap-k8s');
+    expect(portfolioData.projects[1].title).toBe('mern-portfolio');
+    portfolioData.projects.forEach((p) => {
+      expect(p.link).toMatch(/^https:\/\/github\.com\//);
+      expect(p.tags.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('contains valid APM telemetry spans', () => {
+    expect(portfolioData.telemetry.spans).toHaveLength(4);
+    expect(portfolioData.telemetry.uptimeSLA).toBe('99.9%');
+  });
+});

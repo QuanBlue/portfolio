@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 - Node Not Found | SYS.ADMIN_PORTFOLIO">
+  <main class="flex-grow flex items-center justify-center p-4 z-10">
+    <div class="dashboard-panel max-w-lg w-full p-6 text-center">
+      <div class="panel-header mb-6 -mx-6 -mt-6">
+        <span>ERROR_STATUS: 404</span>
+        <span class="text-red-500 font-mono text-xs">ERR_NODE_NOT_FOUND</span>
+      </div>
+
+      <div class="w-16 h-16 rounded-full border border-red-500/30 bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+        <span class="font-mono text-2xl font-bold text-red-500">404</span>
+      </div>
+
+      <h1 class="text-xl font-bold text-zinc-900 dark:text-white font-mono mb-2">
+        RESOURCE_NOT_FOUND
+      </h1>
+
+      <div class="bg-slate-50 dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded p-3 font-mono text-xs text-left text-zinc-600 dark:text-zinc-400 mb-6">
+        <div>> ping destination_route</div>
+        <div class="text-red-500">Host unreachable. 100% packet loss.</div>
+        <div class="text-zinc-500">// Check routing table or return to root namespace.</div>
+      </div>
+
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs transition shadow-lg shadow-emerald-500/20"
+      >
+        <span>[cd /] Return to Dashboard</span>
+      </a>
+    </div>
+  </main>
+</BaseLayout>
