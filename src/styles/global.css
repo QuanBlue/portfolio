@@ -267,6 +267,47 @@ body {
     opacity: 0.9;
     background: var(--fg);
   }
+  .adm-btn {
+    padding: 0.4rem 0.85rem;
+    border-radius: 0.65rem;
+    border: 1px solid var(--line-strong);
+    background: var(--muted-bg);
+    color: var(--fg);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+  }
+  .adm-btn:hover {
+    border-color: var(--signal);
+  }
+  .adm-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.65rem;
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.825rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .adm-input::placeholder {
+    color: var(--faint);
+  }
+  .adm-input:focus {
+    outline: none;
+    border-color: var(--signal);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--signal) 18%, transparent);
+  }
+  .adm-label {
+    display: block;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted-fg);
+    margin-bottom: 0.3rem;
+  }
 }
 
 /* ==========================================================================

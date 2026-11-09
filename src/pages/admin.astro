@@ -95,44 +95,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </main>
 </BaseLayout>
 
-<style is:global>
-  @layer components {
-    .adm-btn {
-      padding: 0.35rem 0.75rem;
-      border-radius: 0.75rem;
-      border: 1px solid var(--panel-border);
-      background: var(--panel-bg);
-      color: var(--heading);
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .adm-btn:hover {
-      border-color: #10b981;
-    }
-    .adm-input {
-      width: 100%;
-      padding: 0.4rem 0.6rem;
-      border-radius: 0.75rem;
-      border: 1px solid var(--panel-border);
-      background: var(--bg-body);
-      color: var(--heading);
-      font-size: 0.8rem;
-    }
-    .adm-input:focus {
-      outline: none;
-      border-color: #10b981;
-    }
-    .adm-label {
-      display: block;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      margin-bottom: 0.2rem;
-    }
-  }
-</style>
-
 <script>
   import {
     loadAdminData,
