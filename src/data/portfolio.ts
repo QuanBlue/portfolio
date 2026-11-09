@@ -44,6 +44,15 @@ export interface ExperienceItem {
   tags: string[];
 }
 
+export interface EducationItem {
+  id: string;
+  badge: string;
+  period: string;
+  degree: string;
+  school: string;
+  description: string;
+}
+
 export interface ProjectMedia {
   /** Image or GIF (public URL or data URL) */
   src: string;
@@ -102,6 +111,7 @@ export interface PortfolioData {
   skills: Skill[];
   certifications: Certification[];
   experience: ExperienceItem[];
+  education?: EducationItem[];
   projects: Project[];
   telemetry: Telemetry;
   gallery: GalleryItem[];
@@ -162,6 +172,24 @@ export const defaultPortfolioData: PortfolioData = {
         'Triển khai CI/CD pipelines và quản lý hệ thống server nội bộ.',
       ],
       tags: ['CI/CD', 'Linux', 'Docker'],
+    },
+  ],
+  education: [
+    {
+      id: 'beng-it',
+      badge: 'B.Eng',
+      period: 'Graduated · Honors',
+      degree: 'Kỹ sư Công nghệ Thông tin (B.Eng in Information Technology)',
+      school: 'Đại học Công nghệ Thông tin / Bách Khoa',
+      description: 'Chuyên ngành Mạng máy tính, Hệ điều hành Linux & Hệ thống Phân tán. Nghiên cứu chuyên sâu về ảo hóa nhân Linux (namespaces, cgroups) và định tuyến mạng container.',
+    },
+    {
+      id: 'capstone-k8s',
+      badge: 'LAB',
+      period: 'Capstone Thesis',
+      degree: 'Thiết kế & Tự động hóa Cụm Kubernetes High-Availability',
+      school: 'Đề tài tốt nghiệp Kỹ sư',
+      description: 'Xây dựng kiến trúc chịu lỗi Zero-Downtime Failover trên bare-metal với HAProxy, Keepalived, Ansible, Jenkins Pipeline và Prometheus.',
     },
   ],
   projects: [

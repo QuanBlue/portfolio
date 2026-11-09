@@ -1,0 +1,66 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderAvatar } from '../../lib/render';
+const { identity } = portfolioData;
+---
+
+<section id="about" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+  <div class="mx-auto grid max-w-[76rem] gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-16 lg:px-8 items-center">
+    <!-- Portrait Figure (lg:col-span-4) -->
+    <figure class="reveal mx-auto w-full max-w-xs lg:col-span-4 lg:mx-0">
+      <div id="bind-avatar" class="panel overflow-hidden p-2" set:html={renderAvatar(identity)}></div>
+      <figcaption class="mt-3 flex items-center gap-2 text-xs font-mono text-[var(--muted-fg)]">
+        <i class="fa-solid fa-location-dot text-[var(--signal)]"></i>
+        <span data-bind="location">{identity.location}</span>
+      </figcaption>
+    </figure>
+
+    <!-- Right Bio + 3 Pillars (lg:col-span-8) -->
+    <div class="lg:col-span-8">
+      <p class="reveal text-label text-[var(--signal)] mb-2">05 · About Me</p>
+      <h2 class="reveal-wipe text-h2 text-[var(--fg)]">From bare-metal to cluster, end to end.</h2>
+
+      <div class="reveal mt-5 grid max-w-[65ch] gap-4 text-lead text-[var(--muted-fg)]" style="--d: 0.08s">
+        <p>
+          Tốt nghiệp Kỹ sư Công nghệ Thông tin chuyên ngành Mạng và Hệ thống Phân tán, mình bắt đầu sự nghiệp từ vị trí System Administrator trước khi đảm nhận vai trò <strong class="text-[var(--fg)]"><span data-bind="role">{identity.role}</span> tại Viettel</strong>.
+        </p>
+        <p>
+          Góc nhìn kết hợp giữa quản trị hạ tầng vật lý (Linux, Networking, Load Balancing) và nền tảng Cloud-Native (Kubernetes, Ansible, Jenkins, Prometheus) giúp mình xây dựng những hệ thống có tính sẵn sàng cao, tự động hóa hoàn toàn và an toàn ngay từ khâu thiết kế.
+        </p>
+      </div>
+
+      <!-- 3 Pillars with top border -->
+      <ul class="mt-10 grid gap-6 sm:grid-cols-3">
+        <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.1s">
+          <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
+            <i class="fa-solid fa-server text-xs text-[var(--signal)]"></i>
+            <span>HA Platform</span>
+          </h3>
+          <p class="text-sm text-[var(--muted-fg)]">
+            Cụm Kubernetes multi-master chịu lỗi cao, cân bằng tải HAProxy/Keepalived không điểm nghẽn đơn (Zero SPOF).
+          </p>
+        </li>
+
+        <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.18s">
+          <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
+            <i class="fa-solid fa-gears text-xs text-[var(--signal)]"></i>
+            <span>Secure CI/CD &amp; IaC</span>
+          </h3>
+          <p class="text-sm text-[var(--muted-fg)]">
+            Pipeline Jenkins tích hợp Trivy + SBOM + Image Signing và tự động hóa hạ tầng Air-Gapped bằng Ansible.
+          </p>
+        </li>
+
+        <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.26s">
+          <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
+            <i class="fa-solid fa-chart-line text-xs text-[var(--signal)]"></i>
+            <span>Observability</span>
+          </h3>
+          <p class="text-sm text-[var(--muted-fg)]">
+            Giám sát toàn diện metrics &amp; logs với Prometheus, Grafana và ELK Stack, tối ưu hóa SLA và thời gian xử lý sự cố.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

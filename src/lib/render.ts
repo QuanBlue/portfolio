@@ -4,6 +4,7 @@
  */
 import type {
   Certification,
+  EducationItem,
   ExperienceItem,
   GalleryItem,
   Identity,
@@ -28,14 +29,6 @@ export function safeUrl(url: unknown): string {
   return '#';
 }
 
-const DOT: Record<string, string> = {
-  emerald: 'bg-emerald-500 dark:bg-emerald-400',
-  blue: 'bg-sky-500 dark:bg-sky-400',
-  purple: 'bg-violet-500 dark:bg-violet-400',
-  orange: 'bg-orange-500 dark:bg-orange-400',
-  yellow: 'bg-amber-500 dark:bg-yellow-400',
-};
-
 export function initials(name: string): string {
   return (
     String(name || '?')
@@ -48,26 +41,36 @@ export function initials(name: string): string {
   );
 }
 
+export function renderNameWords(name: string): string {
+  const words = String(name || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  return words
+    .map((w, i) => `<span class="word"><span style="--w: ${i}">${esc(w)}</span></span>`)
+    .join(' ');
+}
+
 export function renderAvatar(identity: Identity): string {
   if (identity.avatar) {
-    return `<img src="${esc(safeUrl(identity.avatar))}" alt="${esc(identity.name)}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />`;
+    return `<img src="${esc(safeUrl(identity.avatar))}" alt="${esc(identity.name)}" class="aspect-[4/5] w-full rounded-xl object-cover squircle transition-transform duration-500 hover:scale-[1.02]" />`;
   }
-  return `<div class="w-full h-full flex items-center justify-center bg-[var(--card-bg)] bg-gradient-to-br from-emerald-500/15 to-blue-500/10"><span class="font-display text-6xl font-bold gradient-text">${esc(initials(identity.name))}</span></div>`;
+  return `<div class="aspect-[4/5] w-full rounded-xl squircle flex items-center justify-center bg-[var(--muted-bg)]"><span class="font-display text-5xl font-bold gradient-text">${esc(initials(identity.name))}</span></div>`;
 }
 
 export function renderSkills(skills: Skill[]): string {
   return skills
     .map((s) => {
       const active = s.status === 'ACTIVE';
-      return `<span class="chip hover:-translate-y-0.5" title="${esc(s.tag)} · ${esc(s.status)}">
-  <span class="w-2 h-2 rounded-full animate-pulse ${
-    active
-      ? 'bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_#10b981]'
-      : 'bg-amber-500 dark:bg-yellow-400 shadow-[0_0_8px_#eab308]'
-  }" style="animation-delay:${esc(s.delay || '0s')}"></span>
-  <span class="font-medium text-[var(--heading)]">${esc(s.name)}</span>
-  <span class="font-mono text-[10px] text-[var(--muted)]">${esc(s.tag)}</span>
-</span>`;
+      return `<li class="inline-flex min-h-9 items-center gap-2 rounded-lg ${
+        active
+          ? 'border border-[var(--signal)] bg-[var(--card)] text-[var(--fg)]'
+          : 'border border-[var(--border)] bg-[var(--muted-bg)] text-[var(--muted-fg)]'
+      } px-3 text-sm font-medium" title="${esc(s.tag)} · ${esc(s.status)}">
+  <span class="size-2 rounded-full ${active ? 'bg-[var(--signal)]' : 'bg-amber-400'}"></span>
+  <span>${esc(s.name)}</span>
+  <span class="font-mono text-[11px] text-[var(--faint)]">${esc(s.tag)}</span>
+</li>`;
     })
     .join('');
 }
@@ -75,13 +78,13 @@ export function renderSkills(skills: Skill[]): string {
 export function renderCerts(certs: Certification[]): string {
   return certs
     .map(
-      (c) => `<div class="card card-hover p-4 flex items-start gap-3">
+      (c) => `<div class="panel card-interactive p-4 flex items-start gap-3">
   <span class="mt-0.5 w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${
-    c.color === 'yellow' ? 'bg-amber-500/15 text-amber-600 dark:text-yellow-400' : 'bg-sky-500/15 text-sky-600 dark:text-sky-400'
+    c.color === 'yellow' ? 'bg-amber-500/15 text-amber-500' : 'bg-sky-500/15 text-sky-500'
   }">★</span>
   <div class="min-w-0">
-    <p class="text-sm font-semibold text-[var(--heading)]">${esc(c.name)}</p>
-    <p class="text-xs text-[var(--muted)] mt-0.5">${esc(c.issuer)}</p>
+    <p class="text-sm font-semibold text-[var(--fg)]">${esc(c.name)}</p>
+    <p class="text-xs text-[var(--muted-fg)] mt-0.5">${esc(c.issuer)}</p>
   </div>
 </div>`,
     )
@@ -90,71 +93,151 @@ export function renderCerts(certs: Certification[]): string {
 
 export function renderExperience(items: ExperienceItem[]): string {
   return items
-    .map(
-      (item) => `<div class="relative pl-8 pb-10 last:pb-0 group">
-  <span class="absolute left-0 top-1.5 w-3 h-3 rounded-full ring-4 ring-[var(--bg-body)] ${
-    item.isCurrent ? 'bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_14px_#10b981]' : 'bg-zinc-400 dark:bg-zinc-600'
-  }">
-    ${item.isCurrent ? '<span class="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75"></span>' : ''}
-  </span>
-  <div class="card card-hover p-5">
-    <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-      <h3 class="font-display text-lg font-semibold text-[var(--heading)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">${esc(item.role)}</h3>
-      <span class="font-mono text-xs px-2.5 py-0.5 rounded-full w-max ${
-        item.isCurrent
-          ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/30'
-          : 'text-[var(--muted)] bg-black/5 dark:bg-white/5'
-      }">${esc(item.period)}</span>
-    </div>
-    <p class="text-sm font-medium text-[var(--text-body)] mt-1">${esc(item.company)}</p>
-    <ul class="mt-3 space-y-2 text-sm text-[var(--text-body)]">
-      ${item.bullets
-        .map((b) => `<li class="flex items-start gap-2"><span class="text-emerald-600 dark:text-emerald-400 mt-0.5 select-none">▹</span><span>${esc(b)}</span></li>`)
-        .join('')}
-    </ul>
-    <div class="flex flex-wrap gap-1.5 mt-4">${item.tags.map((t) => `<span class="chip font-mono">${esc(t)}</span>`).join('')}</div>
+    .map((item, idx) => {
+      const isLeft = idx % 2 === 0;
+      const num = String(idx + 1).padStart(2, '0');
+      const cardMarkup = `<div class="book-page ${isLeft ? 'book-page-left' : 'book-page-right'} panel card-interactive p-6 relative">
+  <div class="flex items-center justify-between mb-3">
+    <span class="devops-tag">${esc(item.company)}</span>
+    <span class="timeline-number">${num}</span>
   </div>
-</div>`,
+  <h3 class="text-lg font-bold text-[var(--fg)]">${esc(item.role)}</h3>
+  <p class="text-xs font-mono ${item.isCurrent ? 'text-[var(--signal)]' : 'text-[var(--muted-fg)]'} mt-0.5 md:hidden">${esc(item.period)}</p>
+  <ul class="text-sm text-[var(--muted-fg)] space-y-2 mt-3 leading-relaxed">
+    ${item.bullets.map((b) => `<li>• ${esc(b)}</li>`).join('')}
+  </ul>
+  <div class="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-[var(--border)] font-mono text-[11px] text-[var(--faint)]">
+    ${item.tags.map((t, ti) => `${ti > 0 ? '<span>·</span>' : ''}<span>#${esc(t.replace(/\s+/g, ''))}</span>`).join('')}
+  </div>
+</div>`;
+
+      const dateMarkup = `<span class="book-date ${
+        isLeft ? 'book-date-right text-[var(--signal)]' : 'book-date-left text-[var(--muted-fg)]'
+      } font-mono text-base font-bold tracking-wider">${esc(item.period)}</span>`;
+
+      if (isLeft) {
+        return `<div class="timeline-book-row relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center" data-side="left">
+  <div class="md:pr-10 pl-10 md:pl-0">${cardMarkup}</div>
+  <div class="hidden md:flex items-center pl-10">${dateMarkup}</div>
+  <span class="timeline-dot-node w-3.5 h-3.5 rounded-full ${
+    item.isCurrent ? 'bg-[var(--signal)]' : 'bg-[var(--line-strong)]'
+  } ring-4 ring-[var(--bg)] absolute left-[16px] md:left-1/2 -translate-x-1/2"></span>
+</div>`;
+      }
+
+      return `<div class="timeline-book-row relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center" data-side="right">
+  <div class="hidden md:flex justify-end pr-10">${dateMarkup}</div>
+  <div class="md:pl-10 pl-10">${cardMarkup}</div>
+  <span class="timeline-dot-node w-3.5 h-3.5 rounded-full ${
+    item.isCurrent ? 'bg-[var(--signal)]' : 'bg-[var(--line-strong)]'
+  } ring-4 ring-[var(--bg)] absolute left-[16px] md:left-1/2 -translate-x-1/2"></span>
+</div>`;
+    })
+    .join('');
+}
+
+export function renderEducation(items: EducationItem[] = []): string {
+  return items
+    .map(
+      (edu, idx) => `<li class="reveal is-visible grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 border-t border-[var(--border)] py-6" style="--d: ${(idx * 0.08).toFixed(2)}s">
+  <span class="grid size-12 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--card)] row-span-5 font-mono text-xs font-bold ${
+    idx === 0 ? 'text-[var(--primary)]' : 'text-[var(--signal)]'
+  } squircle">
+    ${esc(edu.badge || 'EDU')}
+  </span>
+  <p class="font-mono text-xs text-[var(--signal)]">${esc(edu.period)}</p>
+  <p class="text-h3 text-[var(--fg)]">${esc(edu.degree)}</p>
+  <p class="text-sm font-medium text-[var(--fg)]">${esc(edu.school)}</p>
+  <p class="text-sm text-[var(--muted-fg)] mt-1">${esc(edu.description)}</p>
+</li>`,
     )
     .join('');
 }
 
 export function renderProjects(projects: Project[]): string {
   return projects
-    .map((p) => {
+    .map((p, idx) => {
       const cover = p.media?.[0];
       const count = p.media?.length ?? 0;
       const online = p.status === 'ONLINE';
-      return `<button type="button" class="project-card-trigger card card-hover group relative text-left cursor-pointer flex flex-col h-full overflow-hidden" data-project-id="${esc(p.id)}">
-  <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/0 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+      const isFeatured = idx === 0 && !cover;
+
+      if (isFeatured) {
+        return `<article class="project-card-trigger reveal is-visible card-interactive md:col-span-2 panel p-6 sm:p-8 grid gap-8 lg:grid-cols-12 lg:items-center group cursor-pointer" data-project-id="${esc(p.id)}">
+  <div class="lg:col-span-7 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] p-5 font-mono text-xs space-y-3 transition-shadow duration-250 group-hover:shadow-[var(--shadow-raised)]">
+    <div class="flex items-center justify-between border-b border-[var(--border)] pb-2.5 text-[11px] text-[var(--muted-fg)]">
+      <span>PLAYBOOK: site-airgap-ha.yml</span>
+      <span class="text-[var(--signal)]">● 0 FAILED · IDEMPOTENT</span>
+    </div>
+    <div class="space-y-1.5 text-[11px] leading-relaxed">
+      <div class="playbook-line text-[var(--muted-fg)]" style="--line: 0">$ ansible-playbook -i inventory/prod.ini site-airgap-ha.yml</div>
+      <div class="playbook-line text-[var(--signal)]" style="--line: 1">✔ [preflight] Disable swap, load br_netfilter &amp; ip_vs kernel modules</div>
+      <div class="playbook-line text-[var(--signal)]" style="--line: 2">✔ [registry] Bootstrap offline Harbor Registry + Cosign verification</div>
+      <div class="playbook-line text-[var(--signal)]" style="--line: 3">✔ [haproxy] Configure Keepalived VIP + HAProxy L4 API Server LB</div>
+      <div class="playbook-line text-[var(--signal)]" style="--line: 4">✔ [k8s-master] Init stacked etcd multi-master control-plane</div>
+      <div class="playbook-line text-[var(--signal)]" style="--line: 5">✔ [calico] Deploy Calico CNI &amp; Prometheus node-exporter</div>
+    </div>
+    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border)] text-center">
+      <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
+        <div class="font-bold text-[var(--fg)]">-70%</div>
+        <div class="text-[10px] text-[var(--muted-fg)]">Provision Time</div>
+      </div>
+      <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
+        <div class="font-bold text-[var(--signal)]">100%</div>
+        <div class="text-[10px] text-[var(--muted-fg)]">Offline Ready</div>
+      </div>
+      <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
+        <div class="font-bold text-[var(--fg)]">HA 3-Master</div>
+        <div class="text-[10px] text-[var(--muted-fg)]">Zero SPOF</div>
+      </div>
+    </div>
+  </div>
+  <div class="lg:col-span-5 flex flex-col gap-3.5 text-left">
+    <p class="text-label text-[var(--muted-fg)]">Infrastructure Automation · Featured</p>
+    <h3 class="text-h3 text-[var(--fg)]">${esc(p.title)}</h3>
+    <p class="text-sm text-[var(--muted-fg)] leading-relaxed">${esc(p.description || p.shortDesc)}</p>
+    <ul class="flex flex-wrap gap-y-1 text-xs font-mono text-[var(--muted-fg)] pt-1">
+      ${p.tags.map((t) => `<li class="sep">${esc(t)}</li>`).join('')}
+    </ul>
+    <div class="pt-2 flex items-center gap-5 text-sm font-medium">
+      <a href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 text-[var(--fg)] hover:text-[var(--primary)] underline-offset-4 hover:underline">
+        <i class="fa-brands fa-github"></i>
+        <span>Source code</span>
+      </a>
+    </div>
+  </div>
+</article>`;
+      }
+
+      return `<article class="project-card-trigger reveal is-visible card-interactive panel p-6 flex flex-col justify-between gap-4 text-left cursor-pointer" data-project-id="${esc(p.id)}">
   ${
     cover
-      ? `<div class="relative aspect-video overflow-hidden bg-zinc-200 dark:bg-zinc-900 border-b border-[var(--card-border)]">
-    <img src="${esc(safeUrl(cover.src))}" alt="${esc(cover.caption || p.title)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      ? `<div class="relative aspect-video overflow-hidden rounded-xl bg-[var(--muted-bg)] border border-[var(--border)] mb-2">
+    <img src="${esc(safeUrl(cover.src))}" alt="${esc(cover.caption || p.title)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
     ${count > 1 ? `<span class="absolute bottom-2 right-2 chip font-mono !bg-black/60 !text-white !border-white/10">${count} media</span>` : ''}
   </div>`
       : ''
   }
-  <div class="p-6 flex flex-col flex-grow relative z-10">
-    <div class="flex items-center justify-between mb-4">
-      <span class="relative flex w-2.5 h-2.5">
-        ${online ? '<span class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>' : ''}
-        <span class="relative inline-flex w-2.5 h-2.5 rounded-full ${DOT[p.color] ?? DOT.emerald} shadow-[0_0_10px_#10b981]"></span>
-      </span>
-      <span class="font-mono text-[10px] tracking-widest px-2 py-0.5 rounded-full ${
-        online
-          ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
-          : 'text-amber-600 dark:text-yellow-400 bg-amber-500/10'
-      }">${esc(p.status)}</span>
+  <div class="space-y-3">
+    <div class="flex items-center justify-between">
+      <p class="text-label text-[var(--muted-fg)]">Engineering Project</p>
+      <span class="font-mono text-xs ${online ? 'text-[var(--signal)]' : 'text-amber-500'}">● ${esc(p.status)}</span>
     </div>
-    <h3 class="font-display text-xl font-semibold text-[var(--heading)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">${esc(p.title)}</h3>
-    <p class="text-sm mt-2 text-[var(--text-body)] line-clamp-3 flex-grow">${esc(p.shortDesc)}</p>
-    <div class="flex flex-wrap gap-1.5 mt-5">${p.tags
-      .slice(0, 4)
-      .map((t) => `<span class="chip font-mono">${esc(t)}</span>`)
-      .join('')}</div>
+    <h3 class="text-h3 text-[var(--fg)]">${esc(p.title)}</h3>
+    <p class="text-sm text-[var(--muted-fg)] leading-relaxed">${esc(p.shortDesc)}</p>
   </div>
-</button>`;
+  <div class="space-y-3 pt-3 border-t border-[var(--border)]">
+    <ul class="flex flex-wrap gap-y-1 text-xs font-mono text-[var(--muted-fg)]">
+      ${p.tags.map((t) => `<li class="sep">${esc(t)}</li>`).join('')}
+    </ul>
+    <div class="flex items-center gap-4 text-sm font-medium">
+      <a href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 text-[var(--fg)] hover:text-[var(--primary)] hover:underline">
+        <i class="fa-brands fa-github text-xs"></i>
+        <span>Source code</span>
+      </a>
+    </div>
+  </div>
+</article>`;
     })
     .join('');
 }

@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nguyễn Thanh Quân · DevOps &amp; Infrastructure Engineer (Ferhat Style)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    /* ==========================================================================
+       FERHATSN.FR INSPIRED DESIGN SYSTEM + OBSERVAI MATTE PALETTE
+       ========================================================================== */
+    :root {
+      --bg: #f7f6f2;
+      --card: #ffffff;
+      --muted-bg: #efede7;
+      --border: #e2dfd7;
+      --line-strong: #c8c4b8;
+      --fg: #161615;
+      --muted-fg: #5c5b57;
+      --faint: #8c8a84;
+      --primary: #2563eb;
+      --signal: #10b981;
+      --healthy: #10b981;
+      --brand-red: #e11d48;
+      --brand-blue: #2563eb;
+      --brand-gradient: linear-gradient(90deg, var(--signal), var(--primary));
+      --shadow-raised: 0 1px 2px rgba(0,0,0,0.06), 0 16px 36px -16px rgba(0,0,0,0.12);
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html.dark {
+      --bg: #141413;
+      --card: #1c1c1b;
+      --muted-bg: #232321;
+      --border: #2b2b29;
+      --line-strong: #3e3e3b;
+      --fg: #ececeb;
+      --muted-fg: #a6a5a1;
+      --faint: #73726e;
+      --primary: #60a5fa;
+      --signal: #34d399;
+      --healthy: #10b981;
+      --brand-red: #fb7185;
+      --brand-blue: #60a5fa;
+      --brand-gradient: linear-gradient(90deg, var(--signal), var(--primary));
+      --shadow-raised: 0 1px 2px rgba(0,0,0,0.4), 0 20px 48px -20px rgba(0,0,0,0.7);
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      overflow-x: hidden;
+    }
+
+    /* Typography Scale (Chuẩn ferhatsn.fr) */
+    .text-display {
+      font-size: clamp(2.6rem, 5.5vw, 4.4rem);
+      font-weight: 800;
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+    }
+    .text-h2 {
+      font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+    .text-h3 {
+      font-size: clamp(1.125rem, 1.8vw, 1.35rem);
+      font-weight: 650;
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+    }
+    .text-lead {
+      font-size: clamp(1rem, 1.25vw, 1.125rem);
+      line-height: 1.65;
+    }
+    .text-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Panels & Interactive Cards */
+    .panel {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-raised);
+    }
+    .card-interactive {
+      transition: transform 0.28s var(--ease-out-expo), box-shadow 0.28s var(--ease-standard), border-color 0.28s var(--ease-standard);
+    }
+    .card-interactive:hover {
+      transform: translateY(-3px);
+      border-color: var(--line-strong);
+    }
+    .card-interactive:active {
+      transform: scale(0.995);
+    }
+
+    /* Dot separator giống ferhatsn.fr (.sep) */
+    .sep:not(:last-child)::after {
+      content: "·";
+      color: var(--faint);
+      margin-inline: 0.5rem;
+    }
+
+    /* Alternating Timeline (Giống portfolio_design_preview: 01 / 02 đối xứng qua trục giữa) */
+    .devops-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: color-mix(in srgb, var(--signal) 12%, transparent);
+      color: var(--signal);
+      border: 1px solid color-mix(in srgb, var(--signal) 32%, transparent);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .timeline-container {
+      position: relative;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+    .timeline-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: var(--border);
+      transform: translateX(-50%);
+    }
+    .timeline-progress {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: var(--signal);
+      transform-origin: top;
+      transform: translateX(-50%) scaleY(0);
+      transition: transform 0.15s ease-out;
+    }
+    .timeline-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1px color-mix(in srgb, var(--signal) 38%, var(--border));
+      user-select: none;
+    }
+
+    /* 3D Book-Opening Scroll Effect (Hiệu ứng mở sách từ trục gáy sách ở giữa) */
+    .timeline-book-row {
+      perspective: 1400px;
+      transform-style: preserve-3d;
+    }
+    .book-page {
+      will-change: transform, opacity;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+      backface-visibility: hidden;
+      position: relative;
+    }
+    /* Trang bên trái: Bản lề (gáy sách) nằm ở cạnh phải sát trục timeline giữa */
+    .book-page-left {
+      transform-origin: calc(100% + 2.5rem) 50%;
+    }
+    /* Trang bên phải: Bản lề (gáy sách) nằm ở cạnh trái sát trục timeline giữa */
+    .book-page-right {
+      transform-origin: -2.5rem 50%;
+    }
+    /* Đổ bóng nếp gấp gáy sách khi trang đang mở */
+    .book-page-left::after,
+    .book-page-right::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      pointer-events: none;
+      opacity: var(--spine-shadow, 0);
+      transition: opacity 0.22s ease-out;
+    }
+    .book-page-left::after {
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.38), transparent 45%);
+    }
+    .book-page-right::after {
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.38), transparent 45%);
+    }
+    .book-date {
+      will-change: transform, opacity;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+    }
+    .book-date-right {
+      transform-origin: -2.5rem 50%;
+    }
+    .book-date-left {
+      transform-origin: calc(100% + 2.5rem) 50%;
+    }
+    .timeline-dot-node {
+      transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+    .timeline-dot-node.is-active {
+      background-color: var(--signal);
+      transform: translate(-50%, 0) scale(1.25);
+      box-shadow: 0 0 14px var(--signal);
+    }
+    @media (max-width: 768px) {
+      .timeline-line,
+      .timeline-progress {
+        left: 16px;
+      }
+      .book-page-left,
+      .book-page-right {
+        transform-origin: -1.5rem 50%;
+      }
+    }
+
+    /* ==========================================================================
+       1. HEADER & SCROLL ANIMATIONS (nav-enter, tab-indicator, scroll-progress)
+       ========================================================================== */
+    .nav-enter {
+      animation: nav-enter 0.65s var(--ease-out-expo) both 40ms;
+    }
+    @keyframes nav-enter {
+      0% { opacity: 0; transform: translateY(-100%); }
+    }
+
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--brand-gradient);
+      z-index: 60;
+      width: 0%;
+      transition: width 0.08s linear;
+    }
+
+    .tab-indicator {
+      background: var(--signal);
+      transform-origin: 0;
+      pointer-events: none;
+      height: 2px;
+      transition: transform 0.32s var(--ease-out-expo), width 0.32s var(--ease-out-expo), opacity 0.15s var(--ease-standard);
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      opacity: 0;
+    }
+
+    /* ==========================================================================
+       2. HERO WORD-RISE, SITE-ENTER & SVG LINE-DRAW ANIMATIONS (ferhatsn.fr)
+       ========================================================================== */
+    .word {
+      vertical-align: top;
+      margin-block: -0.12em;
+      padding-block: 0.12em;
+      display: inline-block;
+      overflow: clip;
+    }
+    .word > span {
+      display: inline-block;
+      animation: word-rise 0.95s var(--ease-out-expo) both;
+      animation-delay: calc(var(--w, 0) * 0.11s + 0.12s);
+    }
+    @keyframes word-rise {
+      0% { transform: translateY(calc(100% + 0.25em)); }
+    }
+
+    .enter {
+      animation: site-enter 0.65s var(--ease-out-expo) both;
+      animation-delay: calc(var(--i, 0) * 75ms + 90ms);
+    }
+    @keyframes site-enter {
+      0% { opacity: 0; transform: translateY(18px); }
+    }
+
+    /* Background Architectural Vector Draw (BrandDelta.wG86yGpy.css) */
+    .draw {
+      contain: paint;
+    }
+    .draw path {
+      stroke-width: 0.75px;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1px;
+      animation: svg-draw 1.8s var(--ease-out-expo) forwards;
+      animation-delay: calc(var(--k, 0) * 0.14s + 0.2s);
+    }
+    @keyframes svg-draw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ==========================================================================
+       3. SCROLL REVEAL & HEADING WIPE ANIMATIONS (.reveal & .reveal-wipe)
+       ========================================================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 0.65s var(--ease-out-expo) var(--d, 0s),
+        transform 0.65s var(--ease-out-expo) var(--d, 0s);
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-wipe {
+      clip-path: inset(-25% 100% -25% 0);
+      transition: clip-path 0.85s var(--ease-out-expo) var(--d, 0.05s);
+      will-change: clip-path;
+    }
+    .reveal-wipe.is-visible {
+      clip-path: inset(-25% -4% -25% 0);
+    }
+
+    /* Playbook Staggered Line Reveal inside Featured Project */
+    .playbook-line {
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity 0.4s var(--ease-out-expo), transform 0.4s var(--ease-out-expo);
+      transition-delay: calc(var(--line, 0) * 110ms + 150ms);
+    }
+    .is-visible .playbook-line {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ==========================================================================
+       4. "HOW I SHIP" EXACT ANIMATIONS & STYLES FROM FERHATSN.FR (11.CS_klDkg.css)
+       ========================================================================== */
+    .map-ship {
+      --mid: color-mix(in srgb, var(--signal), var(--primary));
+      --cycle: 6s;
+      --boot: 2.7s;
+    }
+
+    .squircle {
+      border-radius: 12px;
+    }
+
+    .flow {
+      background: var(--border);
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-x {
+      height: 1px;
+      position: absolute;
+      top: 20px;
+      left: 12.5%;
+      right: 12.5%;
+      transform-origin: 0;
+      animation: boot-x 0.9s var(--ease-out-expo) both 0.4s;
+    }
+    .flow-y {
+      width: 1px;
+      height: 1.5rem;
+      margin-inline: auto;
+      transform-origin: top;
+      animation: boot-y 0.42s var(--ease-out-expo) both calc(1.05s + var(--b, 0) * 1.2s);
+    }
+    .flow i {
+      opacity: 0;
+      position: absolute;
+      inset: 0;
+    }
+    .flow i::after {
+      content: "";
+      background: var(--c);
+      width: 6px;
+      height: 6px;
+      box-shadow: 0 0 12px 2px var(--c);
+      border-radius: 999px;
+      position: absolute;
+    }
+    .flow-x i::after {
+      top: -2.5px;
+      right: 0;
+    }
+    .flow-y i::after {
+      bottom: 0;
+      left: -2.5px;
+    }
+    .flow-x i {
+      animation: travel-x var(--cycle) var(--ease-standard) infinite calc(var(--boot) + var(--d, 0s));
+    }
+    .flow-y i {
+      animation: travel-y var(--cycle) var(--ease-standard) infinite calc(var(--boot) + var(--d, 0s));
+    }
+
+    .boot-step {
+      animation: boot-pop 0.52s var(--ease-out-expo) both;
+      animation-delay: calc(0.35s + var(--s, 0) * 0.14s);
+    }
+    .boot-cluster {
+      animation: boot-rise 0.64s var(--ease-out-expo) both 1.25s;
+    }
+    .pod {
+      background: color-mix(in srgb, var(--healthy) 48%, var(--muted-bg));
+      border-radius: 2px;
+      width: 0.4375rem;
+      height: 0.4375rem;
+      animation: boot-pod 0.28s var(--ease-out-expo) both;
+      animation-delay: calc(1.45s + var(--p, 0) * 28ms);
+    }
+    .pod-rollout {
+      animation:
+        boot-pod 0.28s var(--ease-out-expo) both calc(1.45s + var(--p, 0) * 28ms),
+        pod-rollout-kf var(--cycle) linear infinite calc(var(--boot) + 2.2s + var(--n, 0) * 0.25s);
+    }
+    .boot-prod {
+      animation: boot-rise 0.64s var(--ease-out-expo) both 2.4s;
+    }
+
+    @keyframes boot-pop {
+      0% { opacity: 0; transform: translateY(8px) scale(0.86); }
+    }
+    @keyframes boot-x {
+      0% { transform: scaleX(0); }
+    }
+    @keyframes boot-y {
+      0% { transform: scaleY(0); }
+    }
+    @keyframes boot-rise {
+      0% { opacity: 0; transform: translateY(10px); }
+    }
+    @keyframes boot-pod {
+      0% { opacity: 0; transform: scale(0.3); }
+    }
+    @keyframes travel-x {
+      0% { opacity: 0; transform: translate(-100%); }
+      3% { opacity: 1; }
+      22% { opacity: 1; transform: translate(0); }
+      26%, to { opacity: 0; transform: translate(0); }
+    }
+    @keyframes travel-y {
+      0% { opacity: 0; transform: translateY(-100%); }
+      3% { opacity: 1; }
+      18% { opacity: 1; transform: translateY(0); }
+      22%, to { opacity: 0; transform: translateY(0); }
+    }
+    @keyframes pod-rollout-kf {
+      0% { background: var(--signal); transform: scale(0.6); }
+      12% { background: var(--signal); transform: scale(1); }
+      24%, to { background: color-mix(in srgb, var(--healthy) 48%, var(--muted-bg)); }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
+
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- =====================================================================
+       HEADER / NAVBAR (Chuẩn ferhatsn.fr: nav-enter + sliding tab-indicator)
+       ===================================================================== -->
+  <header id="site-header" class="nav-enter fixed inset-x-0 top-0 z-50 border-b border-transparent transition-all duration-200">
+    <nav class="relative mx-auto flex h-16 max-w-[76rem] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <!-- Brand Logo -->
+      <a href="#hero" class="flex items-center gap-3 group">
+        <span class="grid size-9 place-items-center rounded-lg border border-[var(--border)] bg-[var(--card)] font-mono text-xs font-bold text-[var(--signal)] shadow-2xs transition-transform duration-200 group-hover:scale-105">
+          Q_
+        </span>
+        <span class="font-mono text-xs font-bold leading-tight tracking-wider text-[var(--fg)]">
+          THANH QUÂN<br />
+          <span class="text-[10px] font-medium text-[var(--muted-fg)]">DEVOPS · SRE</span>
+        </span>
+      </a>
+
+      <!-- Center Navigation (Theo đúng thứ tự: Experience -> Projects -> Education -> Skills -> About, đã xoá Certs) -->
+      <ul id="nav-list" class="relative hidden items-center gap-1 lg:flex">
+        <li><a href="#experience" data-section="experience" class="nav-link inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition">Experience</a></li>
+        <li><a href="#projects" data-section="projects" class="nav-link inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition">Projects</a></li>
+        <li><a href="#education" data-section="education" class="nav-link inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition">Education</a></li>
+        <li><a href="#skills" data-section="skills" class="nav-link inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition">Skills</a></li>
+        <li><a href="#about" data-section="about" class="nav-link inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition">About</a></li>
+      </ul>
+
+      <!-- Sliding Active Tab Indicator at bottom of Header -->
+      <span id="tab-indicator" class="tab-indicator hidden lg:block" aria-hidden="true"></span>
+
+      <!-- Right Controls: Blog, Theme Toggle, Contact CTA -->
+      <div class="flex items-center gap-1.5">
+        <a href="/blog" class="inline-flex h-9 items-center justify-center rounded-lg px-2.5 font-mono text-xs font-semibold text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition">
+          Blog
+        </a>
+
+        <button
+          onclick="toggleTheme()"
+          type="button"
+          aria-label="Switch light / dark theme"
+          class="inline-flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--fg)] hover:bg-[var(--muted-bg)] active:scale-95 cursor-pointer transition"
+          title="Đổi chế độ Sáng / Tối"
+        >
+          <span id="theme-icon" class="text-xs">🌙</span>
+        </button>
+
+        <a
+          href="#contact"
+          class="ml-1 hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--fg)] px-4 text-sm font-medium text-[var(--bg)] hover:opacity-90 active:scale-[0.98] transition"
+        >
+          <span>Contact</span>
+          <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10M7 17L17 7"/></svg>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-1">
+    <!-- ===================================================================
+         HERO SECTION (12-Column Grid + Architectural SVG Draw + Word-Rise + "How I ship")
+         =================================================================== -->
+    <section id="hero" class="relative isolate overflow-hidden">
+      <!-- Nền chìm (Subtle Sunken Ambient Glow + Recessed Orbital Contour) -->
+      <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div
+          class="absolute top-1/2 left-[60%] -translate-x-1/2 -translate-y-1/2 w-[52rem] h-[36rem] rounded-full blur-3xl opacity-45"
+          style="background: radial-gradient(circle, color-mix(in srgb, var(--signal) 9%, transparent) 0%, color-mix(in srgb, var(--primary) 5%, transparent) 45%, transparent 75%);"
+        ></div>
+        <svg
+          viewBox="0 0 800 600"
+          class="draw absolute top-1/2 left-1/2 lg:left-[62%] -translate-x-1/2 -translate-y-1/2 w-[56rem] max-w-none opacity-35"
+          style="-webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 70%); mask-image: radial-gradient(ellipse at center, black 25%, transparent 70%);"
+          focusable="false"
+        >
+          <circle cx="400" cy="300" r="140" pathLength="1" style="--k: 0" fill="none" stroke="var(--border)" />
+          <circle cx="400" cy="300" r="220" pathLength="1" style="--k: 1" fill="none" stroke="var(--border)" stroke-dasharray="4 6" />
+          <circle cx="400" cy="300" r="305" pathLength="1" style="--k: 2" fill="none" stroke="var(--border)" />
+          <path d="M80,300 H720 M400,20 V580" pathLength="1" style="--k: 3" fill="none" stroke="var(--border)" opacity="0.55" />
+        </svg>
+      </div>
+
+      <div class="mx-auto grid min-h-[94svh] max-w-[76rem] items-center gap-12 px-4 pt-28 pb-16 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8">
+
+        <!-- Left Column (lg:col-span-7) -->
+        <div class="lg:col-span-7">
+          <div class="enter inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-xs font-mono text-[var(--muted-fg)] mb-5" style="--i: 1">
+            <span class="size-2 rounded-full bg-[var(--signal)] animate-pulse"></span>
+            <span>Ho Chi Minh City, VN · Available for Infrastructure Roles</span>
+          </div>
+
+          <h1 class="text-display text-[var(--fg)]">
+            <span class="word"><span style="--w: 0">Nguyễn</span></span>
+            <span class="word"><span style="--w: 1">Thanh</span></span>
+            <span class="word"><span style="--w: 2">Quân</span></span>
+          </h1>
+
+          <p class="enter text-h3 mt-4 text-[var(--fg)]" style="--i: 4">
+            DevOps &amp; Infrastructure Engineer <span class="text-[var(--muted-fg)] font-normal">@ Viettel</span>
+          </p>
+
+          <p class="enter text-lead mt-4 max-w-[38rem] text-[var(--muted-fg)]" style="--i: 5">
+            Mình thiết kế và vận hành các nền tảng hạ tầng trọng yếu: cụm Kubernetes High-Availability trên bare-metal, tự động hóa 100% môi trường Air-Gapped với Ansible, CI/CD bảo mật với Jenkins (Trivy + SBOM + Image Signing) và giám sát tập trung Prometheus/Grafana.
+          </p>
+
+          <!-- CTA Buttons + Social Icons (Giống hệt ferhatsn.fr) -->
+          <div class="enter mt-8 flex flex-wrap items-center gap-3" style="--i: 6">
+            <a
+              href="#experience"
+              class="inline-flex h-12 items-center gap-2 rounded-xl bg-[var(--fg)] px-6 text-sm font-semibold text-[var(--bg)] hover:opacity-90 active:scale-[0.98] transition"
+            >
+              <span>Explore my journey</span>
+              <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m7-7l-7 7l-7-7"/></svg>
+            </a>
+
+            <a
+              href="#projects"
+              class="inline-flex h-12 items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--card)] px-6 text-sm font-semibold text-[var(--fg)] hover:bg-[var(--muted-bg)] active:scale-[0.98] transition"
+            >
+              <span>See the projects</span>
+            </a>
+
+            <ul class="flex items-center gap-1 sm:ml-1">
+              <li>
+                <a href="https://github.com/QuanBlue" target="_blank" class="grid size-11 place-items-center rounded-xl text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition" aria-label="GitHub">
+                  <i class="fa-brands fa-github text-lg"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/quanblue" target="_blank" class="grid size-11 place-items-center rounded-xl text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition" aria-label="LinkedIn">
+                  <i class="fa-brands fa-linkedin text-lg"></i>
+                </a>
+              </li>
+              <li>
+                <a href="mailto:quannguyenthanh558@gmail.com" class="grid size-11 place-items-center rounded-xl text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition" aria-label="Email">
+                  <i class="fa-regular fa-envelope text-lg"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Column (lg:col-span-5): Sơ đồ "How I ship" chuẩn ferhatsn.fr (Jenkins + SBOM + Sign & Verify) -->
+        <div class="enter lg:col-span-5" style="--i: 3">
+          <figure class="map-ship panel relative overflow-hidden p-4 sm:p-5">
+            <!-- Header Switcher: How I ship vs Terminal -->
+            <div class="flex items-center justify-between mb-5">
+              <p class="text-sm font-semibold text-[var(--fg)]" id="hero-panel-label">How I ship</p>
+              <div class="inline-flex rounded-lg border border-[var(--border)] bg-[var(--muted-bg)] p-0.5 font-mono text-[11px]">
+                <button onclick="switchHeroWidget('map')" id="hw-btn-map" class="px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition">Pipeline</button>
+                <button onclick="switchHeroWidget('term')" id="hw-btn-term" class="px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition">Terminal</button>
+              </div>
+            </div>
+
+            <!-- VIEW A: EXACT "HOW I SHIP" DIAGRAM FROM FERHATSN.FR (Customized: git push -> Trivy + SBOM -> Sign + Verify -> Jenkins) -->
+            <div id="hw-view-map">
+              <div class="relative">
+                <span class="flow flow-x" style="--d: 0s; --c: var(--signal)" aria-hidden="true"><i></i></span>
+                <ol class="relative grid grid-cols-4 gap-2" aria-label="Delivery pipeline">
+                  <!-- Step 1: git push -->
+                  <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 0">
+                    <span class="grid size-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] text-[var(--fg)] squircle">
+                      <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><path fill="currentColor" d="M13.09 23.549a1.54 1.54 0 0 1-2.18 0L.451 13.089a1.54 1.54 0 0 1 0-2.179l7.191-7.19l2.733 2.733a1.85 1.85 0 0 0 .964 2.326v6.66a1.849 1.849 0 1 0 1.54 0V8.957l2.508 2.508a1.85 1.85 0 1 0 1.09-1.09l-2.634-2.634a1.85 1.85 0 0 0-2.378-2.377L8.73 2.63L10.91.451a1.54 1.54 0 0 1 2.179 0l10.459 10.46a1.54 1.54 0 0 1 0 2.179z"></path></svg>
+                    </span>
+                    <span class="text-xs leading-tight text-[var(--muted-fg)]">git push</span>
+                  </li>
+
+                  <!-- Step 2: Trivy + SBOM -->
+                  <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 1">
+                    <span class="grid size-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] text-[var(--fg)] squircle">
+                      <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><circle cx="12" cy="12" r="3"></circle><path d="m16 16l-1.9-1.9"></path></g></svg>
+                    </span>
+                    <span class="text-xs leading-tight text-[var(--muted-fg)]">Trivy + SBOM</span>
+                  </li>
+
+                  <!-- Step 3: Sign + Verify -->
+                  <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 2">
+                    <span class="grid size-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] text-[var(--fg)] squircle">
+                      <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 22V12m4 5l2 2l4-4"></path><path d="M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753"></path><path d="M3.29 7L12 12l8.71-5M7.5 4.27l8.997 5.148"></path></g></svg>
+                    </span>
+                    <span class="text-xs leading-tight text-[var(--muted-fg)]">Sign + Verify</span>
+                  </li>
+
+                  <!-- Step 4: Jenkins -->
+                  <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 3">
+                    <span class="grid size-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] text-[var(--fg)] squircle">
+                      <i class="devicon-jenkins-line text-[18px]"></i>
+                    </span>
+                    <span class="text-xs leading-tight text-[var(--muted-fg)]">Jenkins</span>
+                  </li>
+                </ol>
+              </div>
+
+              <!-- Vertical flow into Cluster -->
+              <span class="flow flow-y my-1" style="--d: 1.5s; --c: var(--mid); --b: 0" aria-hidden="true"><i></i></span>
+
+              <!-- 3-Node High Availability Kubernetes Cluster Box -->
+              <div class="boot-cluster rounded-xl bg-[var(--muted-bg)]/70 p-3 squircle">
+                <p class="text-xs font-semibold mb-3 flex items-center gap-2 text-[var(--fg)]">
+                  <svg viewBox="0 0 24 24" class="size-4" aria-hidden="true"><path fill="currentColor" d="m10.204 14.35l.007.01l-.999 2.413a5.17 5.17 0 0 1-2.075-2.597l2.578-.437l.004.005a.44.44 0 0 1 .484.606zm-.833-2.129a.44.44 0 0 0 .173-.756l.002-.011L7.585 9.7a5.14 5.14 0 0 0-.73 3.255l2.514-.725zm1.145-1.98a.44.44 0 0 0 .699-.337l.01-.005l.15-2.62a5.14 5.14 0 0 0-3.01 1.442l2.147 1.523zm.76 2.75l.723.349l.722-.347l.18-.78l-.5-.623h-.804l-.5.623l.179.779zm1.5-3.095a.44.44 0 0 0 .7.336l.008.003l2.134-1.513a5.2 5.2 0 0 0-2.992-1.442l.148 2.615zm10.876 5.97l-5.773 7.181a1.6 1.6 0 0 1-1.248.594l-9.261.003a1.6 1.6 0 0 1-1.247-.596l-5.776-7.18a1.58 1.58 0 0 1-.307-1.34L2.1 5.573c.108-.47.425-.864.863-1.073L11.305.513a1.6 1.6 0 0 1 1.385 0l8.345 3.985c.438.209.755.604.863 1.073l2.062 8.955c.108.47-.005.963-.308 1.34m-3.289-2.057c-.042-.01-.103-.026-.145-.034c-.174-.033-.315-.025-.479-.038c-.35-.037-.638-.067-.895-.148c-.105-.04-.18-.165-.216-.216l-.201-.059a6.5 6.5 0 0 0-.105-2.332a6.5 6.5 0 0 0-.936-2.163c.052-.047.15-.133.177-.159c.008-.09.001-.183.094-.282c.197-.185.444-.338.743-.522c.142-.084.273-.137.415-.242c.032-.024.076-.062.11-.089c.24-.191.295-.52.123-.736s-.506-.236-.745-.045c-.034.027-.08.062-.111.088c-.134.116-.217.23-.33.35c-.246.25-.45.458-.673.609c-.097.056-.239.037-.303.033l-.19.135a6.55 6.55 0 0 0-4.146-2.003l-.012-.223c-.065-.062-.143-.115-.163-.25c-.022-.268.015-.557.057-.905c.023-.163.061-.298.068-.475c.001-.04-.001-.099-.001-.142c0-.306-.224-.555-.5-.555c-.275 0-.499.249-.499.555l.001.014c0 .041-.002.092 0 .128c.006.177.044.312.067.475c.042.348.078.637.056.906a.55.55 0 0 1-.162.258l-.012.211a6.42 6.42 0 0 0-4.166 2.003l-.18-.128c-.09.012-.18.04-.297-.029c-.223-.15-.427-.358-.673-.608c-.113-.12-.195-.234-.329-.349l-.111-.088a.6.6 0 0 0-.348-.132a.48.48 0 0 0-.398.176c-.172.216-.117.546.123.737l.007.005l.104.083c.142.105.272.159.414.242c.299.185.546.338.743.522c.076.082.09.226.1.288l.16.143a6.46 6.46 0 0 0-1.02 4.506l-.208.06c-.055.072-.133.184-.215.217c-.257.081-.546.11-.895.147c-.164.014-.305.006-.48.039c-.037.007-.09.02-.133.03l-.004.002l-.007.002c-.295.071-.484.342-.423.608c.061.267.349.429.645.365l.007-.001l.01-.003l.129-.029c.17-.046.294-.113.448-.172c.33-.118.604-.217.87-.256c.112-.009.23.069.288.101l.217-.037a6.5 6.5 0 0 0 2.88 3.596l-.09.218c.033.084.069.199.044.282c-.097.252-.263.517-.452.813c-.091.136-.185.242-.268.399c-.02.037-.045.095-.064.134c-.128.275-.034.591.213.71c.248.12.556-.007.69-.282v-.002c.02-.039.046-.09.062-.127c.07-.162.094-.301.144-.458c.132-.332.205-.68.387-.897c.05-.06.13-.082.215-.105l.113-.205a6.45 6.45 0 0 0 4.609.012l.106.192c.086.028.18.042.256.155c.136.232.229.507.342.84c.05.156.074.295.145.457c.016.037.043.09.062.129c.133.276.442.402.69.282c.247-.118.341-.435.213-.71c-.02-.039-.045-.096-.065-.134c-.083-.156-.177-.261-.268-.398c-.19-.296-.346-.541-.443-.793c-.04-.13.007-.21.038-.294c-.018-.022-.059-.144-.083-.202a6.5 6.5 0 0 0 2.88-3.622c.064.01.176.03.213.038c.075-.05.144-.114.28-.104c.266.039.54.138.87.256c.154.06.277.128.448.173c.036.01.088.019.13.028l.009.003l.007.001c.297.064.584-.098.645-.365c.06-.266-.128-.537-.423-.608M16.4 9.701l-1.95 1.746v.005a.44.44 0 0 0 .173.757l.003.01l2.526.728a5.2 5.2 0 0 0-.108-1.674A5.2 5.2 0 0 0 16.4 9.7zm-4.013 5.325a.44.44 0 0 0-.404-.232a.44.44 0 0 0-.372.233h-.002l-1.268 2.292a5.16 5.16 0 0 0 3.326.003l-1.27-2.296zm1.888-1.293a.44.44 0 0 0-.27.036a.44.44 0 0 0-.214.572l-.003.004l1.01 2.438a5.15 5.15 0 0 0 2.081-2.615l-2.6-.44z"></path></svg>
+                  <span>Kubernetes, highly available</span>
+                </p>
+
+                <!-- 3 Server Nodes with 8 Live Pods each (Exact SVG & Pod Grid from ferhatsn.fr) -->
+                <div class="grid grid-cols-3 gap-2" aria-hidden="true">
+                  <!-- Node 0 -->
+                  <div class="rounded-lg bg-[var(--card)] p-2.5 border border-[var(--border)]/60">
+                    <svg viewBox="0 0 24 24" class="size-4 text-[var(--muted-fg)]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><path d="M6 6h.01M6 18h.01"></path></g></svg>
+                    <div class="mt-2.5 grid w-fit grid-cols-4 gap-1">
+                      <span class="pod" style="--n: 0; --p: 0"></span>
+                      <span class="pod" style="--n: 0; --p: 1"></span>
+                      <span class="pod pod-rollout" style="--n: 0; --p: 2"></span>
+                      <span class="pod" style="--n: 0; --p: 3"></span>
+                      <span class="pod" style="--n: 0; --p: 4"></span>
+                      <span class="pod" style="--n: 0; --p: 5"></span>
+                      <span class="pod" style="--n: 0; --p: 6"></span>
+                      <span class="pod" style="--n: 0; --p: 7"></span>
+                    </div>
+                  </div>
+
+                  <!-- Node 1 -->
+                  <div class="rounded-lg bg-[var(--card)] p-2.5 border border-[var(--border)]/60">
+                    <svg viewBox="0 0 24 24" class="size-4 text-[var(--muted-fg)]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><path d="M6 6h.01M6 18h.01"></path></g></svg>
+                    <div class="mt-2.5 grid w-fit grid-cols-4 gap-1">
+                      <span class="pod" style="--n: 1; --p: 8"></span>
+                      <span class="pod" style="--n: 1; --p: 9"></span>
+                      <span class="pod" style="--n: 1; --p: 10"></span>
+                      <span class="pod pod-rollout" style="--n: 1; --p: 11"></span>
+                      <span class="pod" style="--n: 1; --p: 12"></span>
+                      <span class="pod" style="--n: 1; --p: 13"></span>
+                      <span class="pod" style="--n: 1; --p: 14"></span>
+                      <span class="pod" style="--n: 1; --p: 15"></span>
+                    </div>
+                  </div>
+
+                  <!-- Node 2 -->
+                  <div class="rounded-lg bg-[var(--card)] p-2.5 border border-[var(--border)]/60">
+                    <svg viewBox="0 0 24 24" class="size-4 text-[var(--muted-fg)]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><path d="M6 6h.01M6 18h.01"></path></g></svg>
+                    <div class="mt-2.5 grid w-fit grid-cols-4 gap-1">
+                      <span class="pod" style="--n: 2; --p: 16"></span>
+                      <span class="pod" style="--n: 2; --p: 17"></span>
+                      <span class="pod" style="--n: 2; --p: 18"></span>
+                      <span class="pod" style="--n: 2; --p: 19"></span>
+                      <span class="pod pod-rollout" style="--n: 2; --p: 20"></span>
+                      <span class="pod" style="--n: 2; --p: 21"></span>
+                      <span class="pod" style="--n: 2; --p: 22"></span>
+                      <span class="pod" style="--n: 2; --p: 23"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Practices list -->
+                <ul class="mt-3 flex flex-wrap gap-x-0 gap-y-1 text-xs font-medium text-[var(--muted-fg)]" aria-label="Practices">
+                  <li class="sep">Jenkins CI/CD</li>
+                  <li class="sep">Signed images</li>
+                  <li class="sep">SBOM</li>
+                  <li class="sep">Air-Gapped Ansible</li>
+                  <li class="sep">Automatic TLS</li>
+                </ul>
+              </div>
+
+              <!-- Vertical flow into Production -->
+              <span class="flow flow-y my-1" style="--d: 3s; --c: var(--primary); --b: 1" aria-hidden="true"><i></i></span>
+
+              <!-- Production Status Bar (Exact Globe SVG + In production · rolling update) -->
+              <p class="boot-prod flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[var(--line-strong)] bg-[var(--card)] px-3 py-2.5 text-sm">
+                <svg viewBox="0 0 24 24" class="size-4 shrink-0 text-[var(--primary)]" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20a14.5 14.5 0 0 0 0-20M2 12h20"></path></g></svg>
+                <span class="font-semibold text-[var(--fg)]">In production</span>
+                <span class="text-xs text-[var(--muted-fg)]">rolling update</span>
+              </p>
+            </div>
+
+            <!-- VIEW B: INTERACTIVE TERMINAL (Đồng bộ Sáng / Tối!) -->
+            <div id="hw-view-term" class="hidden">
+              <div id="term-box" class="rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] p-3.5 font-mono text-xs text-[var(--muted-fg)] space-y-1.5 h-[265px] overflow-y-auto cursor-text" onclick="document.getElementById('term-input').focus()">
+                <div># Interactive Shell — Type <span class="text-[var(--signal)]">help</span>, <span class="text-[var(--signal)]">exp</span>, <span class="text-[var(--signal)]">projects</span>, <span class="text-[var(--signal)]">edu</span>, <span class="text-[var(--signal)]">skills</span></div>
+                <div id="term-output" class="space-y-1"></div>
+                <div class="flex items-center pt-1">
+                  <span class="text-[var(--signal)] font-semibold shrink-0">ntquan@devops:~$&nbsp;</span>
+                  <input id="term-input" type="text" class="bg-transparent border-none outline-none text-[var(--fg)] w-full font-mono text-xs" placeholder="type command..." onkeydown="handleTerm(event)" />
+                </div>
+              </div>
+            </div>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         1. EXPERIENCE SECTION (#experience) — Thứ tự #1: Experience
+         Cấu trúc Alternating Timeline "01 / 02" giống portfolio_design_preview
+         =================================================================== -->
+    <section id="experience" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+      <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[46rem]">
+          <p class="reveal text-label text-[var(--signal)] mb-2">01 · Career Path</p>
+          <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Work Experience · <span class="text-[var(--signal)] font-mono">Professional Journey</span></h2>
+          <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+            Từ quản trị hệ thống Linux nội bộ đến thiết kế và tự động hóa các cụm Kubernetes High-Availability quy mô lớn.
+          </p>
+        </div>
+
+        <div id="journey-container" class="timeline-container space-y-10 mt-12 sm:mt-16">
+          <div class="timeline-line" aria-hidden="true"></div>
+          <div id="journey-progress-bar" class="timeline-progress" aria-hidden="true"></div>
+
+          <!-- Item 01 (Left Page of the Book on Desktop) -->
+          <div class="timeline-book-row relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center" data-side="left">
+            <div class="md:pr-10 pl-10 md:pl-0">
+              <div class="book-page book-page-left panel card-interactive p-6 relative">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="devops-tag">Viettel</span>
+                  <span class="timeline-number">01</span>
+                </div>
+                <h3 class="text-lg font-bold text-[var(--fg)]">DevOps Engineer</h3>
+                <p class="text-xs font-mono text-[var(--signal)] mt-0.5 md:hidden">2023 – PRESENT</p>
+                <ul class="text-sm text-[var(--muted-fg)] space-y-2 mt-3 leading-relaxed">
+                  <li>• Thiết kế và vận hành cụm Kubernetes High-Availability (multi-master) trên bare-metal, đảm bảo 99.99% uptime.</li>
+                  <li>• Tự động hóa 100% quy trình cài đặt cụm Air-Gapped bằng Ansible Playbooks, giảm 70% thời gian triển khai.</li>
+                  <li>• Xây dựng luồng CI/CD bảo mật với Jenkins (Trivy + SBOM + Sign &amp; Verify) và hệ thống giám sát tập trung Prometheus, Grafana, Alertmanager, ELK Stack.</li>
+                </ul>
+                <div class="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-[var(--border)] font-mono text-[11px] text-[var(--faint)]">
+                  <span>#Kubernetes</span><span>·</span><span>#Jenkins</span><span>·</span><span>#Ansible</span><span>·</span><span>#HAProxy</span><span>·</span><span>#Prometheus</span>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:flex items-center pl-10">
+              <span class="book-date book-date-right font-mono text-base font-bold text-[var(--signal)] tracking-wider">2023 – PRESENT</span>
+            </div>
+            <span class="timeline-dot-node w-3.5 h-3.5 rounded-full bg-[var(--signal)] ring-4 ring-[var(--bg)] absolute left-[16px] md:left-1/2 -translate-x-1/2"></span>
+          </div>
+
+          <!-- Item 02 (Right Page of the Book on Desktop) -->
+          <div class="timeline-book-row relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center" data-side="right">
+            <div class="hidden md:flex justify-end pr-10">
+              <span class="book-date book-date-left font-mono text-base font-bold text-[var(--muted-fg)] tracking-wider">2021 – 2023</span>
+            </div>
+            <div class="md:pl-10 pl-10">
+              <div class="book-page book-page-right panel card-interactive p-6 relative">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="devops-tag">Tech Company XYZ</span>
+                  <span class="timeline-number">02</span>
+                </div>
+                <h3 class="text-lg font-bold text-[var(--fg)]">System Administrator</h3>
+                <p class="text-xs font-mono text-[var(--muted-fg)] mt-0.5 md:hidden">2021 – 2023</p>
+                <ul class="text-sm text-[var(--muted-fg)] space-y-2 mt-3 leading-relaxed">
+                  <li>• Quản trị hệ thống máy chủ Linux (Ubuntu/CentOS), tối ưu hóa kernel, tường lửa và bảo mật mạng nội bộ.</li>
+                  <li>• Đóng gói ứng dụng với Docker Compose và thiết lập luồng CI/CD tự động.</li>
+                </ul>
+                <div class="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-[var(--border)] font-mono text-[11px] text-[var(--faint)]">
+                  <span>#Linux</span><span>·</span><span>#Docker</span><span>·</span><span>#Jenkins</span><span>·</span><span>#Bash</span>
+                </div>
+              </div>
+            </div>
+            <span class="timeline-dot-node w-3.5 h-3.5 rounded-full bg-[var(--line-strong)] ring-4 ring-[var(--bg)] absolute left-[16px] md:left-1/2 -translate-x-1/2"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         2. PROJECTS SECTION (#projects) — Thứ tự #2: Project
+         Thiết kế chuẩn ferhatsn.fr: Featured 12-col Card (kèm hiệu ứng chạy từng dòng Ansible) + Grid Cards
+         =================================================================== -->
+    <section id="projects" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+      <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[46rem]">
+          <p class="reveal text-label text-[var(--signal)] mb-2">02 · Project</p>
+          <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Projects running in production.</h2>
+          <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+            Các dự án thực tế từ tự động hóa hạ tầng Air-Gapped đến thiết kế nền tảng Cloud-Native.
+          </p>
+        </div>
+
+        <div class="mt-10 sm:mt-14 grid gap-8 md:grid-cols-2">
+          <!-- Featured Project (Full-width 12-col card giống ferhatsn.fr) -->
+          <article class="reveal card-interactive md:col-span-2 panel p-6 sm:p-8 grid gap-8 lg:grid-cols-12 lg:items-center group">
+            <!-- Left Visual Preview (lg:col-span-7) -->
+            <div class="lg:col-span-7 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] p-5 font-mono text-xs space-y-3 transition-shadow duration-250 group-hover:shadow-[var(--shadow-raised)]">
+              <div class="flex items-center justify-between border-b border-[var(--border)] pb-2.5 text-[11px] text-[var(--muted-fg)]">
+                <span>PLAYBOOK: site-airgap-ha.yml</span>
+                <span class="text-[var(--signal)]">● 0 FAILED · IDEMPOTENT</span>
+              </div>
+              <div class="space-y-1.5 text-[11px] leading-relaxed">
+                <div class="playbook-line text-[var(--muted-fg)]" style="--line: 0">$ ansible-playbook -i inventory/prod.ini site-airgap-ha.yml</div>
+                <div class="playbook-line text-[var(--signal)]" style="--line: 1">✔ [preflight] Disable swap, load br_netfilter &amp; ip_vs kernel modules</div>
+                <div class="playbook-line text-[var(--signal)]" style="--line: 2">✔ [registry] Bootstrap offline Harbor Registry + Cosign verification</div>
+                <div class="playbook-line text-[var(--signal)]" style="--line: 3">✔ [haproxy] Configure Keepalived VIP + HAProxy L4 API Server LB</div>
+                <div class="playbook-line text-[var(--signal)]" style="--line: 4">✔ [k8s-master] Init stacked etcd multi-master control-plane</div>
+                <div class="playbook-line text-[var(--signal)]" style="--line: 5">✔ [calico] Deploy Calico CNI &amp; Prometheus node-exporter</div>
+              </div>
+              <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border)] text-center">
+                <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
+                  <div class="font-bold text-[var(--fg)]">-70%</div>
+                  <div class="text-[10px] text-[var(--muted-fg)]">Provision Time</div>
+                </div>
+                <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
+                  <div class="font-bold text-[var(--signal)]">100%</div>
+                  <div class="text-[10px] text-[var(--muted-fg)]">Offline Ready</div>
+                </div>
+                <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
+                  <div class="font-bold text-[var(--fg)]">HA 3-Master</div>
+                  <div class="text-[10px] text-[var(--muted-fg)]">Zero SPOF</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Details (lg:col-span-5) -->
+            <div class="lg:col-span-5 flex flex-col gap-3.5">
+              <p class="text-label text-[var(--muted-fg)]">Infrastructure Automation · Featured</p>
+              <h3 class="text-h3 text-[var(--fg)]">Air-Gapped HA Kubernetes Platform</h3>
+              <p class="text-sm text-[var(--muted-fg)] leading-relaxed">
+                Bộ Ansible Playbooks tự động hóa toàn trình việc dựng cụm Kubernetes High-Availability trong môi trường cách ly Internet (Air-Gapped).
+              </p>
+              <ul class="grid gap-2 text-sm text-[var(--muted-fg)]">
+                <li class="flex gap-2.5">
+                  <span class="mt-2 size-1.5 shrink-0 rounded-full bg-[var(--signal)]"></span>
+                  <span>Tự động đóng gói toàn bộ OS packages, containerd binaries và signed container images kèm SBOM vào Local Registry nội bộ.</span>
+                </li>
+                <li class="flex gap-2.5">
+                  <span class="mt-2 size-1.5 shrink-0 rounded-full bg-[var(--signal)]"></span>
+                  <span>Cấu hình HAProxy + Keepalived đảm bảo failover tự động cho Kubernetes API Server.</span>
+                </li>
+              </ul>
+              <ul class="flex flex-wrap gap-y-1 text-xs font-mono text-[var(--muted-fg)] pt-1">
+                <li class="sep">Ansible</li>
+                <li class="sep">Kubernetes</li>
+                <li class="sep">HAProxy</li>
+                <li class="sep">Keepalived</li>
+                <li class="sep">Calico</li>
+                <li class="sep">Containerd</li>
+              </ul>
+              <div class="pt-2 flex items-center gap-5 text-sm font-medium">
+                <a href="https://github.com/QuanBlue" target="_blank" class="inline-flex items-center gap-1.5 text-[var(--fg)] hover:text-[var(--primary)] underline-offset-4 hover:underline">
+                  <i class="fa-brands fa-github"></i>
+                  <span>Source code</span>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Secondary Project 1 -->
+          <article class="reveal card-interactive panel p-6 flex flex-col justify-between gap-4" style="--d: 0.08s">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <p class="text-label text-[var(--muted-fg)]">Personal Project · Live</p>
+                <span class="font-mono text-xs text-[var(--signal)]">● ONLINE</span>
+              </div>
+              <h3 class="text-h3 text-[var(--fg)]">thanhquan.dev — Cloud-Native Portfolio</h3>
+              <p class="text-sm text-[var(--muted-fg)] leading-relaxed">
+                Trang Portfolio &amp; Runbook cá nhân tích hợp Interactive CLI Terminal, trang quản trị nội dung bảo mật bằng Supabase OAuth + RLS và pipeline CI/CD tự động.
+              </p>
+            </div>
+            <div class="space-y-3 pt-2 border-t border-[var(--border)]">
+              <ul class="flex flex-wrap gap-y-1 text-xs font-mono text-[var(--muted-fg)]">
+                <li class="sep">Astro 7</li>
+                <li class="sep">TypeScript</li>
+                <li class="sep">Tailwind CSS</li>
+                <li class="sep">Supabase RLS</li>
+                <li class="sep">GitHub Actions</li>
+              </ul>
+              <div class="flex items-center gap-4 text-sm font-medium">
+                <a href="https://thanhquan.dev" target="_blank" class="inline-flex items-center gap-1 text-[var(--primary)] hover:underline">
+                  <span>Visit the site</span>
+                  <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10M7 17L17 7"/></svg>
+                </a>
+                <a href="https://github.com/QuanBlue" target="_blank" class="inline-flex items-center gap-1.5 text-[var(--fg)] hover:underline">
+                  <i class="fa-brands fa-github text-xs"></i>
+                  <span>Source code</span>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Secondary Project 2 -->
+          <article class="reveal card-interactive panel p-6 flex flex-col justify-between gap-4" style="--d: 0.16s">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <p class="text-label text-[var(--muted-fg)]">Observability Stack · Production</p>
+                <span class="font-mono text-xs text-[var(--signal)]">● ACTIVE</span>
+              </div>
+              <h3 class="text-h3 text-[var(--fg)]">Unified Prometheus &amp; ELK Telemetry</h3>
+              <p class="text-sm text-[var(--muted-fg)] leading-relaxed">
+                Kiến trúc thu thập metrics, logs và cảnh báo đa tầng cho cụm Kubernetes Production, tích hợp bộ rule phát hiện sớm bất thường về độ trễ API và tài nguyên node.
+              </p>
+            </div>
+            <div class="space-y-3 pt-2 border-t border-[var(--border)]">
+              <ul class="flex flex-wrap gap-y-1 text-xs font-mono text-[var(--muted-fg)]">
+                <li class="sep">Prometheus</li>
+                <li class="sep">Grafana</li>
+                <li class="sep">Alertmanager</li>
+                <li class="sep">ELK Stack</li>
+                <li class="sep">Kube-State-Metrics</li>
+              </ul>
+              <div class="flex items-center gap-4 text-sm font-medium">
+                <span class="inline-flex items-center gap-1.5 text-[var(--faint)] text-xs font-mono">
+                  <i class="fa-solid fa-lock"></i> Enterprise Internal
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         3. EDUCATION SECTION (#education) — Thứ tự #3: Education (Đã xóa Certificate theo yêu cầu)
+         Thiết kế danh mục phẳng chuẩn ferhatsn.fr
+         =================================================================== -->
+    <section id="education" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+      <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[46rem]">
+          <p class="reveal text-label text-[var(--signal)] mb-2">03 · Academic Background</p>
+          <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Education &amp; Research.</h2>
+          <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+            Nền tảng đại học về Mạng máy tính, Hệ điều hành Linux và Hệ thống Phân tán.
+          </p>
+        </div>
+
+        <ol class="mt-8 sm:mt-10 border-b border-[var(--border)] max-w-4xl">
+          <li class="reveal grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 border-t border-[var(--border)] py-6">
+            <span class="grid size-12 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--card)] row-span-5 font-mono text-xs font-bold text-[var(--primary)] squircle">
+              B.Eng
+            </span>
+            <p class="font-mono text-xs text-[var(--signal)]">Graduated · Honors</p>
+            <p class="text-h3 text-[var(--fg)]">Kỹ sư Công nghệ Thông tin (B.Eng in Information Technology)</p>
+            <p class="text-sm font-medium text-[var(--fg)]">Đại học Công nghệ Thông tin / Bách Khoa</p>
+            <p class="text-sm text-[var(--muted-fg)] mt-1">Chuyên ngành Mạng máy tính, Hệ điều hành Linux &amp; Hệ thống Phân tán. Nghiên cứu chuyên sâu về ảo hóa nhân Linux (namespaces, cgroups) và định tuyến mạng container.</p>
+          </li>
+
+          <li class="reveal grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 border-t border-[var(--border)] py-6" style="--d: 0.1s">
+            <span class="grid size-12 shrink-0 place-items-center rounded-xl border border-[var(--border)] bg-[var(--card)] row-span-4 font-mono text-xs font-bold text-[var(--signal)] squircle">
+              LAB
+            </span>
+            <p class="font-mono text-xs text-[var(--signal)]">Capstone Thesis</p>
+            <p class="text-h3 text-[var(--fg)]">Thiết kế &amp; Tự động hóa Cụm Kubernetes High-Availability</p>
+            <p class="text-sm text-[var(--muted-fg)] mt-1">Đề tài tốt nghiệp: Xây dựng kiến trúc chịu lỗi Zero-Downtime Failover trên bare-metal với HAProxy, Keepalived, Ansible, Jenkins Pipeline và Prometheus.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         4. SKILLS SECTION (#skills)
+         Thiết kế chuẩn ferhatsn.fr: Bảng phân tầng kiến trúc + Viền nổi bật cho Core Stack
+         =================================================================== -->
+    <section id="skills" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+      <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+        <div class="max-w-[46rem]">
+          <p class="reveal text-label text-[var(--signal)] mb-2">04 · Architecture Stack</p>
+          <h2 class="reveal-wipe text-h2 text-[var(--fg)]">My stack, from OS kernel to cluster.</h2>
+          <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+            Các công cụ mình sử dụng hàng ngày, được sắp xếp theo từng lớp kiến trúc hạ tầng.
+          </p>
+        </div>
+
+        <p class="reveal mt-7 flex items-center gap-2 text-xs font-mono text-[var(--muted-fg)]">
+          <span class="size-3 rounded-[3px] border-2 border-[var(--signal)]"></span>
+          <span>Viền xanh: Công nghệ chủ lực đang vận hành hàng ngày</span>
+        </p>
+
+        <ol class="mt-5 border-b border-[var(--border)]">
+          <!-- Layer 1 -->
+          <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline">
+            <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Orchestration &amp; Mesh</h3>
+            <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="devicon-kubernetes-plain colored"></i> Kubernetes (HA)
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="devicon-docker-plain colored"></i> Docker / Containerd
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="fa-solid fa-dharmachakra"></i> Helm &amp; Kustomize
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="fa-solid fa-diagram-project text-sky-400"></i> Istio Service Mesh
+              </li>
+            </ul>
+          </li>
+
+          <!-- Layer 2 -->
+          <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.06s">
+            <h3 class="text-h3 text-[var(--fg)] md:col-span-3">IaC &amp; CI/CD Supply Chain</h3>
+            <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="devicon-jenkins-line"></i> Jenkins Pipelines
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="devicon-ansible-plain"></i> Ansible Playbooks
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="fa-solid fa-shield-virus text-emerald-400"></i> Trivy + SBOM + Cosign
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="devicon-gitlab-plain colored"></i> GitLab CI / GitHub Actions
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="fa-solid fa-box"></i> Harbor Local Registry
+              </li>
+            </ul>
+          </li>
+
+          <!-- Layer 3 -->
+          <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.12s">
+            <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Observability &amp; SRE</h3>
+            <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="devicon-prometheus-original colored"></i> Prometheus
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="devicon-grafana-plain colored"></i> Grafana
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="fa-solid fa-bell"></i> Alertmanager
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="fa-solid fa-magnifying-glass-chart"></i> ELK Stack (Elasticsearch, Logstash, Kibana)
+              </li>
+            </ul>
+          </li>
+
+          <!-- Layer 4 -->
+          <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.18s">
+            <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Linux &amp; Networking</h3>
+            <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="devicon-linux-plain"></i> Linux (Ubuntu / RHEL)
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+                <i class="fa-solid fa-network-wired text-emerald-400"></i> HAProxy &amp; Keepalived
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="devicon-nginx-original colored"></i> Nginx
+              </li>
+              <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+                <i class="fa-solid fa-shield-halved"></i> Calico CNI / iptables
+              </li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         5. ABOUT SECTION (#about)
+         Thiết kế chuẩn ferhatsn.fr: Cột trái ảnh chân dung 4:5 · Cột phải câu chuyện + 3 trụ cột kẻ viền trên
+         =================================================================== -->
+    <section id="about" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+      <div class="mx-auto grid max-w-[76rem] gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-16 lg:px-8 items-center">
+        <!-- Portrait Figure (lg:col-span-4) -->
+        <figure class="reveal mx-auto w-full max-w-xs lg:col-span-4 lg:mx-0">
+          <div class="panel overflow-hidden p-2">
+            <img
+              src="https://ywjdrrmdnkdydeqprcib.supabase.co/storage/v1/object/public/portfolio/avatar/mw95dpo2-xvsbsl.jpg"
+              alt="Nguyễn Thanh Quân"
+              class="aspect-[4/5] w-full rounded-xl object-cover squircle transition-transform duration-500 hover:scale-[1.02]"
+            />
+          </div>
+          <figcaption class="mt-3 flex items-center gap-2 text-xs font-mono text-[var(--muted-fg)]">
+            <i class="fa-solid fa-location-dot text-[var(--signal)]"></i>
+            <span>Ho Chi Minh City, Vietnam</span>
+          </figcaption>
+        </figure>
+
+        <!-- Right Bio + 3 Pillars (lg:col-span-8) -->
+        <div class="lg:col-span-8">
+          <p class="reveal text-label text-[var(--signal)] mb-2">05 · About Me</p>
+          <h2 class="reveal-wipe text-h2 text-[var(--fg)]">From bare-metal to cluster, end to end.</h2>
+
+          <div class="reveal mt-5 grid max-w-[65ch] gap-4 text-lead text-[var(--muted-fg)]" style="--d: 0.08s">
+            <p>
+              Tốt nghiệp Kỹ sư Công nghệ Thông tin chuyên ngành Mạng và Hệ thống Phân tán, mình bắt đầu sự nghiệp từ vị trí System Administrator trước khi đảm nhận vai trò <strong class="text-[var(--fg)]">DevOps Engineer tại Viettel</strong>.
+            </p>
+            <p>
+              Góc nhìn kết hợp giữa quản trị hạ tầng vật lý (Linux, Networking, Load Balancing) và nền tảng Cloud-Native (Kubernetes, Ansible, Jenkins, Prometheus) giúp mình xây dựng những hệ thống có tính sẵn sàng cao, tự động hóa hoàn toàn và an toàn ngay từ khâu thiết kế.
+            </p>
+          </div>
+
+          <!-- 3 Pillars with top border (Giống hệt ferhatsn.fr) -->
+          <ul class="mt-10 grid gap-6 sm:grid-cols-3">
+            <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.1s">
+              <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
+                <i class="fa-solid fa-server text-xs text-[var(--signal)]"></i>
+                <span>HA Platform</span>
+              </h3>
+              <p class="text-sm text-[var(--muted-fg)]">
+                Cụm Kubernetes multi-master chịu lỗi cao, cân bằng tải HAProxy/Keepalived không điểm nghẽn đơn (Zero SPOF).
+              </p>
+            </li>
+
+            <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.18s">
+              <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
+                <i class="fa-solid fa-gears text-xs text-[var(--signal)]"></i>
+                <span>Secure CI/CD &amp; IaC</span>
+              </h3>
+              <p class="text-sm text-[var(--muted-fg)]">
+                Pipeline Jenkins tích hợp Trivy + SBOM + Image Signing và tự động hóa hạ tầng Air-Gapped bằng Ansible.
+              </p>
+            </li>
+
+            <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.26s">
+              <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
+                <i class="fa-solid fa-chart-line text-xs text-[var(--signal)]"></i>
+                <span>Observability</span>
+              </h3>
+              <p class="text-sm text-[var(--muted-fg)]">
+                Giám sát toàn diện metrics &amp; logs với Prometheus, Grafana và ELK Stack, tối ưu hóa SLA và thời gian xử lý sự cố.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         6. CONTACT & FOOTER (#contact)
+         =================================================================== -->
+    <section id="contact" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+      <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+        <div class="reveal panel p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <p class="text-label text-[var(--signal)] mb-2">06 · Get in touch</p>
+            <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Let's talk infrastructure.</h2>
+            <p class="text-sm sm:text-base text-[var(--muted-fg)] mt-2 max-w-xl">
+              Luôn sẵn sàng trao đổi về kiến trúc Kubernetes, tự động hóa hệ thống hoặc các cơ hội hợp tác mới.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a href="mailto:quannguyenthanh558@gmail.com" class="inline-flex h-11 items-center gap-2 rounded-xl bg-[var(--fg)] px-5 text-sm font-semibold text-[var(--bg)] hover:opacity-90 active:scale-[0.98] transition">
+              <i class="fa-regular fa-envelope"></i>
+              <span>quannguyenthanh558@gmail.com</span>
+            </a>
+            <a href="https://linkedin.com/in/quanblue" target="_blank" class="inline-flex h-11 items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--card)] px-5 text-sm font-semibold text-[var(--fg)] hover:bg-[var(--muted-bg)] active:scale-[0.98] transition">
+              <i class="fa-brands fa-linkedin"></i>
+              <span>LinkedIn</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--border)] py-8 text-xs font-mono text-[var(--muted-fg)]">
+    <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>© 2026 Nguyễn Thanh Quân · thanhquan.dev</div>
+      <div class="flex items-center gap-5">
+        <a href="https://github.com/QuanBlue" target="_blank" class="hover:text-[var(--fg)] transition">GitHub</a>
+        <a href="https://linkedin.com/in/quanblue" target="_blank" class="hover:text-[var(--fg)] transition">LinkedIn</a>
+        <a href="/blog" class="hover:text-[var(--fg)] transition">Blog</a>
+        <a href="/admin" class="hover:text-[var(--fg)] transition">Admin</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 1. Scroll Reveal Observer (.reveal & .reveal-wipe)
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, { threshold: 0.14, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-wipe').forEach((el) => {
+      revealObserver.observe(el);
+    });
+
+    // 2. Scroll Progress + Header Backdrop + Experience Journey Progress + Active Tab Indicator
+    const sections = ['experience', 'projects', 'education', 'skills', 'about'];
+    const navLinks = document.querySelectorAll('.nav-link');
+    const tabIndicator = document.getElementById('tab-indicator');
+
+    function updateTabIndicator(activeId) {
+      if (!tabIndicator) return;
+      const activeLink = document.querySelector(`.nav-link[data-section="${activeId}"]`);
+      if (!activeLink) {
+        tabIndicator.style.opacity = '0';
+        return;
+      }
+      const navRect = activeLink.closest('nav').getBoundingClientRect();
+      const linkRect = activeLink.getBoundingClientRect();
+      const left = linkRect.left - navRect.left;
+      tabIndicator.style.width = `${linkRect.width}px`;
+      tabIndicator.style.transform = `translateX(${left}px)`;
+      tabIndicator.style.opacity = '1';
+    }
+
+    function onScrollUpdate() {
+      const h = document.documentElement;
+      const pct = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100;
+      document.getElementById('scrollProgress').style.width = pct + '%';
+
+      // Header backdrop
+      const header = document.getElementById('site-header');
+      if (window.scrollY > 16) {
+        header.classList.add('bg-[var(--bg)]/85', 'backdrop-blur-md', 'border-[var(--border)]');
+        header.classList.remove('border-transparent');
+      } else {
+        header.classList.remove('bg-[var(--bg)]/85', 'backdrop-blur-md', 'border-[var(--border)]');
+        header.classList.add('border-transparent');
+      }
+
+      // Experience Journey vertical progress bar fill + 3D Book-Opening (Mở sách) effect
+      const journey = document.getElementById('journey-container');
+      const journeyBar = document.getElementById('journey-progress-bar');
+      const winH = window.innerHeight;
+      const isMobile = window.innerWidth < 768;
+
+      if (journey && journeyBar) {
+        const rect = journey.getBoundingClientRect();
+        const start = winH * 0.75;
+        const end = winH * 0.25;
+        const progress = Math.min(1, Math.max(0, (start - rect.top) / (rect.height + (start - end) * 0.5)));
+        journeyBar.style.transform = `translateX(-50%) scaleY(${progress.toFixed(3)})`;
+      }
+
+      document.querySelectorAll('.timeline-book-row').forEach((row) => {
+        const rect = row.getBoundingClientRect();
+        const page = row.querySelector('.book-page');
+        const dateEl = row.querySelector('.book-date');
+        const dotEl = row.querySelector('.timeline-dot-node');
+        if (!page) return;
+
+        // Khi cuộn từ vị trí 94% chiều cao màn hình lên tới 58% chiều cao màn hình -> Trang sách mở dần từ 0 -> 1
+        const enterStart = winH * 0.94;
+        const enterEnd = winH * 0.56;
+        const raw = (enterStart - rect.top) / Math.max(1, enterStart - enterEnd);
+        const t = Math.min(1, Math.max(0, raw));
+        // Ease-out cubic cho chuyển động lật mở trang sách tự nhiên
+        const eased = 1 - Math.pow(1 - t, 3);
+
+        const side = row.dataset.side;
+        // Bên trái: gập vào trục giữa (-76deg -> 0deg); Bên phải (hoặc mobile): gập vào trục giữa (+76deg -> 0deg)
+        const dir = (!isMobile && side === 'left') ? -1 : 1;
+        const rotateY = ((1 - eased) * 76 * dir).toFixed(2);
+        const rotateX = ((1 - eased) * 9).toFixed(2);
+        const scale = (0.88 + 0.12 * eased).toFixed(3);
+        const opacity = Math.min(1, eased * 1.35).toFixed(3);
+        const spineShadow = ((1 - eased) * 0.65).toFixed(3);
+
+        page.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(${scale})`;
+        page.style.opacity = opacity;
+        page.style.setProperty('--spine-shadow', spineShadow);
+
+        if (dateEl) {
+          const dateRotateY = ((1 - eased) * -58 * dir).toFixed(2);
+          dateEl.style.transform = `rotateY(${dateRotateY}deg)`;
+          dateEl.style.opacity = opacity;
+        }
+        if (dotEl) {
+          dotEl.classList.toggle('is-active', eased > 0.55);
+        }
+      });
+
+      // Active section detection for sliding tab-indicator
+      let currentSection = '';
+      const triggerY = window.innerHeight * 0.35;
+      for (const id of sections) {
+        const sec = document.getElementById(id);
+        if (sec) {
+          const rect = sec.getBoundingClientRect();
+          if (rect.top <= triggerY && rect.bottom >= 120) {
+            currentSection = id;
+          }
+        }
+      }
+      navLinks.forEach((link) => {
+        const isCurrent = link.dataset.section === currentSection;
+        link.classList.toggle('text-[var(--fg)]', isCurrent);
+        link.classList.toggle('text-[var(--muted-fg)]', !isCurrent);
+      });
+      updateTabIndicator(currentSection);
+    }
+
+    window.addEventListener('scroll', onScrollUpdate, { passive: true });
+    window.addEventListener('resize', onScrollUpdate);
+    onScrollUpdate();
+
+    // 3. Switch between "How I ship" Architecture Diagram and Interactive Terminal in Hero
+    function switchHeroWidget(mode) {
+      const isMap = mode === 'map';
+      const mapEl = document.getElementById('hw-view-map');
+      const termEl = document.getElementById('hw-view-term');
+      mapEl.classList.toggle('hidden', !isMap);
+      termEl.classList.toggle('hidden', isMap);
+      document.getElementById('hero-panel-label').textContent = isMap ? 'How I ship' : 'ntquan@devops-engineer: ~';
+
+      const btnMap = document.getElementById('hw-btn-map');
+      const btnTerm = document.getElementById('hw-btn-term');
+      if (isMap) {
+        btnMap.className = 'px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition';
+        btnTerm.className = 'px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition';
+      } else {
+        btnTerm.className = 'px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition';
+        btnMap.className = 'px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition';
+        document.getElementById('term-input').focus();
+      }
+    }
+
+    // 4. Interactive Terminal Handler
+    function handleTerm(e) {
+      if (e.key !== 'Enter') return;
+      const input = e.target;
+      const cmd = input.value.trim().toLowerCase();
+      input.value = '';
+      if (!cmd) return;
+      const out = document.getElementById('term-output');
+      const echo = document.createElement('div');
+      echo.className = 'text-[var(--fg)] font-semibold';
+      echo.textContent = 'ntquan@devops:~$ ' + cmd;
+      out.appendChild(echo);
+
+      const res = document.createElement('div');
+      res.className = 'text-[var(--muted-fg)]';
+      if (cmd === 'help') {
+        res.textContent = 'Available: whoami, exp, projects, edu, skills, clear';
+      } else if (cmd === 'whoami') {
+        res.textContent = 'Nguyễn Thanh Quân — DevOps Engineer @ Viettel (Ho Chi Minh City)';
+      } else if (cmd === 'exp') {
+        res.textContent = 'Jumping to #experience (Viettel · Tech Company XYZ)...';
+        location.hash = '#experience';
+      } else if (cmd === 'projects') {
+        res.textContent = 'Jumping to #projects (Air-Gapped K8s · thanhquan.dev)...';
+        location.hash = '#projects';
+      } else if (cmd === 'edu') {
+        res.textContent = 'B.Eng in Information Technology — Networks & Distributed Systems';
+        location.hash = '#education';
+      } else if (cmd === 'skills') {
+        res.textContent = 'Kubernetes, Jenkins, Ansible, Docker, Prometheus, Grafana, Linux, HAProxy';
+        location.hash = '#skills';
+      } else if (cmd === 'clear') {
+        out.innerHTML = '';
+        return;
+      } else {
+        res.className = 'text-red-400';
+        res.textContent = 'command not found: ' + cmd;
+      }
+      out.appendChild(res);
+      const box = document.getElementById('term-box');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // 5. Dark / Light Mode Toggle
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+    }
+  </script>
+</body>
+</html>

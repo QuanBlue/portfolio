@@ -1,17 +1,50 @@
 ---
 import { portfolioData } from '../../data/portfolio';
+import { safeUrl } from '../../lib/render';
 const { identity } = portfolioData;
 ---
 
-<section id="contact" class="max-w-6xl mx-auto w-full px-5 pt-16 pb-10">
-  <div class="card relative overflow-hidden p-10 md:p-16 text-center reveal">
-    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-blue-500/5 pointer-events-none"></div>
-    <p class="eyebrow mb-3 relative">Contact</p>
-    <h2 class="font-display text-3xl md:text-5xl font-bold text-[var(--heading)] relative">Let's build something reliable.</h2>
-    <p class="mt-4 max-w-lg mx-auto relative">Mở cho các cơ hội DevOps, hạ tầng Kubernetes và quan sát hệ thống.</p>
-    <a data-bind="email" href={`mailto:${identity.email}`} class="btn btn-primary mt-8 relative">{identity.email}</a>
+<section id="contact" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+    <div class="reveal panel p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div>
+        <p class="text-label text-[var(--signal)] mb-2">06 · Get in touch</p>
+        <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Let's talk infrastructure.</h2>
+        <p class="text-sm sm:text-base text-[var(--muted-fg)] mt-2 max-w-xl">
+          Luôn sẵn sàng trao đổi về kiến trúc Kubernetes, tự động hóa hệ thống hoặc các cơ hội hợp tác mới.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a
+          data-bind="email"
+          href={`mailto:${identity.email}`}
+          class="inline-flex h-11 items-center gap-2 rounded-xl bg-[var(--fg)] px-5 text-sm font-semibold text-[var(--bg)] hover:opacity-90 active:scale-[0.98] transition"
+        >
+          {identity.email}
+        </a>
+        <a
+          data-bind="linkedin"
+          href={safeUrl(identity.linkedin.url)}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex h-11 items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--card)] px-5 text-sm font-semibold text-[var(--fg)] hover:bg-[var(--muted-bg)] active:scale-[0.98] transition"
+        >
+          <i class="fa-brands fa-linkedin"></i>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+    </div>
   </div>
-  <p class="flex items-center justify-center gap-2 text-xs text-[var(--muted)] mt-10 font-mono"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span><span class="text-emerald-600 dark:text-emerald-400">ACTIVE_CONNECTION</span> ·
-    © {new Date().getFullYear()} <span data-bind="name">{identity.name}</span>
-  </p>
 </section>
+
+<footer class="border-t border-[var(--border)] py-8 text-xs font-mono text-[var(--muted-fg)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div>© {new Date().getFullYear()} <span data-bind="name">{identity.name}</span> · thanhquan.dev</div>
+    <div class="flex items-center gap-5">
+      <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">GitHub</a>
+      <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">LinkedIn</a>
+      <a href="/blog" class="hover:text-[var(--fg)] transition">Blog</a>
+      <a href="/admin" class="hover:text-[var(--fg)] transition">Admin</a>
+    </div>
+  </div>
+</footer>

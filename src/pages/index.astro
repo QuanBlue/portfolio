@@ -1,23 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/sections/Hero.astro';
-import GallerySection from '../components/sections/GallerySection.astro';
-import ProjectsSection from '../components/sections/ProjectsSection.astro';
 import ExperienceSection from '../components/sections/ExperienceSection.astro';
+import ProjectsSection from '../components/sections/ProjectsSection.astro';
+import EducationSection from '../components/sections/EducationSection.astro';
 import SkillsSection from '../components/sections/SkillsSection.astro';
+import AboutSection from '../components/sections/AboutSection.astro';
 import ContactSection from '../components/sections/ContactSection.astro';
-import InteractiveTerminal from '../components/terminal/InteractiveTerminal.astro';
 import ProjectModal from '../components/dashboard/ProjectModal.astro';
 ---
 
-<BaseLayout title="Nguyễn Thanh Quân | DevOps Engineer" currentPath="/">
+<BaseLayout title="Nguyễn Thanh Quân — DevOps & Infrastructure Engineer" currentPath="/">
   <main class="flex-grow">
     <Hero />
-    <GallerySection />
-    <ProjectsSection />
     <ExperienceSection />
+    <ProjectsSection />
+    <EducationSection />
     <SkillsSection />
-    <InteractiveTerminal />
+    <AboutSection />
     <ContactSection />
   </main>
 
@@ -25,29 +25,7 @@ import ProjectModal from '../components/dashboard/ProjectModal.astro';
 </BaseLayout>
 
 <script>
-  import { openLightbox } from '../lib/lightbox';
-  import { renderGalleryGrid } from '../lib/render';
-  import type { GalleryItem } from '../data/portfolio';
-
-  const grid = document.getElementById('gallery-grid')!;
-  const empty = document.getElementById('gallery-empty')!;
-  const all = document.getElementById('gallery-all')!;
-  const limit = Number(grid.dataset.limit) || 6;
-  let items: GalleryItem[] = [];
-
-  window.addEventListener('portfolio:data', (e) => {
-    items = ((e as CustomEvent).detail.gallery ?? []).filter((g: GalleryItem) => Boolean(g.image && g.image.trim()));
-    grid.innerHTML = renderGalleryGrid(items, limit);
-    empty.classList.toggle('hidden', items.length > 0);
-    all.classList.toggle('hidden', items.length <= limit);
-  });
-
-  grid.addEventListener('click', (e) => {
-    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-gallery-index]');
-    if (card && items.length) openLightbox(items, Number(card.dataset.galleryIndex));
-  });
-
-  // Reveal sections on scroll
+  // Reveal sections & editorial headings on scroll
   const io = new IntersectionObserver(
     (entries) =>
       entries.forEach((en) => {
@@ -56,7 +34,80 @@ import ProjectModal from '../components/dashboard/ProjectModal.astro';
           io.unobserve(en.target);
         }
       }),
-    { threshold: 0.08 },
+    { threshold: 0.1, rootMargin: '0px 0px -30px 0px' },
   );
-  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  function observeReveals() {
+    document.querySelectorAll('.reveal:not(.is-visible), .reveal-wipe:not(.is-visible)').forEach((el) => io.observe(el));
+  }
+  observeReveals();
+
+  // Timeline progress line & 3D Book-Opening Scroll Effect ("mở sách")
+  const journeyTimeline = document.getElementById('journey-timeline');
+  const journeyProgressBar = document.getElementById('journey-progress-bar');
+
+  function onExperienceScroll() {
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+
+    // 1. Center spine green progress fill
+    if (journeyTimeline && journeyProgressBar) {
+      const rect = journeyTimeline.getBoundingClientRect();
+      const start = vh * 0.72;
+      const end = vh * 0.25;
+      const total = rect.height + (start - end);
+      const current = start - rect.top;
+      const ratio = Math.max(0, Math.min(1, current / total));
+      journeyProgressBar.style.transform = `translateX(-50%) scaleY(${ratio.toFixed(3)})`;
+    }
+
+    // 2. Book-opening 3D unfold per row based on scroll position
+    const bookRows = document.querySelectorAll<HTMLElement>('.timeline-book-row');
+    bookRows.forEach((row) => {
+      const r = row.getBoundingClientRect();
+      const rowCenter = r.top + r.height * 0.35;
+      // Start opening when row enters bottom 94% of viewport, fully flat at 56% of viewport
+      const enterY = vh * 0.94;
+      const flatY = vh * 0.56;
+      const raw = (enterY - rowCenter) / (enterY - flatY);
+      const p = Math.max(0, Math.min(1, raw));
+      // Smooth cubic ease-out so the page settles gently like a heavy hardcover page
+      const eased = 1 - Math.pow(1 - p, 2.6);
+
+      const leftPage = row.querySelector<HTMLElement>('.book-page-left');
+      const rightPage = row.querySelector<HTMLElement>('.book-page-right');
+      const dotNode = row.querySelector<HTMLElement>('.timeline-dot-node');
+
+      // Max closed angle: 76deg folded inward toward the center spine
+      const maxAngle = 76;
+      const angle = (1 - eased) * maxAngle;
+      const tiltX = (1 - eased) * 6;
+      const scale = 0.92 + eased * 0.08;
+      const opacity = 0.12 + eased * 0.88;
+      const spineShadow = ((1 - eased) * 0.85).toFixed(3);
+
+      if (leftPage) {
+        // Left page hinges on right edge (spine); negative rotateY folds outer left edge toward viewer/spine
+        leftPage.style.transform = `rotateY(${-angle.toFixed(2)}deg) rotateX(${tiltX.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+        leftPage.style.opacity = opacity.toFixed(3);
+        leftPage.style.setProperty('--spine-shadow', spineShadow);
+      }
+      if (rightPage) {
+        // Right page hinges on left edge (spine); positive rotateY folds outer right edge toward viewer/spine
+        rightPage.style.transform = `rotateY(${angle.toFixed(2)}deg) rotateX(${tiltX.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+        rightPage.style.opacity = opacity.toFixed(3);
+        rightPage.style.setProperty('--spine-shadow', spineShadow);
+      }
+      if (dotNode) {
+        dotNode.classList.toggle('is-active', eased > 0.35);
+      }
+    });
+  }
+
+  window.addEventListener('scroll', onExperienceScroll, { passive: true });
+  window.addEventListener('resize', onExperienceScroll, { passive: true });
+  window.addEventListener('portfolio:data', () => {
+    observeReveals();
+    requestAnimationFrame(onExperienceScroll);
+  });
+  onExperienceScroll();
 </script>

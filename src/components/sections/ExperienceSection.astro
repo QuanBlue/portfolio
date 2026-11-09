@@ -4,13 +4,22 @@ import { renderExperience } from '../../lib/render';
 const { experience } = portfolioData;
 ---
 
-<section id="experience" class="max-w-4xl mx-auto w-full px-5 py-16">
-  <div class="mb-10 reveal">
-    <p class="eyebrow mb-2">Experience</p>
-    <h2 class="font-display text-3xl md:text-4xl font-bold text-[var(--heading)]">Where I've worked</h2>
-  </div>
-  <div class="relative reveal">
-    <div class="absolute left-[5px] top-3 bottom-3 w-px bg-[var(--card-border)]"></div>
-    <div id="bind-experience" set:html={renderExperience(experience)}></div>
+<section id="experience" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[46rem]">
+      <p class="reveal text-label text-[var(--signal)] mb-2">01 · Career Path</p>
+      <h2 class="reveal-wipe text-h2 text-[var(--fg)]">
+        Work Experience · <span class="text-[var(--signal)] font-mono">Professional Journey</span>
+      </h2>
+      <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+        Từ quản trị hệ thống Linux nội bộ đến thiết kế và tự động hóa các cụm Kubernetes High-Availability quy mô lớn.
+      </p>
+    </div>
+
+    <div id="journey-container" class="timeline-container mt-12 sm:mt-16">
+      <div class="timeline-line" aria-hidden="true"></div>
+      <div id="journey-progress-bar" class="timeline-progress" aria-hidden="true"></div>
+      <div id="bind-experience" class="space-y-10" set:html={renderExperience(experience)}></div>
+    </div>
   </div>
 </section>

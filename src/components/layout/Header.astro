@@ -5,88 +5,172 @@ interface Props {
 
 const { currentPath = '/' } = Astro.props;
 
-const links = [
-  { href: '/#gallery', label: 'Gallery' },
-  { href: '/#projects', label: 'Projects' },
-  { href: '/#experience', label: 'Experience' },
-  { href: '/#skills', label: 'Skills' },
-  { href: '/blog', label: 'Blog', active: currentPath.startsWith('/blog') },
+const navSections = [
+  { id: 'experience', href: '/#experience', label: 'Experience' },
+  { id: 'projects', href: '/#projects', label: 'Projects' },
+  { id: 'education', href: '/#education', label: 'Education' },
+  { id: 'skills', href: '/#skills', label: 'Skills' },
+  { id: 'about', href: '/#about', label: 'About' },
 ];
 ---
 
-<header class="sticky top-0 z-40 px-3 pt-3">
-  <nav
-    class="mx-auto max-w-6xl card !rounded-full flex items-center justify-between gap-4 pl-5 pr-2 py-2 shadow-lg shadow-black/5"
-    aria-label="Main"
-  >
-    <a href="/" class="flex items-center gap-2 font-display font-bold text-[var(--heading)]">
-      <img src="/logo.svg" alt="" class="w-6 h-6" width="24" height="24" />
-      <span id="hdr-brand" class="font-mono text-sm tracking-tight">ntquan<span class="text-emerald-500">_</span>devops</span>
+<header id="site-header" class="nav-enter sticky inset-x-0 top-0 z-50 border-b border-transparent transition-all duration-200">
+  <nav class="relative mx-auto flex h-16 max-w-[76rem] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Main">
+    <!-- Brand Logo -->
+    <a href="/" class="flex items-center gap-3 group">
+      <span class="grid size-9 place-items-center rounded-lg border border-[var(--border)] bg-[var(--card)] font-mono text-xs font-bold text-[var(--signal)] shadow-2xs transition-transform duration-200 group-hover:scale-105">
+        Q_
+      </span>
+      <span class="font-mono text-xs font-bold leading-tight tracking-wider text-[var(--fg)]">
+        THANH QUÂN<br />
+        <span class="text-[10px] font-medium text-[var(--muted-fg)]">DEVOPS · SRE</span>
+      </span>
     </a>
 
-    <ul class="hidden md:flex items-center gap-1 text-sm">
-      {links.map((l) => (
+    <!-- Center Navigation (Experience -> Projects -> Education -> Skills -> About) -->
+    <ul id="nav-list" class="relative hidden items-center gap-1 lg:flex">
+      {navSections.map((item) => (
         <li>
           <a
-            href={l.href}
-            class={`px-3 py-1.5 rounded-full transition-colors hover:text-[var(--heading)] hover:bg-black/5 dark:hover:bg-white/5 ${
-              l.active ? 'text-[var(--heading)] bg-black/5 dark:bg-white/5' : 'text-[var(--text-body)]'
-            }`}
+            href={item.href}
+            data-section={item.id}
+            class="nav-link inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition"
           >
-            {l.label}
+            {item.label}
           </a>
         </li>
       ))}
     </ul>
 
-    <div class="flex items-center gap-1">
+    <!-- Sliding Active Tab Indicator at bottom of Header -->
+    <span id="tab-indicator" class="tab-indicator hidden lg:block" aria-hidden="true"></span>
+
+    <!-- Right Controls: Blog, Admin (Login/Edit), Theme Toggle, Contact CTA -->
+    <div class="flex items-center gap-1.5">
       <a
-        href="/admin"
-        class={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border transition-colors ${
-          currentPath.startsWith('/admin')
-            ? 'text-emerald-600 dark:text-emerald-400 border-emerald-500/40 bg-emerald-500/10'
-            : 'text-[var(--text-body)] border-[var(--panel-border)] hover:text-[var(--heading)] hover:border-emerald-500/50'
+        href="/blog"
+        class={`inline-flex h-9 items-center justify-center rounded-lg px-2.5 font-mono text-xs font-semibold transition ${
+          currentPath.startsWith('/blog')
+            ? 'bg-[var(--muted-bg)] text-[var(--fg)]'
+            : 'text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)]'
         }`}
       >
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        Blog
+      </a>
+
+      <a
+        href="/admin"
+        class={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 font-mono text-xs font-semibold transition ${
+          currentPath.startsWith('/admin')
+            ? 'border-[var(--signal)] bg-[var(--muted-bg)] text-[var(--signal)]'
+            : 'border-[var(--border)] bg-[var(--card)] text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)]'
+        }`}
+      >
+        <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
         <span id="hdr-admin-label">Login</span>
       </a>
+
       <button
         id="theme-toggle"
         type="button"
-        class="w-9 h-9 flex items-center justify-center rounded-full text-[var(--text-body)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-        aria-label="Toggle theme"
+        aria-label="Switch light / dark theme"
+        class="inline-flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--fg)] hover:bg-[var(--muted-bg)] active:scale-95 cursor-pointer transition"
+        title="Đổi chế độ Sáng / Tối"
       >
-        <svg id="theme-toggle-dark-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-        </svg>
-        <svg id="theme-toggle-light-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
-        </svg>
+        <span id="theme-icon" class="text-xs">🌙</span>
       </button>
+
+      <a
+        href="/#contact"
+        class="ml-1 hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--fg)] px-4 text-sm font-medium text-[var(--bg)] hover:opacity-90 active:scale-[0.98] transition"
+      >
+        <span>Contact</span>
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10M7 17L17 7"/></svg>
+      </a>
     </div>
   </nav>
 </header>
 
 <script is:inline>
   (function () {
-    var darkIcon = document.getElementById('theme-toggle-dark-icon');
-    var lightIcon = document.getElementById('theme-toggle-light-icon');
-    var sync = function () {
+    var icon = document.getElementById('theme-icon');
+    var syncThemeIcon = function () {
       var isDark = document.documentElement.classList.contains('dark');
-      if (lightIcon) lightIcon.classList.toggle('hidden', !isDark);
-      if (darkIcon) darkIcon.classList.toggle('hidden', isDark);
+      if (icon) icon.textContent = isDark ? '🌙' : '☀️';
     };
-    sync();
+    syncThemeIcon();
+
     var btn = document.getElementById('theme-toggle');
     if (btn) {
       btn.addEventListener('click', function () {
         var nowDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('color-theme', nowDark ? 'dark' : 'light');
-        sync();
+        syncThemeIcon();
       });
     }
+
+    var sections = ['experience', 'projects', 'education', 'skills', 'about'];
+    var navLinks = document.querySelectorAll('.nav-link');
+    var tabIndicator = document.getElementById('tab-indicator');
+
+    function updateTabIndicator(activeId) {
+      if (!tabIndicator) return;
+      var activeLink = document.querySelector('.nav-link[data-section="' + activeId + '"]');
+      if (!activeLink) {
+        tabIndicator.style.opacity = '0';
+        return;
+      }
+      var navEl = activeLink.closest('nav');
+      if (!navEl) return;
+      var navRect = navEl.getBoundingClientRect();
+      var linkRect = activeLink.getBoundingClientRect();
+      var left = linkRect.left - navRect.left;
+      tabIndicator.style.width = linkRect.width + 'px';
+      tabIndicator.style.transform = 'translateX(' + left + 'px)';
+      tabIndicator.style.opacity = '1';
+    }
+
+    function onHeaderScroll() {
+      var h = document.documentElement;
+      var pct = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100;
+      var bar = document.getElementById('scrollProgress');
+      if (bar) bar.style.width = pct + '%';
+
+      var header = document.getElementById('site-header');
+      if (header) {
+        if (window.scrollY > 16) {
+          header.classList.add('bg-[var(--bg)]/85', 'backdrop-blur-md', 'border-[var(--border)]');
+          header.classList.remove('border-transparent');
+        } else {
+          header.classList.remove('bg-[var(--bg)]/85', 'backdrop-blur-md', 'border-[var(--border)]');
+          header.classList.add('border-transparent');
+        }
+      }
+
+      var currentSection = '';
+      var triggerY = window.innerHeight * 0.35;
+      for (var i = 0; i < sections.length; i++) {
+        var id = sections[i];
+        var sec = document.getElementById(id);
+        if (sec) {
+          var rect = sec.getBoundingClientRect();
+          if (rect.top <= triggerY && rect.bottom >= 120) {
+            currentSection = id;
+          }
+        }
+      }
+      navLinks.forEach(function (link) {
+        var isCurrent = link.dataset.section === currentSection;
+        link.classList.toggle('text-[var(--fg)]', isCurrent);
+        link.classList.toggle('text-[var(--muted-fg)]', !isCurrent);
+      });
+      updateTabIndicator(currentSection);
+    }
+
+    window.addEventListener('scroll', onHeaderScroll, { passive: true });
+    window.addEventListener('resize', onHeaderScroll);
+    onHeaderScroll();
   })();
 </script>

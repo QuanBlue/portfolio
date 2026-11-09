@@ -4,10 +4,16 @@ import { renderProjects } from '../../lib/render';
 const { projects } = portfolioData;
 ---
 
-<section id="projects" class="max-w-6xl mx-auto w-full px-5 py-16">
-  <div class="mb-8 reveal">
-    <p class="eyebrow mb-2">Projects</p>
-    <h2 class="font-display text-3xl md:text-4xl font-bold text-[var(--heading)]">Selected work</h2>
+<section id="projects" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[46rem]">
+      <p class="reveal text-label text-[var(--signal)] mb-2">02 · Project</p>
+      <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Projects running in production.</h2>
+      <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+        Các dự án thực tế từ tự động hóa hạ tầng Air-Gapped đến thiết kế nền tảng Cloud-Native.
+      </p>
+    </div>
+
+    <div id="bind-projects" class="mt-10 sm:mt-14 grid gap-8 md:grid-cols-2" set:html={renderProjects(projects)}></div>
   </div>
-  <div id="bind-projects" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 reveal" set:html={renderProjects(projects)}></div>
 </section>

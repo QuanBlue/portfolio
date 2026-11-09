@@ -1,0 +1,19 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderEducation } from '../../lib/render';
+const { education = [] } = portfolioData;
+---
+
+<section id="education" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[46rem]">
+      <p class="reveal text-label text-[var(--signal)] mb-2">03 · Academic Background</p>
+      <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Education &amp; Research.</h2>
+      <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+        Nền tảng đại học về Mạng máy tính, Hệ điều hành Linux và Hệ thống Phân tán.
+      </p>
+    </div>
+
+    <ol id="bind-education" class="mt-8 sm:mt-10 border-b border-[var(--border)] max-w-4xl" set:html={renderEducation(education)}></ol>
+  </div>
+</section>

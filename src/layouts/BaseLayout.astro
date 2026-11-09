@@ -11,8 +11,8 @@ interface Props {
 }
 
 const {
-  title = "Quan's DevOps Dashboard",
-  description = "DevOps Engineer portfolio featuring interactive cloud infrastructure monitoring, APM telemetry, and browser terminal.",
+  title = "Nguyễn Thanh Quân · DevOps & Infrastructure Engineer",
+  description = "DevOps & Infrastructure Engineer portfolio featuring High-Availability Kubernetes, Air-Gapped Ansible automation, Jenkins DevSecOps supply chain, and observability.",
   currentPath = '/',
   isDashboard = false,
 } = Astro.props;
@@ -20,14 +20,15 @@ const hasCms = Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
 ---
 
 <!DOCTYPE html>
-<html lang="vi" class="dark">
+<html lang="vi" class="dark scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#09090b" />
+    <meta name="theme-color" content="#141413" />
     <meta property="og:image" content={new URL('/og-image.png', Astro.site ?? Astro.url).href} />
-    <meta name="twitter:image" content={new URL('/og-image.png', Astro.site ?? Astro.url).href} />    <title>{title}</title>
+    <meta name="twitter:image" content={new URL('/og-image.png', Astro.site ?? Astro.url).href} />
+    <title>{title}</title>
     <meta name="description" content={description} />
     
     <!-- OpenGraph / Twitter -->
@@ -36,13 +37,15 @@ const hasCms = Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
     <meta property="og:description" content={description} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Google Fonts matching mockup -->
+    <!-- Google Fonts & Icon Libraries -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
 
     <!-- Mặc định luôn là Dark theme trừ khi người dùng chủ động chọn Light -->
     <script is:inline>
@@ -65,8 +68,10 @@ const hasCms = Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
           setTimeout(function () { document.documentElement.classList.remove('cms-loading'); }, 4000);
         </script>
       </>
-    )}  </head>
-  <body class="flex flex-col min-h-screen relative">
+    )}
+  </head>
+  <body class="flex flex-col min-h-screen relative antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
+    <div class="scroll-progress" id="scrollProgress"></div>
     <div class="ambient" aria-hidden="true"></div>
     <Header currentPath={currentPath} />
     <slot />

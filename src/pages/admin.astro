@@ -259,6 +259,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     },
     {
       kind: 'list',
+      id: 'education',
+      title: 'Education',
+      titleKey: 'degree',
+      fields: [
+        { key: 'badge', label: 'Badge (e.g. B.Eng, LAB)', type: 'text' },
+        { key: 'period', label: 'Period (e.g. 2019 — 2023)', type: 'text' },
+        { key: 'degree', label: 'Degree / Title', type: 'text', wide: true },
+        { key: 'school', label: 'School / Subtitle', type: 'text', wide: true },
+        { key: 'description', label: 'Description', type: 'textarea', wide: true },
+      ],
+      create: () => ({ id: uid(), badge: 'B.Eng', period: '2019 — 2023', degree: 'Degree', school: 'University', description: '' }),
+    },
+    {
+      kind: 'list',
       id: 'skills',
       title: 'Skills',
       titleKey: 'name',
@@ -642,7 +656,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const parsed = JSON.parse(await file.text());
       if (typeof parsed !== 'object' || !parsed || Array.isArray(parsed)) throw new Error('bad');
       data = mergePortfolioData(defaultPortfolioData, parsed);
-      for (const k of ['skills', 'certifications', 'experience', 'projects', 'gallery'] as const) {
+      for (const k of ['skills', 'certifications', 'experience', 'education', 'projects', 'gallery'] as const) {
         if (!Array.isArray(data[k])) (data as any)[k] = [];
       }
       queueSave();
@@ -842,6 +856,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const { data: d, fromDraft } = await loadAdminData();
     data = structuredClone(d);
     if (!Array.isArray(data.gallery)) data.gallery = [];
+    if (!Array.isArray(data.education)) data.education = structuredClone(defaultPortfolioData.education ?? []);
     render();
     if (fromDraft) {
       markDirty('Loaded unsaved draft · Click Save to apply');

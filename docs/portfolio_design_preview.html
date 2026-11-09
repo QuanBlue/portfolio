@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nguyễn Thanh Quân | DevOps Engineer Portfolio (DevHQ Style · Clean DevOps Theme)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    /* ==========================================================================
+       CLEAN DEVOPS THEME PALETTE (Dịu mắt chuẩn ObservAI Dark & Warm Light)
+       Không ô caro, không hiệu ứng 3D/neon rườm rà
+       ========================================================================== */
+    :root {
+      --bg-color: #f4f4f2;
+      --card-bg: #ffffff;
+      --card-sub: #f8f8f6;
+      --card-border: #e2e2de;
+      --card-hover: #cfcfc9;
+      --heading: #181817;
+      --body: #52514e;
+      --muted: #85847f;
+      --accent: #059669;
+      --accent-soft: rgba(5, 150, 105, 0.1);
+      --accent-border: rgba(5, 150, 105, 0.3);
+      --nav-bg: rgba(255, 255, 255, 0.88);
+    }
+
+    html.dark {
+      --bg-color: #141413;
+      --card-bg: #1c1c1b;
+      --card-sub: #222220;
+      --card-border: #2b2b29;
+      --card-hover: #3d3d3a;
+      --heading: #ececeb;
+      --body: #a6a5a1;
+      --muted: #73726e;
+      --accent: #34d399;
+      --accent-soft: rgba(52, 211, 153, 0.12);
+      --accent-border: rgba(52, 211, 153, 0.3);
+      --nav-bg: rgba(28, 28, 27, 0.88);
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--body);
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      overflow-x: hidden;
+    }
+
+    /* Scroll Progress Bar (Top) */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--accent);
+      z-index: 100;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* Floating Pill Navbar (Giống aakarsh-devhq.vercel.app nhưng tối giản) */
+    .nav-pill {
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 9999px;
+      padding: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .nav-link {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--body);
+      padding: 7px 14px;
+      border-radius: 9999px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link:hover {
+      color: var(--heading);
+    }
+    .nav-link.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      font-weight: 600;
+    }
+
+    /* Clean DevOps Card */
+    .devops-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .devops-card:hover {
+      border-color: var(--card-hover);
+    }
+    .devops-card-lift:hover {
+      border-color: var(--accent-border);
+      transform: translateY(-3px);
+    }
+
+    /* Section Title (Giống cấu trúc "Title - Accent Subtitle!" của Aakarsh) */
+    .section-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--heading);
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+    .accent-mono {
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    /* Tag Badge */
+    .devops-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Button Style */
+    .btn-devops {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: var(--card-bg);
+      color: var(--heading);
+      border: 1px solid var(--card-border);
+      transition: all 0.2s ease;
+    }
+    .btn-devops:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .btn-devops-primary {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+    .btn-devops-primary:hover {
+      background: var(--accent);
+      color: #141413;
+    }
+
+    /* Alternating Timeline (Giống Aakarsh Experience Timeline nhưng gọn & rõ) */
+    .timeline-container {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .timeline-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: var(--card-border);
+      transform: translateX(-50%);
+    }
+    .timeline-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--accent-border);
+      user-select: none;
+    }
+    @media (max-width: 768px) {
+      .timeline-line {
+        left: 16px;
+      }
+    }
+
+    /* Skill Filter Pills */
+    .filter-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--body);
+      padding: 7px 18px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .filter-btn:hover {
+      border-color: var(--card-hover);
+      color: var(--heading);
+    }
+    .filter-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+
+    /* Typing Cursor */
+    .typing-cursor::after {
+      content: '▋';
+      color: var(--accent);
+      margin-left: 4px;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ==========================================================================
+       "HOW I SHIP" EXACT ANIMATIONS & STYLES FROM FERHATSN.FR (11.CS_klDkg.css)
+       ========================================================================== */
+    :root {
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+      --primary-ship: #3b82f6;
+    }
+    html.dark {
+      --primary-ship: #60a5fa;
+    }
+
+    .map-ship {
+      --mid: color-mix(in srgb, var(--accent), var(--primary-ship));
+      --cycle: 6s;
+      --boot: 2.7s;
+    }
+
+    .squircle {
+      border-radius: 12px;
+    }
+
+    .sep:not(:last-child)::after {
+      content: "·";
+      color: var(--muted);
+      margin-inline: 0.5rem;
+    }
+
+    .flow {
+      background: var(--card-border);
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-x {
+      height: 1px;
+      position: absolute;
+      top: 20px;
+      left: 12.5%;
+      right: 12.5%;
+      transform-origin: 0;
+      animation: boot-x 0.9s var(--ease-out-expo) both 0.4s;
+    }
+    .flow-y {
+      width: 1px;
+      height: 1.5rem;
+      margin-inline: auto;
+      transform-origin: top;
+      animation: boot-y 0.42s var(--ease-out-expo) both calc(1.05s + var(--b, 0) * 1.2s);
+    }
+    .flow i {
+      opacity: 0;
+      position: absolute;
+      inset: 0;
+    }
+    .flow i::after {
+      content: "";
+      background: var(--c);
+      width: 6px;
+      height: 6px;
+      box-shadow: 0 0 12px 2px var(--c);
+      border-radius: 999px;
+      position: absolute;
+    }
+    .flow-x i::after {
+      top: -2.5px;
+      right: 0;
+    }
+    .flow-y i::after {
+      bottom: 0;
+      left: -2.5px;
+    }
+    .flow-x i {
+      animation: travel-x var(--cycle) var(--ease-standard) infinite calc(var(--boot) + var(--d, 0s));
+    }
+    .flow-y i {
+      animation: travel-y var(--cycle) var(--ease-standard) infinite calc(var(--boot) + var(--d, 0s));
+    }
+
+    .boot-step {
+      animation: boot-pop 0.52s var(--ease-out-expo) both;
+      animation-delay: calc(0.35s + var(--s, 0) * 0.14s);
+    }
+    .boot-cluster {
+      animation: boot-rise 0.64s var(--ease-out-expo) both 1.25s;
+    }
+    .pod {
+      background: color-mix(in srgb, var(--accent) 48%, var(--card-sub));
+      border-radius: 2px;
+      width: 0.4375rem;
+      height: 0.4375rem;
+      animation: boot-pod 0.28s var(--ease-out-expo) both;
+      animation-delay: calc(1.45s + var(--p, 0) * 28ms);
+    }
+    .pod-rollout {
+      animation:
+        boot-pod 0.28s var(--ease-out-expo) both calc(1.45s + var(--p, 0) * 28ms),
+        pod-rollout-kf var(--cycle) linear infinite calc(var(--boot) + 2.2s + var(--n, 0) * 0.25s);
+    }
+    .boot-prod {
+      animation: boot-rise 0.64s var(--ease-out-expo) both 2.4s;
+    }
+
+    @keyframes boot-pop {
+      0% { opacity: 0; transform: translateY(8px) scale(0.86); }
+    }
+    @keyframes boot-x {
+      0% { transform: scaleX(0); }
+    }
+    @keyframes boot-y {
+      0% { transform: scaleY(0); }
+    }
+    @keyframes boot-rise {
+      0% { opacity: 0; transform: translateY(10px); }
+    }
+    @keyframes boot-pod {
+      0% { opacity: 0; transform: scale(0.3); }
+    }
+    @keyframes travel-x {
+      0% { opacity: 0; transform: translate(-100%); }
+      3% { opacity: 1; }
+      22% { opacity: 1; transform: translate(0); }
+      26%, to { opacity: 0; transform: translate(0); }
+    }
+    @keyframes travel-y {
+      0% { opacity: 0; transform: translateY(-100%); }
+      3% { opacity: 1; }
+      18% { opacity: 1; transform: translateY(0); }
+      22%, to { opacity: 0; transform: translateY(0); }
+    }
+    @keyframes pod-rollout-kf {
+      0% { background: var(--accent); transform: scale(0.6); }
+      12% { background: var(--accent); transform: scale(1); }
+      24%, to { background: color-mix(in srgb, var(--accent) 48%, var(--card-sub)); }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
+
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- =====================================================================
+       FLOATING NAVBAR (Cấu trúc giống aakarsh-devhq.vercel.app + Nút Dark/Light)
+       ===================================================================== -->
+  <header class="fixed top-4 inset-x-0 z-50 flex justify-center px-4">
+    <nav class="nav-pill max-w-full overflow-x-auto">
+      <a href="#home" class="nav-link active" data-sec="home">
+        <i class="fa-solid fa-terminal text-[11px]"></i>
+        <span>Home</span>
+      </a>
+      <a href="#about" class="nav-link" data-sec="about">
+        <i class="fa-solid fa-user text-[11px]"></i>
+        <span>About</span>
+      </a>
+      <a href="#experience" class="nav-link" data-sec="experience">
+        <i class="fa-solid fa-briefcase text-[11px]"></i>
+        <span>Experience</span>
+      </a>
+      <a href="#projects" class="nav-link" data-sec="projects">
+        <i class="fa-solid fa-server text-[11px]"></i>
+        <span>Projects</span>
+      </a>
+      <a href="#certifications" class="nav-link" data-sec="certifications">
+        <i class="fa-solid fa-award text-[11px]"></i>
+        <span>Certs</span>
+      </a>
+      <a href="#education" class="nav-link" data-sec="education">
+        <i class="fa-solid fa-graduation-cap text-[11px]"></i>
+        <span>Education</span>
+      </a>
+      <a href="#skills" class="nav-link" data-sec="skills">
+        <i class="fa-solid fa-layer-group text-[11px]"></i>
+        <span>Skills</span>
+      </a>
+      <a href="#contact" class="nav-link" data-sec="contact">
+        <i class="fa-solid fa-envelope text-[11px]"></i>
+        <span>Contact</span>
+      </a>
+
+      <span class="h-4 w-px bg-[var(--card-border)] mx-1"></span>
+
+      <!-- Nút đổi Dark / Light (Đồng bộ cả Terminal) -->
+      <button
+        onclick="toggleTheme()"
+        class="nav-link cursor-pointer"
+        title="Chuyển chế độ Sáng / Tối"
+      >
+        <span id="theme-icon">🌙</span>
+        <span id="theme-label" class="font-mono text-xs">Dark</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- =====================================================================
+       1. HERO SECTION (#home) — Giống bố cục Hero của Aakarsh + DevOps Terminal
+       ===================================================================== -->
+  <main id="home" class="min-h-screen flex flex-col justify-center items-center px-4 pt-28 pb-16 relative max-w-5xl mx-auto text-center">
+
+    <!-- 4 góc badge nhẹ nhàng mang chất DevOps (thay cho floating icon rối mắt) -->
+    <div class="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full devops-card text-xs font-mono absolute top-32 left-4">
+      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+      <span>k8s-ha: <strong class="text-[var(--heading)]">99.99% SLA</strong></span>
+    </div>
+    <div class="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full devops-card text-xs font-mono absolute top-32 right-4">
+      <i class="fa-solid fa-gears text-emerald-400"></i>
+      <span>ansible: <strong class="text-[var(--heading)]">air-gapped</strong></span>
+    </div>
+
+    <div class="devops-tag mb-5">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span>NODE: HCM-VNM · PRODUCTION READY</span>
+    </div>
+
+    <p class="text-sm sm:text-base font-medium text-[var(--muted)] mb-3">
+      Welcome! You landed on the infrastructure node of
+    </p>
+
+    <!-- Typing Title giống Aakarsh -->
+    <h1 class="text-4xl sm:text-6xl font-extrabold text-[var(--heading)] tracking-tight min-h-[1.25em] flex items-center justify-center">
+      <span id="typing-role" class="accent-mono typing-cursor">DEVOPS ENGINEER</span>
+    </h1>
+
+    <h2 class="text-lg sm:text-2xl font-medium text-[var(--heading)] mt-4">
+      Nguyễn Thanh Quân <span class="text-[var(--muted)]">|</span> <span class="text-base sm:text-xl text-[var(--body)]">DevOps Engineer @ Viettel</span>
+    </h2>
+
+    <p class="max-w-2xl text-sm sm:text-base text-[var(--body)] mt-4 leading-relaxed">
+      Chuyên thiết kế cụm Kubernetes High-Availability, tự động hóa hạ tầng Air-Gapped bằng Ansible và xây dựng hệ thống giám sát Prometheus/Grafana quy mô lớn.
+    </p>
+
+    <!-- Hero CTA Buttons -->
+    <div class="flex flex-wrap justify-center gap-3.5 mt-7">
+      <a href="#contact" class="btn-devops btn-devops-primary">
+        <i class="fa-solid fa-paper-plane text-xs"></i>
+        <span>Let's Connect</span>
+      </a>
+      <a href="#experience" class="btn-devops">
+        <i class="fa-solid fa-code-branch text-xs"></i>
+        <span>Explore Journey</span>
+      </a>
+      <a href="https://github.com/QuanBlue" target="_blank" class="btn-devops">
+        <i class="fa-brands fa-github"></i>
+        <span>@QuanBlue</span>
+      </a>
+    </div>
+
+    <!-- Sơ đồ "How I ship" (Jenkins + Trivy + SBOM + Sign & Verify) & Interactive Terminal ngay dưới Hero -->
+    <div class="w-full max-w-5xl mt-12 grid grid-cols-1 lg:grid-cols-12 gap-5 text-left items-stretch">
+
+      <!-- Cột trái (6/12): Sơ đồ "How I ship" với hiệu ứng chuẩn ferhatsn.fr -->
+      <figure class="lg:col-span-6 map-ship devops-card relative overflow-hidden p-4 sm:p-5 flex flex-col justify-between">
+        <p class="text-sm font-semibold text-[var(--heading)] mb-4">How I ship</p>
+
+        <div class="relative">
+          <span class="flow flow-x" style="--d: 0s; --c: var(--accent)" aria-hidden="true"><i></i></span>
+          <ol class="relative grid grid-cols-4 gap-2" aria-label="Delivery pipeline">
+            <!-- Step 1: git push -->
+            <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 0">
+              <span class="grid size-10 place-items-center rounded-xl border border-[var(--card-border)] bg-[var(--card-sub)] text-[var(--heading)] squircle">
+                <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><path fill="currentColor" d="M13.09 23.549a1.54 1.54 0 0 1-2.18 0L.451 13.089a1.54 1.54 0 0 1 0-2.179l7.191-7.19l2.733 2.733a1.85 1.85 0 0 0 .964 2.326v6.66a1.849 1.849 0 1 0 1.54 0V8.957l2.508 2.508a1.85 1.85 0 1 0 1.09-1.09l-2.634-2.634a1.85 1.85 0 0 0-2.378-2.377L8.73 2.63L10.91.451a1.54 1.54 0 0 1 2.179 0l10.459 10.46a1.54 1.54 0 0 1 0 2.179z"></path></svg>
+              </span>
+              <span class="text-xs leading-tight text-[var(--body)]">git push</span>
+            </li>
+
+            <!-- Step 2: Trivy + SBOM -->
+            <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 1">
+              <span class="grid size-10 place-items-center rounded-xl border border-[var(--card-border)] bg-[var(--card-sub)] text-[var(--heading)] squircle">
+                <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><circle cx="12" cy="12" r="3"></circle><path d="m16 16l-1.9-1.9"></path></g></svg>
+              </span>
+              <span class="text-xs leading-tight text-[var(--body)]">Trivy + SBOM</span>
+            </li>
+
+            <!-- Step 3: Sign + Verify -->
+            <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 2">
+              <span class="grid size-10 place-items-center rounded-xl border border-[var(--card-border)] bg-[var(--card-sub)] text-[var(--heading)] squircle">
+                <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 22V12m4 5l2 2l4-4"></path><path d="M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753"></path><path d="M3.29 7L12 12l8.71-5M7.5 4.27l8.997 5.148"></path></g></svg>
+              </span>
+              <span class="text-xs leading-tight text-[var(--body)]">Sign + Verify</span>
+            </li>
+
+            <!-- Step 4: Jenkins -->
+            <li class="boot-step grid justify-items-center gap-2 text-center" style="--s: 3">
+              <span class="grid size-10 place-items-center rounded-xl border border-[var(--card-border)] bg-[var(--card-sub)] text-[var(--heading)] squircle">
+                <i class="devicon-jenkins-line text-[18px]"></i>
+              </span>
+              <span class="text-xs leading-tight text-[var(--body)]">Jenkins</span>
+            </li>
+          </ol>
+        </div>
+
+        <span class="flow flow-y my-1" style="--d: 1.5s; --c: var(--mid); --b: 0" aria-hidden="true"><i></i></span>
+
+        <!-- 3-Node High Availability Kubernetes Cluster Box -->
+        <div class="boot-cluster rounded-xl bg-[var(--card-sub)] p-3 squircle border border-[var(--card-border)]/70">
+          <p class="text-xs font-semibold mb-3 flex items-center gap-2 text-[var(--heading)]">
+            <svg viewBox="0 0 24 24" class="size-4" aria-hidden="true"><path fill="currentColor" d="m10.204 14.35l.007.01l-.999 2.413a5.17 5.17 0 0 1-2.075-2.597l2.578-.437l.004.005a.44.44 0 0 1 .484.606zm-.833-2.129a.44.44 0 0 0 .173-.756l.002-.011L7.585 9.7a5.14 5.14 0 0 0-.73 3.255l2.514-.725zm1.145-1.98a.44.44 0 0 0 .699-.337l.01-.005l.15-2.62a5.14 5.14 0 0 0-3.01 1.442l2.147 1.523zm.76 2.75l.723.349l.722-.347l.18-.78l-.5-.623h-.804l-.5.623l.179.779zm1.5-3.095a.44.44 0 0 0 .7.336l.008.003l2.134-1.513a5.2 5.2 0 0 0-2.992-1.442l.148 2.615zm10.876 5.97l-5.773 7.181a1.6 1.6 0 0 1-1.248.594l-9.261.003a1.6 1.6 0 0 1-1.247-.596l-5.776-7.18a1.58 1.58 0 0 1-.307-1.34L2.1 5.573c.108-.47.425-.864.863-1.073L11.305.513a1.6 1.6 0 0 1 1.385 0l8.345 3.985c.438.209.755.604.863 1.073l2.062 8.955c.108.47-.005.963-.308 1.34m-3.289-2.057c-.042-.01-.103-.026-.145-.034c-.174-.033-.315-.025-.479-.038c-.35-.037-.638-.067-.895-.148c-.105-.04-.18-.165-.216-.216l-.201-.059a6.5 6.5 0 0 0-.105-2.332a6.5 6.5 0 0 0-.936-2.163c.052-.047.15-.133.177-.159c.008-.09.001-.183.094-.282c.197-.185.444-.338.743-.522c.142-.084.273-.137.415-.242c.032-.024.076-.062.11-.089c.24-.191.295-.52.123-.736s-.506-.236-.745-.045c-.034.027-.08.062-.111.088c-.134.116-.217.23-.33.35c-.246.25-.45.458-.673.609c-.097.056-.239.037-.303.033l-.19.135a6.55 6.55 0 0 0-4.146-2.003l-.012-.223c-.065-.062-.143-.115-.163-.25c-.022-.268.015-.557.057-.905c.023-.163.061-.298.068-.475c.001-.04-.001-.099-.001-.142c0-.306-.224-.555-.5-.555c-.275 0-.499.249-.499.555l.001.014c0 .041-.002.092 0 .128c.006.177.044.312.067.475c.042.348.078.637.056.906a.55.55 0 0 1-.162.258l-.012.211a6.42 6.42 0 0 0-4.166 2.003l-.18-.128c-.09.012-.18.04-.297-.029c-.223-.15-.427-.358-.673-.608c-.113-.12-.195-.234-.329-.349l-.111-.088a.6.6 0 0 0-.348-.132a.48.48 0 0 0-.398.176c-.172.216-.117.546.123.737l.007.005l.104.083c.142.105.272.159.414.242c.299.185.546.338.743.522c.076.082.09.226.1.288l.16.143a6.46 6.46 0 0 0-1.02 4.506l-.208.06c-.055.072-.133.184-.215.217c-.257.081-.546.11-.895.147c-.164.014-.305.006-.48.039c-.037.007-.09.02-.133.03l-.004.002l-.007.002c-.295.071-.484.342-.423.608c.061.267.349.429.645.365l.007-.001l.01-.003l.129-.029c.17-.046.294-.113.448-.172c.33-.118.604-.217.87-.256c.112-.009.23.069.288.101l.217-.037a6.5 6.5 0 0 0 2.88 3.596l-.09.218c.033.084.069.199.044.282c-.097.252-.263.517-.452.813c-.091.136-.185.242-.268.399c-.02.037-.045.095-.064.134c-.128.275-.034.591.213.71c.248.12.556-.007.69-.282v-.002c.02-.039.046-.09.062-.127c.07-.162.094-.301.144-.458c.132-.332.205-.68.387-.897c.05-.06.13-.082.215-.105l.113-.205a6.45 6.45 0 0 0 4.609.012l.106.192c.086.028.18.042.256.155c.136.232.229.507.342.84c.05.156.074.295.145.457c.016.037.043.09.062.129c.133.276.442.402.69.282c.247-.118.341-.435.213-.71c-.02-.039-.045-.096-.065-.134c-.083-.156-.177-.261-.268-.398c-.19-.296-.346-.541-.443-.793c-.04-.13.007-.21.038-.294c-.018-.022-.059-.144-.083-.202a6.5 6.5 0 0 0 2.88-3.622c.064.01.176.03.213.038c.075-.05.144-.114.28-.104c.266.039.54.138.87.256c.154.06.277.128.448.173c.036.01.088.019.13.028l.009.003l.007.001c.297.064.584-.098.645-.365c.06-.266-.128-.537-.423-.608M16.4 9.701l-1.95 1.746v.005a.44.44 0 0 0 .173.757l.003.01l2.526.728a5.2 5.2 0 0 0-.108-1.674A5.2 5.2 0 0 0 16.4 9.7zm-4.013 5.325a.44.44 0 0 0-.404-.232a.44.44 0 0 0-.372.233h-.002l-1.268 2.292a5.16 5.16 0 0 0 3.326.003l-1.27-2.296zm1.888-1.293a.44.44 0 0 0-.27.036a.44.44 0 0 0-.214.572l-.003.004l1.01 2.438a5.15 5.15 0 0 0 2.081-2.615l-2.6-.44z"></path></svg>
+            <span>Kubernetes, highly available</span>
+          </p>
+
+          <!-- 3 Server Nodes with 8 Live Pods each -->
+          <div class="grid grid-cols-3 gap-2" aria-hidden="true">
+            <div class="rounded-lg bg-[var(--card-bg)] p-2.5 border border-[var(--card-border)]/70">
+              <svg viewBox="0 0 24 24" class="size-4 text-[var(--muted)]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><path d="M6 6h.01M6 18h.01"></path></g></svg>
+              <div class="mt-2.5 grid w-fit grid-cols-4 gap-1">
+                <span class="pod" style="--n: 0; --p: 0"></span>
+                <span class="pod" style="--n: 0; --p: 1"></span>
+                <span class="pod pod-rollout" style="--n: 0; --p: 2"></span>
+                <span class="pod" style="--n: 0; --p: 3"></span>
+                <span class="pod" style="--n: 0; --p: 4"></span>
+                <span class="pod" style="--n: 0; --p: 5"></span>
+                <span class="pod" style="--n: 0; --p: 6"></span>
+                <span class="pod" style="--n: 0; --p: 7"></span>
+              </div>
+            </div>
+
+            <div class="rounded-lg bg-[var(--card-bg)] p-2.5 border border-[var(--card-border)]/70">
+              <svg viewBox="0 0 24 24" class="size-4 text-[var(--muted)]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><path d="M6 6h.01M6 18h.01"></path></g></svg>
+              <div class="mt-2.5 grid w-fit grid-cols-4 gap-1">
+                <span class="pod" style="--n: 1; --p: 8"></span>
+                <span class="pod" style="--n: 1; --p: 9"></span>
+                <span class="pod" style="--n: 1; --p: 10"></span>
+                <span class="pod pod-rollout" style="--n: 1; --p: 11"></span>
+                <span class="pod" style="--n: 1; --p: 12"></span>
+                <span class="pod" style="--n: 1; --p: 13"></span>
+                <span class="pod" style="--n: 1; --p: 14"></span>
+                <span class="pod" style="--n: 1; --p: 15"></span>
+              </div>
+            </div>
+
+            <div class="rounded-lg bg-[var(--card-bg)] p-2.5 border border-[var(--card-border)]/70">
+              <svg viewBox="0 0 24 24" class="size-4 text-[var(--muted)]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><path d="M6 6h.01M6 18h.01"></path></g></svg>
+              <div class="mt-2.5 grid w-fit grid-cols-4 gap-1">
+                <span class="pod" style="--n: 2; --p: 16"></span>
+                <span class="pod" style="--n: 2; --p: 17"></span>
+                <span class="pod" style="--n: 2; --p: 18"></span>
+                <span class="pod" style="--n: 2; --p: 19"></span>
+                <span class="pod pod-rollout" style="--n: 2; --p: 20"></span>
+                <span class="pod" style="--n: 2; --p: 21"></span>
+                <span class="pod" style="--n: 2; --p: 22"></span>
+                <span class="pod" style="--n: 2; --p: 23"></span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="mt-3 flex flex-wrap gap-x-0 gap-y-1 text-xs font-medium text-[var(--body)]" aria-label="Practices">
+            <li class="sep">Jenkins CI/CD</li>
+            <li class="sep">Signed images</li>
+            <li class="sep">SBOM</li>
+            <li class="sep">Air-Gapped Ansible</li>
+            <li class="sep">Automatic TLS</li>
+          </ul>
+        </div>
+
+        <span class="flow flow-y my-1" style="--d: 3s; --c: var(--primary-ship); --b: 1" aria-hidden="true"><i></i></span>
+
+        <p class="boot-prod flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-[var(--card-hover)] bg-[var(--card-bg)] px-3 py-2.5 text-sm">
+          <svg viewBox="0 0 24 24" class="size-4 shrink-0 text-[var(--primary-ship)]" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20a14.5 14.5 0 0 0 0-20M2 12h20"></path></g></svg>
+          <span class="font-semibold text-[var(--heading)]">In production</span>
+          <span class="text-xs text-[var(--muted)]">rolling update</span>
+        </p>
+      </figure>
+
+      <!-- Cột phải (6/12): Interactive DevOps Terminal (Đồng bộ Sáng / Tối!) -->
+      <div class="lg:col-span-6 devops-card overflow-hidden flex flex-col shadow-sm">
+        <div class="px-4 py-3 bg-[var(--card-sub)] border-b border-[var(--card-border)] flex items-center justify-between text-xs font-mono">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500/75"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500/75"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/75"></span>
+            <span class="ml-2 text-[var(--heading)] font-semibold">ntquan@devops-engineer: ~</span>
+          </div>
+          <span class="text-[11px] text-[var(--muted)]">bash · interactive</span>
+        </div>
+        <div id="term-box" class="p-4 font-mono text-xs bg-[var(--card-bg)] space-y-1.5 flex-grow min-h-[260px] max-h-[320px] overflow-y-auto cursor-text" onclick="document.getElementById('term-input').focus()">
+          <div class="text-[var(--muted)]"># Gõ lệnh để tra cứu nhanh hồ sơ:</div>
+          <div class="text-[var(--muted)]"># <span class="text-[var(--accent)]">help</span>, <span class="text-[var(--accent)]">whoami</span>, <span class="text-[var(--accent)]">exp</span>, <span class="text-[var(--accent)]">projects</span>, <span class="text-[var(--accent)]">certs</span>, <span class="text-[var(--accent)]">edu</span>, <span class="text-[var(--accent)]">skills</span>, <span class="text-[var(--accent)]">clear</span></div>
+          <div class="text-[var(--accent)] pt-1">✔ Jenkins pipeline verified (SBOM + Cosign signature OK)</div>
+          <div id="term-output" class="space-y-1"></div>
+          <div class="flex items-center pt-1">
+            <span class="text-[var(--accent)] font-semibold shrink-0">ntquan@devops-engineer:~$&nbsp;</span>
+            <input id="term-input" type="text" class="bg-transparent border-none outline-none text-[var(--heading)] w-full font-mono text-xs" placeholder="nhập lệnh (vd: whoami, exp, edu)..." onkeydown="handleTerm(event)" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       2. ABOUT ME (#about) — Giống "About Me - Behind The Code!" của Aakarsh
+       ===================================================================== -->
+  <section id="about" class="py-16 px-4 max-w-4xl mx-auto">
+    <div class="devops-card p-8 sm:p-10 text-center">
+      <div class="w-20 h-20 rounded-full border border-[var(--card-border)] p-1 mx-auto mb-4 bg-[var(--card-sub)]">
+        <img
+          src="https://ywjdrrmdnkdydeqprcib.supabase.co/storage/v1/object/public/portfolio/avatar/mw95dpo2-xvsbsl.jpg"
+          alt="Nguyễn Thanh Quân"
+          class="w-full h-full rounded-full object-cover"
+          onerror="this.style.display='none'"
+        />
+      </div>
+
+      <h2 class="section-title mb-4">
+        About Me - <span class="accent-mono">Behind The Infrastructure!</span>
+      </h2>
+
+      <p class="text-sm sm:text-base leading-relaxed text-[var(--body)] max-w-2xl mx-auto">
+        Mình là một <strong class="text-[var(--heading)]">DevOps Engineer</strong> đam mê giải quyết các bài toán về độ tin cậy (High Availability), tự động hóa hạ tầng (Infrastructure as Code) và tối ưu hóa luồng CI/CD.
+        <br /><br />
+        Tại <strong class="text-[var(--heading)]">Viettel</strong>, mình tập trung vào việc chuẩn hóa và tự động hóa các cụm Kubernetes Production trên môi trường Bare-Metal / Air-Gapped, giúp rút ngắn thời gian triển khai và đảm bảo hệ thống vận hành ổn định ở quy mô lớn.
+      </p>
+
+      <!-- 3 chỉ số thực tế của Nguyễn Thanh Quân -->
+      <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-8 pt-6 border-t border-[var(--card-border)] font-mono">
+        <div>
+          <div class="text-xl sm:text-2xl font-bold text-[var(--heading)]">3+ Yrs</div>
+          <div class="text-[11px] text-[var(--muted)]">Infra &amp; DevOps</div>
+        </div>
+        <div>
+          <div class="text-xl sm:text-2xl font-bold text-[var(--accent)]">99.9%</div>
+          <div class="text-[11px] text-[var(--muted)]">Prod K8s SLA</div>
+        </div>
+        <div>
+          <div class="text-xl sm:text-2xl font-bold text-[var(--heading)]">-70%</div>
+          <div class="text-[11px] text-[var(--muted)]">Deploy Time</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       3. WORK EXPERIENCE (#experience) — Thứ tự #1: Experience
+       Cấu trúc Alternating Timeline "01 / 02" giống Aakarsh
+       ===================================================================== -->
+  <section id="experience" class="py-16 px-4 max-w-5xl mx-auto">
+    <h2 class="section-title mb-12">
+      Work Experience - <span class="accent-mono">Professional Journey!</span>
+    </h2>
+
+    <div class="timeline-container space-y-10">
+      <div class="timeline-line"></div>
+
+      <!-- Item 01 (Left on Desktop) -->
+      <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="md:pr-10 pl-10 md:pl-0">
+          <div class="devops-card devops-card-lift p-6 relative">
+            <div class="flex items-center justify-between mb-3">
+              <span class="devops-tag">Viettel</span>
+              <span class="timeline-number">01</span>
+            </div>
+            <h3 class="text-lg font-bold text-[var(--heading)]">DevOps Engineer</h3>
+            <p class="text-xs font-mono text-[var(--accent)] mt-0.5 md:hidden">2023 – PRESENT</p>
+            <ul class="text-sm text-[var(--body)] space-y-2 mt-3 leading-relaxed">
+              <li>• Thiết kế và vận hành cụm Kubernetes High-Availability (multi-master) trên bare-metal, đảm bảo 99.99% uptime.</li>
+              <li>• Tự động hóa 100% quy trình cài đặt cụm Air-Gapped bằng Ansible Playbooks, giảm 70% thời gian triển khai.</li>
+              <li>• Xây dựng hệ thống giám sát tập trung với Prometheus, Grafana, Alertmanager và ELK Stack.</li>
+            </ul>
+            <div class="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-[var(--card-border)] font-mono text-[11px] text-[var(--muted)]">
+              <span>#Kubernetes</span><span>·</span><span>#Ansible</span><span>·</span><span>#HAProxy</span><span>·</span><span>#Prometheus</span>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center pl-10">
+          <span class="font-mono text-base font-bold text-[var(--accent)] tracking-wider">2023 – PRESENT</span>
+        </div>
+        <span class="w-3.5 h-3.5 rounded-full bg-[var(--accent)] ring-4 ring-[var(--bg-color)] absolute left-[16px] md:left-1/2 -translate-x-1/2"></span>
+      </div>
+
+      <!-- Item 02 (Right on Desktop) -->
+      <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="hidden md:flex justify-end pr-10">
+          <span class="font-mono text-base font-bold text-[var(--muted)] tracking-wider">2021 – 2023</span>
+        </div>
+        <div class="md:pl-10 pl-10">
+          <div class="devops-card devops-card-lift p-6 relative">
+            <div class="flex items-center justify-between mb-3">
+              <span class="devops-tag">Tech Company XYZ</span>
+              <span class="timeline-number">02</span>
+            </div>
+            <h3 class="text-lg font-bold text-[var(--heading)]">System Administrator</h3>
+            <p class="text-xs font-mono text-[var(--muted)] mt-0.5 md:hidden">2021 – 2023</p>
+            <ul class="text-sm text-[var(--body)] space-y-2 mt-3 leading-relaxed">
+              <li>• Quản trị hệ thống máy chủ Linux (Ubuntu/CentOS), tối ưu hóa kernel, tường lửa và bảo mật mạng nội bộ.</li>
+              <li>• Đóng gói ứng dụng với Docker Compose và thiết lập luồng CI/CD tự động trên GitLab CI.</li>
+            </ul>
+            <div class="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-[var(--card-border)] font-mono text-[11px] text-[var(--muted)]">
+              <span>#Linux</span><span>·</span><span>#Docker</span><span>·</span><span>#GitLabCI</span><span>·</span><span>#Bash</span>
+            </div>
+          </div>
+        </div>
+        <span class="w-3.5 h-3.5 rounded-full bg-[var(--card-hover)] ring-4 ring-[var(--bg-color)] absolute left-[16px] md:left-1/2 -translate-x-1/2"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       4. PROJECTS SHOWCASE (#projects) — Thứ tự #2: Project
+       Grid 2 cột giống Aakarsh "Projects Showcase - What I've Built!"
+       ===================================================================== -->
+  <section id="projects" class="py-16 px-4 max-w-5xl mx-auto">
+    <h2 class="section-title mb-12">
+      Projects Showcase - <span class="accent-mono">What I've Built!</span>
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Project 1 -->
+      <div class="devops-card devops-card-lift p-7 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <span class="devops-tag">Infrastructure Automation</span>
+            <span class="font-mono text-xs font-bold text-[var(--accent)]">PRODUCTION</span>
+          </div>
+          <h3 class="text-xl font-bold text-[var(--heading)] mb-2 font-mono">ansible-airgap-k8s</h3>
+          <p class="text-sm text-[var(--body)] leading-relaxed">
+            Bộ Ansible Playbooks tự động hóa toàn diện việc triển khai cụm Kubernetes High-Availability trong môi trường Air-Gapped (không có Internet), tích hợp sẵn Local Registry, Containerd, Calico CNI và HAProxy Load Balancer.
+          </p>
+        </div>
+        <div class="pt-6 mt-6 border-t border-[var(--card-border)] flex items-center justify-between flex-wrap gap-3">
+          <div class="flex gap-2">
+            <a href="https://github.com/QuanBlue" target="_blank" class="btn-devops text-xs py-2 px-4">
+              <i class="fa-brands fa-github"></i>
+              <span>GitHub</span>
+            </a>
+            <a href="#home" class="btn-devops btn-devops-primary text-xs py-2 px-4">
+              <i class="fa-solid fa-terminal"></i>
+              <span>Inspect</span>
+            </a>
+          </div>
+          <span class="font-mono text-[11px] text-[var(--muted)]">Ansible · K8s · HAProxy</span>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="devops-card devops-card-lift p-7 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <span class="devops-tag">Cloud-Native Web</span>
+            <span class="font-mono text-xs font-bold text-[var(--accent)]">ONLINE</span>
+          </div>
+          <h3 class="text-xl font-bold text-[var(--heading)] mb-2 font-mono">thanhquan.dev</h3>
+          <p class="text-sm text-[var(--body)] leading-relaxed">
+            Trang Portfolio cá nhân phong cách DevOps tích hợp Interactive CLI Terminal, hệ thống quản trị nội dung trực tuyến (Supabase Auth RLS + Storage) và pipeline CI/CD tự động qua GitHub Actions.
+          </p>
+        </div>
+        <div class="pt-6 mt-6 border-t border-[var(--card-border)] flex items-center justify-between flex-wrap gap-3">
+          <div class="flex gap-2">
+            <a href="https://thanhquan.dev" target="_blank" class="btn-devops btn-devops-primary text-xs py-2 px-4">
+              <i class="fa-regular fa-eye"></i>
+              <span>View Live</span>
+            </a>
+            <a href="https://github.com/QuanBlue" target="_blank" class="btn-devops text-xs py-2 px-4">
+              <i class="fa-brands fa-github"></i>
+              <span>GitHub</span>
+            </a>
+          </div>
+          <span class="font-mono text-[11px] text-[var(--muted)]">Astro · TypeScript · Supabase</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       5. CERTIFICATIONS (#certifications) — Thứ tự #3: Certificate
+       Giống mục "Certifications - Learning Milestones!" của Aakarsh
+       ===================================================================== -->
+  <section id="certifications" class="py-16 px-4 max-w-5xl mx-auto">
+    <h2 class="section-title mb-12">
+      Certifications - <span class="accent-mono">Verified Milestones!</span>
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="devops-card devops-card-lift p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="devops-tag">CNCF · Linux Foundation</span>
+            <span class="font-mono text-xs text-[var(--muted)]">2024</span>
+          </div>
+          <h3 class="text-base font-bold text-[var(--heading)]">Certified Kubernetes Administrator (CKA)</h3>
+          <p class="text-xs text-[var(--body)] mt-2 leading-relaxed">
+            Chứng nhận năng lực thiết kế, cài đặt, cấu hình mạng, lưu trữ và xử lý sự cố cụm Kubernetes Production.
+          </p>
+        </div>
+        <div class="mt-5 pt-3 border-t border-[var(--card-border)] flex justify-between items-center font-mono text-xs">
+          <span class="text-[var(--accent)]">● VERIFIED</span>
+          <a href="#" class="text-[var(--heading)] hover:underline">Credentials →</a>
+        </div>
+      </div>
+
+      <div class="devops-card devops-card-lift p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="devops-tag">Amazon Web Services</span>
+            <span class="font-mono text-xs text-[var(--muted)]">2024</span>
+          </div>
+          <h3 class="text-base font-bold text-[var(--heading)]">AWS Certified Solutions Architect</h3>
+          <p class="text-xs text-[var(--body)] mt-2 leading-relaxed">
+            Thiết kế kiến trúc đám mây phân tán, bảo mật, chịu lỗi cao (High Availability) và tối ưu chi phí trên AWS.
+          </p>
+        </div>
+        <div class="mt-5 pt-3 border-t border-[var(--card-border)] flex justify-between items-center font-mono text-xs">
+          <span class="text-[var(--accent)]">● VERIFIED</span>
+          <a href="#" class="text-[var(--heading)] hover:underline">Credentials →</a>
+        </div>
+      </div>
+
+      <div class="devops-card devops-card-lift p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="devops-tag">Red Hat</span>
+            <span class="font-mono text-xs text-[var(--muted)]">2023</span>
+          </div>
+          <h3 class="text-base font-bold text-[var(--heading)]">Red Hat Certified System Administrator (RHCSA)</h3>
+          <p class="text-xs text-[var(--body)] mt-2 leading-relaxed">
+            Quản trị hệ thống Red Hat Enterprise Linux chuyên sâu, phân quyền bảo mật SELinux, LVM và systemd.
+          </p>
+        </div>
+        <div class="mt-5 pt-3 border-t border-[var(--card-border)] flex justify-between items-center font-mono text-xs">
+          <span class="text-[var(--accent)]">● VERIFIED</span>
+          <a href="#" class="text-[var(--heading)] hover:underline">Credentials →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       6. EDUCATION (#education) — Thứ tự #4: Education
+       ===================================================================== -->
+  <section id="education" class="py-16 px-4 max-w-5xl mx-auto">
+    <h2 class="section-title mb-12">
+      Education - <span class="accent-mono">Academic Foundation!</span>
+    </h2>
+
+    <div class="devops-card p-7 sm:p-8">
+      <div class="flex flex-wrap justify-between items-start gap-4 pb-6 border-b border-[var(--card-border)]">
+        <div>
+          <span class="devops-tag mb-2">Bachelor of Engineering (B.Eng)</span>
+          <h3 class="text-xl font-bold text-[var(--heading)] mt-1">Kỹ sư Công nghệ Thông tin — Mạng &amp; Hệ thống Phân tán</h3>
+          <p class="text-sm text-[var(--accent)] font-mono mt-1">Đại học Công nghệ Thông tin / Bách Khoa (Chỉnh sửa trực tiếp trong Admin)</p>
+        </div>
+        <span class="font-mono text-xs px-3 py-1.5 rounded-md bg-[var(--card-sub)] border border-[var(--card-border)] text-[var(--heading)]">
+          GRADUATED · HONORS
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+        <div>
+          <div class="font-mono text-xs uppercase text-[var(--muted)] mb-3">Core Engineering Coursework</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-mono text-xs">
+            <div class="p-3 rounded-lg bg-[var(--card-sub)] border border-[var(--card-border)] flex justify-between">
+              <span class="text-[var(--heading)]">Computer Networks</span><span class="text-[var(--accent)]">A</span>
+            </div>
+            <div class="p-3 rounded-lg bg-[var(--card-sub)] border border-[var(--card-border)] flex justify-between">
+              <span class="text-[var(--heading)]">Linux OS Internals</span><span class="text-[var(--accent)]">A</span>
+            </div>
+            <div class="p-3 rounded-lg bg-[var(--card-sub)] border border-[var(--card-border)] flex justify-between">
+              <span class="text-[var(--heading)]">Distributed Systems</span><span class="text-[var(--accent)]">A+</span>
+            </div>
+            <div class="p-3 rounded-lg bg-[var(--card-sub)] border border-[var(--card-border)] flex justify-between">
+              <span class="text-[var(--heading)]">Cloud &amp; Security</span><span class="text-[var(--accent)]">A</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[var(--card-sub)] border border-[var(--card-border)]">
+          <div class="font-mono text-xs text-[var(--accent)] uppercase mb-1">Capstone Thesis</div>
+          <h4 class="text-sm font-bold text-[var(--heading)]">Thiết kế &amp; Tự động hóa Cụm Kubernetes High-Availability Đa Vùng</h4>
+          <p class="text-xs text-[var(--body)] mt-2 leading-relaxed">
+            Nghiên cứu kiến trúc chịu lỗi tự động (Zero-Downtime Failover) với HAProxy + Keepalived, tự động hóa provisioning bằng Ansible và giám sát toàn trình với Prometheus/Grafana.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       7. TECHNICAL SKILLS (#skills) — Giống "Technical Skills - Core Expertise!"
+       của Aakarsh với bộ lọc Filter + Grid Icon gọn đẹp
+       ===================================================================== -->
+  <section id="skills" class="py-16 px-4 max-w-5xl mx-auto text-center">
+    <h2 class="section-title mb-8">
+      Technical Skills - <span class="accent-mono">Core Expertise!</span>
+    </h2>
+
+    <!-- Filter Buttons -->
+    <div class="flex justify-center flex-wrap gap-2.5 mb-10">
+      <button onclick="filterSkills('all', this)" class="filter-btn active">All</button>
+      <button onclick="filterSkills('orchestration', this)" class="filter-btn">Containers &amp; K8s</button>
+      <button onclick="filterSkills('iac', this)" class="filter-btn">IaC &amp; CI/CD</button>
+      <button onclick="filterSkills('observability', this)" class="filter-btn">Monitoring</button>
+      <button onclick="filterSkills('linux', this)" class="filter-btn">Linux &amp; Networking</button>
+    </div>
+
+    <!-- Skill Icon Grid -->
+    <div id="skill-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="orchestration">
+        <i class="devicon-kubernetes-plain colored text-3xl"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Kubernetes</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="orchestration">
+        <i class="devicon-docker-plain colored text-3xl"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Docker</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="iac">
+        <i class="devicon-ansible-plain text-3xl text-[var(--heading)]"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Ansible</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="observability">
+        <i class="devicon-prometheus-original colored text-3xl"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Prometheus</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="observability">
+        <i class="devicon-grafana-plain colored text-3xl"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Grafana</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="linux">
+        <i class="devicon-linux-plain text-3xl text-[var(--heading)]"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Linux / Ubuntu</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="linux">
+        <i class="fa-solid fa-network-wired text-2xl text-emerald-400"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">HAProxy</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="orchestration">
+        <i class="fa-solid fa-diagram-project text-2xl text-sky-400"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Istio Mesh</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="iac">
+        <i class="devicon-gitlab-plain colored text-3xl"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">GitLab CI/CD</span>
+      </div>
+      <div class="skill-item devops-card devops-card-lift p-5 flex flex-col items-center justify-center gap-2.5" data-cat="iac">
+        <i class="devicon-bash-plain text-3xl text-[var(--heading)]"></i>
+        <span class="text-xs font-semibold text-[var(--heading)]">Bash Scripting</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       8. WEB PRESENCE & CONTACT (#contact) — Giống "Web Presence - Dev Network!"
+       ===================================================================== -->
+  <section id="contact" class="py-16 px-4 max-w-4xl mx-auto text-center">
+    <h2 class="section-title mb-3">
+      Web Presence - <span class="accent-mono">DevOps Network!</span>
+    </h2>
+    <p class="text-sm text-[var(--body)] mb-10">
+      Kết nối trực tiếp với mình qua các kênh bên dưới hoặc truy cập trang quản trị.
+    </p>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <a href="https://github.com/QuanBlue" target="_blank" class="devops-card devops-card-lift p-6 flex flex-col items-center gap-2">
+        <i class="fa-brands fa-github text-2xl text-[var(--heading)]"></i>
+        <h3 class="text-sm font-bold text-[var(--heading)]">GitHub</h3>
+        <span class="font-mono text-xs text-[var(--muted)]">@QuanBlue</span>
+      </a>
+
+      <a href="https://linkedin.com/in/quanblue" target="_blank" class="devops-card devops-card-lift p-6 flex flex-col items-center gap-2">
+        <i class="fa-brands fa-linkedin text-2xl text-sky-500"></i>
+        <h3 class="text-sm font-bold text-[var(--heading)]">LinkedIn</h3>
+        <span class="font-mono text-xs text-[var(--muted)]">in/quanblue</span>
+      </a>
+
+      <a href="mailto:quannguyenthanh558@gmail.com" class="devops-card devops-card-lift p-6 flex flex-col items-center gap-2">
+        <i class="fa-solid fa-envelope text-2xl text-emerald-400"></i>
+        <h3 class="text-sm font-bold text-[var(--heading)]">Email</h3>
+        <span class="font-mono text-xs text-[var(--muted)]">Send Mail</span>
+      </a>
+
+      <a href="/blog" class="devops-card devops-card-lift p-6 flex flex-col items-center gap-2">
+        <i class="fa-solid fa-book-open text-2xl text-amber-400"></i>
+        <h3 class="text-sm font-bold text-[var(--heading)]">Tech Blog</h3>
+        <span class="font-mono text-xs text-[var(--muted)]">Runbooks &amp; Notes</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-[var(--card-border)] py-8 px-4 mt-10 text-center text-xs font-mono text-[var(--muted)]">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div>
+        <strong class="text-[var(--heading)]">ntquan_devops</strong> · Built with Astro &amp; Supabase
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#home" class="hover:text-[var(--heading)]">Home</a>
+        <a href="#experience" class="hover:text-[var(--heading)]">Experience</a>
+        <a href="#projects" class="hover:text-[var(--heading)]">Projects</a>
+        <a href="/admin" class="hover:text-[var(--heading)]">Admin Login</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 1. Typing Effect cho Hero Title (Giống Aakarsh nhưng chủ đề DevOps)
+    const roles = ['DEVOPS ENGINEER', 'KUBERNETES ARCHITECT', 'INFRA AUTOMATOR', 'SRE PRACTITIONER'];
+    let rIdx = 0, cIdx = 0, deleting = false;
+    function typeLoop() {
+      const el = document.getElementById('typing-role');
+      if (!el) return;
+      const word = roles[rIdx];
+      el.textContent = deleting ? word.substring(0, cIdx--) : word.substring(0, cIdx++);
+      let delay = deleting ? 45 : 90;
+      if (!deleting && cIdx > word.length) {
+        delay = 1800;
+        deleting = true;
+      } else if (deleting && cIdx < 0) {
+        deleting = false;
+        rIdx = (rIdx + 1) % roles.length;
+        cIdx = 0;
+        delay = 350;
+      }
+      setTimeout(typeLoop, delay);
+    }
+    setTimeout(typeLoop, 1200);
+
+    // 2. Scroll Progress + Active Pill Link
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement;
+      const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+      document.getElementById('scrollProgress').style.width = pct + '%';
+    });
+
+    // 3. Skill Filter
+    function filterSkills(cat, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.skill-item').forEach(item => {
+        item.style.display = (cat === 'all' || item.dataset.cat === cat) ? 'flex' : 'none';
+      });
+    }
+
+    // 4. Interactive Terminal
+    function handleTerm(e) {
+      if (e.key !== 'Enter') return;
+      const input = e.target;
+      const cmd = input.value.trim().toLowerCase();
+      input.value = '';
+      if (!cmd) return;
+      const out = document.getElementById('term-output');
+      const echo = document.createElement('div');
+      echo.className = 'text-[var(--heading)] font-semibold';
+      echo.textContent = 'ntquan@devops-engineer:~$ ' + cmd;
+      out.appendChild(echo);
+
+      const res = document.createElement('div');
+      res.className = 'text-[var(--body)]';
+      if (cmd === 'help') {
+        res.textContent = 'Commands: whoami, exp, projects, certs, edu, skills, clear';
+      } else if (cmd === 'whoami') {
+        res.textContent = 'Nguyễn Thanh Quân — DevOps Engineer @ Viettel (Ho Chi Minh, VN)';
+      } else if (cmd === 'exp') {
+        res.textContent = '01. Viettel (DevOps Engineer, 2023-Present) | 02. Tech Company XYZ (SysAdmin, 2021-2023)';
+        location.hash = '#experience';
+      } else if (cmd === 'projects') {
+        res.textContent = '1. ansible-airgap-k8s (Production) | 2. thanhquan.dev (Online)';
+        location.hash = '#projects';
+      } else if (cmd === 'certs') {
+        res.textContent = 'CKA (Linux Foundation) · AWS Solutions Architect · RHCSA (Red Hat)';
+        location.hash = '#certifications';
+      } else if (cmd === 'edu') {
+        res.textContent = 'B.Eng Information Technology — Computer Networks & Distributed Systems';
+        location.hash = '#education';
+      } else if (cmd === 'skills') {
+        res.textContent = 'Kubernetes, Docker, Ansible, Prometheus, Grafana, Linux, HAProxy, Istio, GitLab CI, Bash';
+        location.hash = '#skills';
+      } else if (cmd === 'clear') {
+        out.innerHTML = '';
+        return;
+      } else {
+        res.className = 'text-red-400';
+        res.textContent = 'bash: ' + cmd + ': command not found (type "help")';
+      }
+      out.appendChild(res);
+      const box = document.getElementById('term-box');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // 5. Dark / Light Mode Toggle
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+      document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
+    }
+  </script>
+</body>
+</html>

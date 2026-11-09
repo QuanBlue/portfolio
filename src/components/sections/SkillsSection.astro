@@ -2,16 +2,108 @@
 import { portfolioData } from '../../data/portfolio';
 import { renderSkills } from '../../lib/render';
 const { skills } = portfolioData;
-
-// Certifications are temporarily hidden: re-add renderCerts(certifications) here to restore them.
 ---
 
-<section id="skills" class="max-w-6xl mx-auto w-full px-5 py-16">
-  <div class="mb-8 reveal">
-    <p class="eyebrow mb-2">Skills</p>
-    <h2 class="font-display text-3xl md:text-4xl font-bold text-[var(--heading)]">Tools & stack</h2>
-  </div>
-  <div class="card p-6 reveal">
-    <div id="bind-skills" class="flex flex-wrap gap-2" set:html={renderSkills(skills)}></div>
+<section id="skills" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[46rem]">
+      <p class="reveal text-label text-[var(--signal)] mb-2">04 · Architecture Stack</p>
+      <h2 class="reveal-wipe text-h2 text-[var(--fg)]">My stack, from OS kernel to cluster.</h2>
+      <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
+        Các công cụ mình sử dụng hàng ngày, được sắp xếp theo từng lớp kiến trúc hạ tầng.
+      </p>
+    </div>
+
+    <p class="reveal mt-7 flex items-center gap-2 text-xs font-mono text-[var(--muted-fg)]">
+      <span class="size-3 rounded-[3px] border-2 border-[var(--signal)]"></span>
+      <span>Viền xanh: Công nghệ chủ lực đang vận hành hàng ngày</span>
+    </p>
+
+    <ol class="mt-5 border-b border-[var(--border)]">
+      <!-- Layer 1 -->
+      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline">
+        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Orchestration &amp; Mesh</h3>
+        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="devicon-kubernetes-plain colored"></i> Kubernetes (HA)
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="devicon-docker-plain colored"></i> Docker / Containerd
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="fa-solid fa-dharmachakra"></i> Helm &amp; Kustomize
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="fa-solid fa-diagram-project text-sky-400"></i> Istio Service Mesh
+          </li>
+        </ul>
+      </li>
+
+      <!-- Layer 2 -->
+      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.06s">
+        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">IaC &amp; CI/CD Supply Chain</h3>
+        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="devicon-jenkins-line"></i> Jenkins Pipelines
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="devicon-ansible-plain"></i> Ansible Playbooks
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="fa-solid fa-shield-virus text-emerald-400"></i> Trivy + SBOM + Cosign
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="devicon-gitlab-plain colored"></i> GitLab CI / GitHub Actions
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="fa-solid fa-box"></i> Harbor Local Registry
+          </li>
+        </ul>
+      </li>
+
+      <!-- Layer 3 -->
+      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.12s">
+        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Observability &amp; SRE</h3>
+        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="devicon-prometheus-original colored"></i> Prometheus
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="devicon-grafana-plain colored"></i> Grafana
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="fa-solid fa-bell"></i> Alertmanager
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="fa-solid fa-magnifying-glass-chart"></i> ELK Stack (Elasticsearch, Logstash, Kibana)
+          </li>
+        </ul>
+      </li>
+
+      <!-- Layer 4 -->
+      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.18s">
+        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Linux &amp; Networking</h3>
+        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="devicon-linux-plain"></i> Linux (Ubuntu / RHEL)
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
+            <i class="fa-solid fa-network-wired text-emerald-400"></i> HAProxy &amp; Keepalived
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="devicon-nginx-original colored"></i> Nginx
+          </li>
+          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
+            <i class="fa-solid fa-shield-halved"></i> Calico CNI / iptables
+          </li>
+        </ul>
+      </li>
+
+      <!-- Layer 5: Active Runtime Modules (Dynamic from CMS / Admin) -->
+      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.24s">
+        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Active Modules</h3>
+        <ul id="bind-skills" class="flex flex-wrap gap-2.5 md:col-span-9" set:html={renderSkills(skills)}></ul>
+      </li>
+    </ol>
   </div>
 </section>
