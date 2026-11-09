@@ -6,7 +6,7 @@ describe('Portfolio Central Data Model', () => {
     expect(portfolioData.identity.name).toBe('Nguyễn Thanh Quân');
     expect(portfolioData.identity.role).toBe('DevOps Engineer');
     expect(portfolioData.identity.location).toBe('Ho Chi Minh, VN');
-    expect(portfolioData.identity.email).toBe('quan.devops@email.com');
+    expect(portfolioData.identity.email).toBe('quannguyenthanh558@gmail.com');
     expect(portfolioData.identity.github.handle).toBe('@QuanBlue');
     expect(portfolioData.identity.linkedin.handle).toBe('in/quanblue');
   });

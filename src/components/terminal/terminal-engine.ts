@@ -192,8 +192,8 @@ export const COMMAND_LIST: Record<string, TerminalCommand> = {
     execute: (_args, { portfolioData }) => {
       const art = [
         '        .--.',
-        '       |o_o |       quanquan@devops-node',
-        '       |:_/ |       --------------------',
+        '       |o_o |       ntquan@devops-engineer',
+        '       |:_/ |       ----------------------',
         '      //   \\ \\      OS: Ubuntu Linux / Alpine Edge',
         '     (|     | )     Host: HCM-VNM-01 [Multi-Zone]',
         '    /\'\\_   _/`\\     Kernel: 6.8.0-devops-generic',

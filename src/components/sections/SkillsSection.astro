@@ -1,0 +1,17 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderSkills } from '../../lib/render';
+const { skills } = portfolioData;
+
+// Certifications are temporarily hidden: re-add renderCerts(certifications) here to restore them.
+---
+
+<section id="skills" class="max-w-6xl mx-auto w-full px-5 py-16">
+  <div class="mb-8 reveal">
+    <p class="eyebrow mb-2">Skills</p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-[var(--heading)]">Tools & stack</h2>
+  </div>
+  <div class="card p-6 reveal">
+    <div id="bind-skills" class="flex flex-wrap gap-2" set:html={renderSkills(skills)}></div>
+  </div>
+</section>

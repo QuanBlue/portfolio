@@ -1,0 +1,707 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Admin | Quan's DevOps Dashboard" currentPath="/admin">
+  <main class="flex-grow px-5 py-12 max-w-6xl w-full mx-auto">
+    <div id="admin-header" class="hidden flex-wrap items-center justify-between gap-3 mb-4">
+      <h1 class="font-display text-3xl font-bold text-[var(--heading)]">
+        Edit content
+      </h1>
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <span id="admin-status" class="text-zinc-500 mr-2"></span>
+        <button id="btn-publish" type="button" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700">Publish</button>
+        <button id="btn-export" type="button" class="adm-btn">Export content.json</button>
+        <label class="adm-btn cursor-pointer">
+          Import JSON
+          <input id="input-import" type="file" accept="application/json,.json" class="hidden" />
+        </label>
+        <button id="btn-reset" type="button" class="adm-btn text-red-600 dark:text-red-400">Reset</button>
+        <button id="btn-signout" type="button" class="adm-btn">Sign out</button>
+      </div>
+    </div>
+
+    <p id="admin-note" class="hidden text-[11px] text-zinc-500 mb-4 leading-relaxed"></p>
+
+    <form id="admin-login" class="card p-6 max-w-sm mx-auto space-y-3 my-10">
+      <h2 class="font-display text-xl font-bold text-[var(--heading)]">Sign in</h2>
+      <p class="text-xs text-[var(--muted)]">Sign in with GitHub, Google, or email to continue.</p>
+
+      <div class="space-y-2 pt-1">
+        <button id="btn-github-login" type="button" class="adm-btn w-full flex items-center justify-center gap-2 py-2.5 font-medium">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
+          </svg>
+          Continue with GitHub
+        </button>
+
+        <button id="btn-google-login" type="button" class="adm-btn w-full flex items-center justify-center gap-2 py-2.5 font-medium">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.26-.96 2.33-2.04 3.05l3.3 2.56c1.92-1.77 3.04-4.38 3.04-7.46 0-.72-.06-1.41-.19-2.05H12z"/>
+            <path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.43l-3.3-2.56c-.91.61-2.08.98-3.32.98-2.55 0-4.71-1.72-5.48-4.04H3.11v2.64A9.99 9.99 0 0 0 12 22z"/>
+            <path fill="#4A90E2" d="M6.52 13.95A6.01 6.01 0 0 1 6.2 12c0-.68.12-1.34.32-1.95V7.41H3.11A9.99 9.99 0 0 0 2 12c0 1.61.39 3.14 1.11 4.59l3.41-2.64z"/>
+            <path fill="#FBBC05" d="M12 6.01c1.47 0 2.79.51 3.83 1.5l2.87-2.87C16.95 2.99 14.7 2 12 2A9.99 9.99 0 0 0 3.11 7.41l3.41 2.64C7.29 7.73 9.45 6.01 12 6.01z"/>
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider text-[var(--muted)] py-1">
+        <span class="h-px flex-1 bg-[var(--panel-border)]"></span>
+        <span>or email</span>
+        <span class="h-px flex-1 bg-[var(--panel-border)]"></span>
+      </div>
+      <div><span class="adm-label">Email</span><input id="login-email" type="email" required autocomplete="username" placeholder="you@example.com" class="adm-input" /></div>
+      <div><span class="adm-label">Password <span class="normal-case text-[10px] opacity-75">(optional if using magic link)</span></span><input id="login-password" type="password" autocomplete="current-password" class="adm-input" /></div>
+      <p id="login-error" class="text-xs text-red-500 min-h-4"></p>
+      <div class="flex flex-col gap-2">
+        <button type="submit" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 w-full py-2 font-medium">Sign in with password</button>
+        <button id="btn-magic-link" type="button" class="adm-btn w-full py-2 text-xs">Send magic link to email</button>
+      </div>
+    </form>
+
+    <div id="admin-app" class="hidden grid grid-cols-1 md:grid-cols-[180px_1fr] gap-4">
+      <nav id="admin-tabs" class="flex md:flex-col gap-1 overflow-x-auto text-xs"></nav>
+      <section id="admin-panel" class="dashboard-panel p-4 min-w-0"></section>
+    </div>  </main>
+</BaseLayout>
+
+<style is:global>
+  @layer components {
+    .adm-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--panel-border);
+      background: var(--panel-bg);
+      color: var(--heading);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .adm-btn:hover {
+      border-color: #10b981;
+    }
+    .adm-input {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--panel-border);
+      background: var(--bg-body);
+      color: var(--heading);
+      font-size: 0.8rem;
+    }
+    .adm-input:focus {
+      outline: none;
+      border-color: #10b981;
+    }
+    .adm-label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+  }
+</style>
+
+<script>
+  import {
+    loadAdminData,
+    saveStored,
+    clearStored,
+    fileToDataUrl,
+    fileToBlob,
+    fileToRawDataUrl,
+    defaultPortfolioData,
+    portfolioData,
+  } from '../lib/store';
+  import {
+    isSupabaseConfigured,
+    getSession,
+    getSessionRole,
+    isOwnerSession,
+    getSessionLabel,
+    signIn,
+    signInWithGitHub,
+    signInWithGoogle,
+    sendMagicLink,
+    onAuthChange,
+    signOut,
+    publishRemote,
+    uploadImage,
+  } from '../lib/supabase';
+  import { mergePortfolioData } from '../data/portfolio';
+  import type { PortfolioData } from '../data/portfolio';
+  import { esc } from '../lib/render';
+
+  type FieldType = 'text' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media';
+  interface Field {
+    key: string;
+    label: string;
+    type: FieldType;
+    options?: string[];
+    maxDim?: number;
+    wide?: boolean;
+  }
+  interface ListSection {
+    kind: 'list';
+    id: keyof PortfolioData;
+    title: string;
+    fields: Field[];
+    titleKey: string;
+    create: () => Record<string, unknown>;
+  }
+  interface ObjectSection {
+    kind: 'object';
+    id: 'identity';
+    title: string;
+    fields: Field[];
+  }
+
+  const uid = () => Math.random().toString(36).slice(2, 10);
+
+  const SECTIONS: (ObjectSection | ListSection)[] = [
+    {
+      kind: 'object',
+      id: 'identity',
+      title: 'Identity',
+      fields: [
+        { key: 'avatar', label: 'Avatar', type: 'image', maxDim: 480 },
+        { key: 'name', label: 'Name', type: 'text' },
+        { key: 'role', label: 'Role', type: 'text' },
+        { key: 'node', label: 'Node (header)', type: 'text' },
+        { key: 'ip', label: 'IP (header)', type: 'text' },
+        { key: 'location', label: 'Location', type: 'text' },
+        { key: 'email', label: 'Email', type: 'text' },
+        { key: 'linkedin.handle', label: 'LinkedIn handle', type: 'text' },
+        { key: 'linkedin.url', label: 'LinkedIn URL', type: 'text' },
+        { key: 'github.handle', label: 'GitHub handle', type: 'text' },
+        { key: 'github.url', label: 'GitHub URL', type: 'text' },
+        { key: 'bio', label: 'Bio', type: 'textarea', wide: true },
+      ],
+    },
+    {
+      kind: 'list',
+      id: 'gallery',
+      title: 'Gallery',
+      titleKey: 'title',
+      fields: [
+        { key: 'image', label: 'Image', type: 'image', maxDim: 1600 },
+        { key: 'title', label: 'Title', type: 'text' },
+        { key: 'date', label: 'Date', type: 'text' },
+        { key: 'location', label: 'Location', type: 'text' },
+        { key: 'tags', label: 'Tags (comma separated)', type: 'csv' },
+        { key: 'description', label: 'Description', type: 'textarea', wide: true },
+        { key: 'details', label: 'Extra info nodes (one per line, "label: value")', type: 'kv', wide: true },
+      ],
+      create: () => ({ id: uid(), title: 'New image', description: '', image: '', date: '', location: '', tags: [], details: [] }),
+    },
+    {
+      kind: 'list',
+      id: 'projects',
+      title: 'Projects',
+      titleKey: 'title',
+      fields: [
+        { key: 'title', label: 'Title', type: 'text' },
+        { key: 'shortDesc', label: 'Short description', type: 'text', wide: true },
+        { key: 'description', label: 'Description', type: 'textarea', wide: true },
+        { key: 'media', label: 'Images / GIFs (shown in the project details)', type: 'media', wide: true },
+        { key: 'tags', label: 'Tags (comma separated)', type: 'csv' },
+        { key: 'link', label: 'Link (https://…)', type: 'text' },
+        { key: 'color', label: 'Color', type: 'select', options: ['emerald', 'blue', 'purple', 'orange'] },
+        { key: 'status', label: 'Status', type: 'select', options: ['ONLINE', 'MAINTENANCE'] },
+      ],
+      create: () => ({ id: uid(), title: 'new-project', shortDesc: '', description: '', tags: [], link: 'https://', color: 'emerald', status: 'ONLINE', media: [] }),
+    },
+    {
+      kind: 'list',
+      id: 'experience',
+      title: 'Experience',
+      titleKey: 'role',
+      fields: [
+        { key: 'role', label: 'Role', type: 'text' },
+        { key: 'company', label: 'Company', type: 'text' },
+        { key: 'period', label: 'Period', type: 'text' },
+        { key: 'isCurrent', label: 'Current job', type: 'bool' },
+        { key: 'tags', label: 'Tags (comma separated)', type: 'csv', wide: true },
+        { key: 'bullets', label: 'Bullets (one per line)', type: 'lines', wide: true },
+      ],
+      create: () => ({ id: uid(), role: 'Role', company: '', period: '', isCurrent: false, bullets: [], tags: [] }),
+    },
+    {
+      kind: 'list',
+      id: 'skills',
+      title: 'Skills',
+      titleKey: 'name',
+      fields: [
+        { key: 'name', label: 'Name', type: 'text' },
+        { key: 'tag', label: 'Tag, e.g. [k8s-core]', type: 'text' },
+        { key: 'status', label: 'Status', type: 'select', options: ['ACTIVE', 'SYNCING'] },
+      ],
+      create: () => ({ id: uid(), tag: '[tag]', name: 'New skill', status: 'ACTIVE', delay: '0s' }),
+    },
+    {
+      kind: 'list',
+      id: 'certifications',
+      title: 'Certifications',
+      titleKey: 'name',
+      fields: [
+        { key: 'name', label: 'Name', type: 'text' },
+        { key: 'issuer', label: 'Issuer', type: 'text' },
+        { key: 'color', label: 'Color', type: 'select', options: ['yellow', 'blue'] },
+      ],
+      create: () => ({ id: uid(), name: 'New certificate', issuer: '', color: 'blue', delay: '0s' }),
+    },
+  ];
+
+  let data: PortfolioData = structuredClone(portfolioData);
+  let active = 'identity';
+  const tabs = document.getElementById('admin-tabs')!;
+  const panel = document.getElementById('admin-panel')!;
+  const status = document.getElementById('admin-status')!;
+
+  // ---- path helpers ----
+  const getPath = (obj: any, path: string) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
+  const setPath = (obj: any, path: string, value: unknown) => {
+    const keys = path.split('.');
+    const last = keys.pop()!;
+    const target = keys.reduce((o, k) => (o[k] ??= {}), obj);
+    target[last] = value;
+  };
+
+  // ---- persistence ----
+  let saveTimer: number | undefined;
+  let signedIn = false;
+  const setStatus = (msg: string) => (status.textContent = msg);
+  const queueSave = () => {
+    setStatus('Saving…');
+    clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(async () => {
+      try {
+        await saveStored(data);
+        const kb = Math.round(new Blob([JSON.stringify(data)]).size / 1024);
+        setStatus(
+          isSupabaseConfigured ? `Draft saved locally (not published) · ${kb} KB` : `Saved locally · ${kb} KB`,
+        );
+      } catch {
+        setStatus('Save failed (storage full?)');
+      }
+    }, 400);
+  };
+
+  // ---- rendering ----
+  const fieldHtml = (f: Field, base: string, value: any): string => {
+    const path = `${base}${f.key}`;
+    const attrs = `data-path="${esc(path)}" data-type="${f.type}"`;
+    let control = '';
+    switch (f.type) {
+      case 'text':
+        control = `<input class="adm-input" ${attrs} value="${esc(value ?? '')}" />`;
+        break;
+      case 'textarea':
+        control = `<textarea class="adm-input" rows="4" ${attrs}>${esc(value ?? '')}</textarea>`;
+        break;
+      case 'select':
+        control = `<select class="adm-input" ${attrs}>${f.options!
+          .map((o) => `<option ${o === value ? 'selected' : ''}>${esc(o)}</option>`)
+          .join('')}</select>`;
+        break;
+      case 'bool':
+        control = `<label class="flex items-center gap-2 text-xs"><input type="checkbox" ${attrs} ${value ? 'checked' : ''} /> yes</label>`;
+        break;
+      case 'csv':
+        control = `<input class="adm-input" ${attrs} value="${esc((value ?? []).join(', '))}" />`;
+        break;
+      case 'lines':
+        control = `<textarea class="adm-input" rows="4" ${attrs}>${esc((value ?? []).join('\n'))}</textarea>`;
+        break;
+      case 'kv':
+        control = `<textarea class="adm-input" rows="4" ${attrs} placeholder="Camera: Sony A7\nLens: 35mm">${esc(
+          (value ?? []).map((d: any) => `${d.label}: ${d.value}`).join('\n'),
+        )}</textarea>`;
+        break;
+      case 'media': {
+        const items = (value ?? []) as { src: string; caption?: string }[];
+        control = `<div class="space-y-2">
+          ${items
+            .map(
+              (m, mi) => `<div class="flex items-center gap-3 p-2 rounded-xl border border-zinc-300 dark:border-zinc-700">
+            <img src="${esc(m.src)}" class="w-20 h-14 object-cover rounded-lg shrink-0" alt="" />
+            <input class="adm-input" placeholder="Caption (optional)" value="${esc(m.caption ?? '')}" data-media-caption="${esc(path)}:${mi}" />
+            <span class="flex gap-1 text-xs shrink-0">
+              <button type="button" class="adm-btn" data-media-move="${esc(path)}:${mi}:-1" aria-label="Move left">↑</button>
+              <button type="button" class="adm-btn" data-media-move="${esc(path)}:${mi}:1" aria-label="Move right">↓</button>
+              <button type="button" class="adm-btn text-red-600 dark:text-red-400" data-media-remove="${esc(path)}:${mi}">✕</button>
+            </span>
+          </div>`,
+            )
+            .join('')}
+          <label class="adm-btn cursor-pointer inline-block text-xs">+ Add images / GIFs
+            <input type="file" accept="image/*" multiple class="hidden" data-media-upload="${esc(path)}" />
+          </label>
+          <p class="text-[10px] text-zinc-500">GIFs keep their animation (max ${isSupabaseConfigured ? '10' : '2.5'} MB). Other images are resized to 1600px.</p>
+        </div>`;
+        break;
+      }
+      case 'image':
+        control = `<div class="flex items-center gap-3">
+          <div class="w-20 h-20 rounded border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 overflow-hidden flex items-center justify-center text-[10px] text-zinc-500">
+            ${value ? `<img src="${esc(value)}" class="w-full h-full object-cover" alt="" />` : 'no image'}
+          </div>
+          <div class="flex flex-col gap-1 text-xs">
+            <label class="adm-btn cursor-pointer text-center">Upload
+              <input type="file" accept="image/*" class="hidden" data-upload="${esc(path)}" data-maxdim="${f.maxDim ?? 1600}" />
+            </label>
+            ${value ? `<button type="button" class="adm-btn text-red-600 dark:text-red-400" data-clear="${esc(path)}">Remove</button>` : ''}
+          </div></div>`;
+        break;
+    }
+    return `<div class="${f.wide || f.type === 'image' ? 'md:col-span-2' : ''}"><span class="adm-label">${esc(f.label)}</span>${control}</div>`;
+  };
+
+  const render = () => {
+    tabs.innerHTML = SECTIONS.map((s) => {
+      const count = s.kind === 'list' ? ` (${(data[s.id] as unknown[]).length})` : '';
+      const on = s.id === active;
+      return `<button type="button" data-tab="${s.id}" class="text-left px-3 py-2 rounded border whitespace-nowrap cursor-pointer ${
+        on
+          ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+          : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
+      }">${s.title}${count}</button>`;
+    }).join('');
+
+    const section = SECTIONS.find((s) => s.id === active)!;
+    if (section.kind === 'object') {
+      panel.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${section.fields
+        .map((f) => fieldHtml(f, `${section.id}.`, getPath(data[section.id], f.key)))
+        .join('')}</div>`;
+      return;
+    }
+    const list = data[section.id] as any[];
+    panel.innerHTML = `
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="font-bold text-sm text-[var(--heading)]">${section.title}</h2>
+        <button type="button" data-add="${section.id}" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 text-xs">+ Add</button>
+      </div>
+      ${list.length === 0 ? '<p class="text-xs text-zinc-500">Empty. Click “+ Add”.</p>' : ''}
+      <div class="space-y-3">
+      ${list
+        .map(
+          (item, i) => `<details class="border border-zinc-300 dark:border-zinc-700 rounded-lg" ${list.length <= 3 || i === 0 ? 'open' : ''}>
+        <summary class="px-3 py-2 cursor-pointer flex items-center justify-between gap-2 text-sm text-[var(--heading)]">
+          <span class="truncate font-semibold">${esc(item[section.titleKey] || '(untitled)')}</span>
+          <span class="flex gap-1 text-xs shrink-0" data-stop>
+            <button type="button" class="adm-btn" data-move="${section.id}:${i}:-1" aria-label="Move up">↑</button>
+            <button type="button" class="adm-btn" data-move="${section.id}:${i}:1" aria-label="Move down">↓</button>
+            <button type="button" class="adm-btn text-red-600 dark:text-red-400" data-del="${section.id}:${i}">Delete</button>
+          </span>
+        </summary>
+        <div class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-zinc-200 dark:border-zinc-800">
+          ${section.fields.map((f) => fieldHtml(f, `${section.id}.${i}.`, item[f.key])).join('')}
+        </div></details>`,
+        )
+        .join('')}
+      </div>`;
+  };
+
+  // ---- events ----
+  const readControl = (el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement): unknown => {
+    const type = el.dataset.type;
+    const v = (el as HTMLInputElement).value;
+    switch (type) {
+      case 'bool':
+        return (el as HTMLInputElement).checked;
+      case 'csv':
+        return v.split(',').map((s) => s.trim()).filter(Boolean);
+      case 'lines':
+        return v.split('\n').map((s) => s.trim()).filter(Boolean);
+      case 'kv':
+        return v
+          .split('\n')
+          .map((l) => l.trim())
+          .filter(Boolean)
+          .map((l) => {
+            const i = l.indexOf(':');
+            return i === -1 ? { label: '', value: l } : { label: l.slice(0, i).trim(), value: l.slice(i + 1).trim() };
+          });
+      default:
+        return v;
+    }
+  };
+
+  const GIF_MAX = isSupabaseConfigured ? 10 * 1024 * 1024 : 2.5 * 1024 * 1024;
+  async function processFile(file: File, folder: string, maxDim: number): Promise<string> {
+    const remote = isSupabaseConfigured && signedIn;
+    if (file.type === 'image/gif') {
+      if (file.size > GIF_MAX) throw new Error(`GIF too large (max ${Math.round(GIF_MAX / 1048576 * 10) / 10} MB)`);
+      return remote
+        ? uploadImage(file, folder, { ext: 'gif', contentType: 'image/gif' })
+        : fileToRawDataUrl(file);
+    }
+    return remote ? uploadImage(await fileToBlob(file, maxDim), folder) : fileToDataUrl(file, maxDim);
+  }
+
+  const onEdit = (e: Event) => {
+    const el = e.target as HTMLInputElement;
+    if (el.dataset?.mediaCaption) {
+      const [path, idx] = el.dataset.mediaCaption.split(':');
+      const list = getPath(data, path) as { caption?: string }[];
+      if (list?.[Number(idx)]) list[Number(idx)].caption = el.value;
+      queueSave();
+      return;
+    }
+    if (!el.dataset?.path) return;
+    setPath(data, el.dataset.path, readControl(el));
+    queueSave();
+    // keep tab counts / summary titles fresh without re-rendering inputs
+    const summaryTitle = el.closest('details')?.querySelector('summary span.truncate');
+    if (summaryTitle && /\.(title|role|name)$/.test(el.dataset.path)) summaryTitle.textContent = el.value || '(untitled)';
+  };
+  panel.addEventListener('input', onEdit);
+  panel.addEventListener('change', async (e) => {
+    const el = e.target as HTMLInputElement;
+    if (el.dataset?.mediaUpload && el.files?.length) {
+      const path = el.dataset.mediaUpload;
+      try {
+        const list = (getPath(data, path) ?? []) as { src: string; caption?: string }[];
+        let n = 0;
+        for (const file of Array.from(el.files)) {
+          setStatus(`Processing ${++n}/${el.files.length}…`);
+          list.push({ src: await processFile(file, 'projects', 1600), caption: '' });
+        }
+        setPath(data, path, list);
+        queueSave();
+        render();
+      } catch (err) {
+        setStatus((err as Error).message || 'Could not process/upload that image');
+      }
+      return;
+    }
+    if (el.dataset?.upload && el.files?.[0]) {
+      try {
+        setStatus('Processing image…');
+        const url = await processFile(
+          el.files[0],
+          el.dataset.upload.startsWith('identity') ? 'avatar' : 'gallery',
+          Number(el.dataset.maxdim) || 1600,
+        );
+        setPath(data, el.dataset.upload, url);
+        queueSave();
+        render();
+      } catch (err) {
+        setStatus((err as Error).message || 'Could not process/upload that image');
+      }
+      return;
+    }
+    onEdit(e);
+  });
+
+  panel.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('[data-stop]')) e.preventDefault(); // don't toggle <details>
+    const btn = t.closest<HTMLElement>('[data-add],[data-del],[data-move],[data-clear],[data-media-remove],[data-media-move]');
+    if (!btn) return;
+    if (btn.dataset.mediaRemove || btn.dataset.mediaMove) {
+      const [path, idx, d] = (btn.dataset.mediaRemove ?? btn.dataset.mediaMove)!.split(':');
+      const list = (getPath(data, path) ?? []) as unknown[];
+      const from = Number(idx);
+      if (btn.dataset.mediaRemove) list.splice(from, 1);
+      else {
+        const to = from + Number(d);
+        if (to < 0 || to >= list.length) return;
+        [list[from], list[to]] = [list[to], list[from]];
+      }
+    } else if (btn.dataset.add) {
+      const s = SECTIONS.find((x) => x.id === btn.dataset.add) as ListSection;
+      (data[s.id] as unknown[]).push(s.create());
+    } else if (btn.dataset.del) {
+      const [id, i] = btn.dataset.del.split(':');
+      if (!confirm('Delete this item?')) return;
+      (data[id as keyof PortfolioData] as unknown[]).splice(Number(i), 1);
+    } else if (btn.dataset.move) {
+      const [id, i, d] = btn.dataset.move.split(':');
+      const list = data[id as keyof PortfolioData] as unknown[];
+      const from = Number(i);
+      const to = from + Number(d);
+      if (to < 0 || to >= list.length) return;
+      [list[from], list[to]] = [list[to], list[from]];
+    } else if (btn.dataset.clear) {
+      setPath(data, btn.dataset.clear, '');
+    }
+    queueSave();
+    render();
+  });
+
+  tabs.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-tab]');
+    if (!b) return;
+    active = b.dataset.tab!;
+    render();
+  });
+
+  document.getElementById('btn-export')!.addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'content.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  document.getElementById('input-import')!.addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      if (typeof parsed !== 'object' || !parsed || Array.isArray(parsed)) throw new Error('bad');
+      data = mergePortfolioData(defaultPortfolioData, parsed);
+      for (const k of ['skills', 'certifications', 'experience', 'projects', 'gallery'] as const) {
+        if (!Array.isArray(data[k])) (data as any)[k] = [];
+      }
+      queueSave();
+      render();
+    } catch {
+      alert('Invalid JSON file.');
+    }
+    input.value = '';
+  });
+
+  document.getElementById('btn-reset')!.addEventListener('click', async () => {
+    const msg = isSupabaseConfigured
+      ? 'Discard your unpublished draft and reload the published content?'
+      : 'Discard all local edits and go back to the built-in content?';
+    if (!confirm(msg)) return;
+    await clearStored();
+    await startEditor();
+    setStatus(isSupabaseConfigured ? 'Draft discarded' : 'Reset to built-in content');
+  });
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const adminHeader = $('admin-header');
+  const publishBtn = $('btn-publish');
+  const signoutBtn = $('btn-signout');
+  const loginForm = $('admin-login') as HTMLFormElement;
+  const app = $('admin-app');
+  const note = $('admin-note');
+
+  publishBtn.addEventListener('click', async () => {
+    if (!confirm('Publish these changes to your live site?')) return;
+    try {
+      setStatus('Publishing…');
+      clearTimeout(saveTimer);
+      await publishRemote(data);
+      await clearStored();
+      setStatus('Published ✓ — visitors see it on next load');
+    } catch (err) {
+      setStatus(`Publish failed: ${(err as Error).message}`);
+    }
+  });
+
+  signoutBtn.addEventListener('click', async () => {
+    await signOut();
+    boot();
+  });
+
+  $('btn-github-login').addEventListener('click', async () => {
+    const err = $('login-error');
+    err.className = 'text-xs text-red-500 min-h-4';
+    err.textContent = '';
+    try {
+      await signInWithGitHub();
+    } catch (ex) {
+      err.textContent = (ex as Error).message;
+    }
+  });
+
+  $('btn-google-login').addEventListener('click', async () => {
+    const err = $('login-error');
+    err.className = 'text-xs text-red-500 min-h-4';
+    err.textContent = '';
+    try {
+      await signInWithGoogle();
+    } catch (ex) {
+      err.textContent = (ex as Error).message;
+    }
+  });
+
+  $('btn-magic-link').addEventListener('click', async () => {
+    const err = $('login-error');
+    const email = ($('login-email') as HTMLInputElement).value.trim();
+    err.className = 'text-xs text-red-500 min-h-4';
+    if (!email) {
+      err.textContent = 'Enter your email first.';
+      return;
+    }
+    try {
+      await sendMagicLink(email);
+      err.className = 'text-xs text-emerald-500 min-h-4';
+      err.textContent = 'Magic link sent! Check your email inbox.';
+    } catch (ex) {
+      err.textContent = (ex as Error).message;
+    }
+  });
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('login-error');
+    err.className = 'text-xs text-red-500 min-h-4';
+    err.textContent = '';
+    const email = ($('login-email') as HTMLInputElement).value.trim();
+    const password = ($('login-password') as HTMLInputElement).value;
+    if (!password) {
+      err.textContent = 'Enter your password, or click "Send magic link to email".';
+      return;
+    }
+    try {
+      await signIn(email, password);
+      boot();
+    } catch (ex) {
+      err.textContent = (ex as Error).message;
+    }
+  });
+
+  async function startEditor() {
+    const { data: d, fromDraft } = await loadAdminData();
+    data = structuredClone(d);
+    if (!Array.isArray(data.gallery)) data.gallery = [];
+    render();
+    if (fromDraft) setStatus('Loaded your unpublished draft');
+  }
+
+  async function boot() {
+    const session = await getSession();
+    if (session && !isOwnerSession(session)) {
+      const err = $('login-error');
+      err.className = 'text-xs text-red-500 min-h-4';
+      err.textContent = 'Account is not authorized as portfolio owner.';
+      await signOut();
+      signedIn = false;
+    } else {
+      signedIn = Boolean(session);
+    }
+
+    const hdrLabel = document.getElementById('hdr-admin-label');
+    if (hdrLabel) hdrLabel.textContent = signedIn ? 'Edit' : 'Login';
+
+    if (signedIn && session) {
+      const role = getSessionRole(session);
+      signoutBtn.textContent = `Sign out (${getSessionLabel(session)})`;
+      note.innerHTML =
+        role === 'root'
+          ? 'Signed in as <b>Repo Owner (ROOT)</b> via GitHub. Full privileges enabled — press <b>Publish</b> to push changes live.'
+          : 'Edits autosave as a local draft. Press <b>Publish</b> to push them (and uploaded images) to Supabase so everyone sees them.';
+    }
+
+    adminHeader.classList.toggle('hidden', !signedIn);
+    adminHeader.classList.toggle('flex', signedIn);
+    note.classList.toggle('hidden', !signedIn);
+    app.classList.toggle('hidden', !signedIn);
+    loginForm.classList.toggle('hidden', signedIn);
+
+    if (signedIn) await startEditor();
+  }
+
+  onAuthChange(() => boot());
+  boot();
+</script>

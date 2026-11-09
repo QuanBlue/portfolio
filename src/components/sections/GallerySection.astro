@@ -1,0 +1,23 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderGalleryGrid } from '../../lib/render';
+const { gallery } = portfolioData;
+const LIMIT = 6;
+---
+
+<section id="gallery" class="max-w-6xl mx-auto w-full px-5 py-16">
+  <div class="flex items-end justify-between mb-8 reveal">
+    <div>
+      <p class="eyebrow mb-2">Gallery</p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold text-[var(--heading)]">Moments & visuals</h2>
+    </div>
+    <a id="gallery-all" href="/gallery" class:list={['text-sm text-[var(--text-body)] hover:text-[var(--heading)] transition-colors', gallery.length <= LIMIT ? 'hidden' : '']}>View all →</a>
+  </div>
+
+  <div id="gallery-empty" class:list={['card p-10 text-center text-sm', gallery.length ? 'hidden' : '']}>
+    <p class="mb-3">Chưa có ảnh nào.</p>
+    <a href="/admin" class="text-emerald-500 hover:underline">Thêm ảnh đầu tiên trong trang Edit →</a>
+  </div>
+
+  <div id="gallery-grid" data-limit={LIMIT} class="masonry reveal" set:html={renderGalleryGrid(gallery, LIMIT)}></div>
+</section>

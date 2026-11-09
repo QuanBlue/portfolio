@@ -1,0 +1,17 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { identity } = portfolioData;
+---
+
+<section id="contact" class="max-w-6xl mx-auto w-full px-5 pt-16 pb-10">
+  <div class="card relative overflow-hidden p-10 md:p-16 text-center reveal">
+    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-blue-500/5 pointer-events-none"></div>
+    <p class="eyebrow mb-3 relative">Contact</p>
+    <h2 class="font-display text-3xl md:text-5xl font-bold text-[var(--heading)] relative">Let's build something reliable.</h2>
+    <p class="mt-4 max-w-lg mx-auto relative">Mở cho các cơ hội DevOps, hạ tầng Kubernetes và quan sát hệ thống.</p>
+    <a data-bind="email" href={`mailto:${identity.email}`} class="btn btn-primary mt-8 relative">{identity.email}</a>
+  </div>
+  <p class="flex items-center justify-center gap-2 text-xs text-[var(--muted)] mt-10 font-mono"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span><span class="text-emerald-600 dark:text-emerald-400">ACTIVE_CONNECTION</span> ·
+    © {new Date().getFullYear()} <span data-bind="name">{identity.name}</span>
+  </p>
+</section>

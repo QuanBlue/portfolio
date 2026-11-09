@@ -1,38 +1,62 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import IdentityCard from '../components/dashboard/IdentityCard.astro';
-import SkillsPanel from '../components/dashboard/SkillsPanel.astro';
-import Certifications from '../components/dashboard/Certifications.astro';
-import TelemetryTrace from '../components/dashboard/TelemetryTrace.astro';
-import MainViewport from '../components/dashboard/MainViewport.astro';
-import ProjectsList from '../components/dashboard/ProjectsList.astro';
+import Hero from '../components/sections/Hero.astro';
+import GallerySection from '../components/sections/GallerySection.astro';
+import ProjectsSection from '../components/sections/ProjectsSection.astro';
+import ExperienceSection from '../components/sections/ExperienceSection.astro';
+import SkillsSection from '../components/sections/SkillsSection.astro';
+import ContactSection from '../components/sections/ContactSection.astro';
 import InteractiveTerminal from '../components/terminal/InteractiveTerminal.astro';
 import ProjectModal from '../components/dashboard/ProjectModal.astro';
 ---
 
-<BaseLayout title="Quan's DevOps Dashboard" currentPath="/" isDashboard={true}>
-  <!-- Main Grid Layout matching devops_dashboard_concept.html -->
-  <main class="flex-grow p-2 md:p-4 grid grid-cols-1 md:grid-cols-12 gap-4 h-[calc(100vh-32px)] z-10 overflow-y-auto md:overflow-hidden">
-    <!-- LEFT COLUMN: Profile & Resources (3/12) -->
-    <div class="md:col-span-3 flex flex-col gap-4 h-full">
-      <IdentityCard />
-      <SkillsPanel />
-      <Certifications />
-    </div>
-
-    <!-- MIDDLE COLUMN: Dynamic Content (6/12) -->
-    <div class="md:col-span-6 flex flex-col gap-4 h-full">
-      <TelemetryTrace />
-      <MainViewport />
-    </div>
-
-    <!-- RIGHT COLUMN: Projects & Interactive Terminal (3/12) -->
-    <div class="md:col-span-3 flex flex-col gap-4 h-full">
-      <ProjectsList />
-      <InteractiveTerminal />
-    </div>
+<BaseLayout title="Nguyễn Thanh Quân | DevOps Engineer" currentPath="/">
+  <main class="flex-grow">
+    <Hero />
+    <GallerySection />
+    <ProjectsSection />
+    <ExperienceSection />
+    <SkillsSection />
+    <InteractiveTerminal />
+    <ContactSection />
   </main>
 
-  <!-- Project Modal -->
   <ProjectModal />
 </BaseLayout>
+
+<script>
+  import { openLightbox } from '../lib/lightbox';
+  import { renderGalleryGrid } from '../lib/render';
+  import type { GalleryItem } from '../data/portfolio';
+
+  const grid = document.getElementById('gallery-grid')!;
+  const empty = document.getElementById('gallery-empty')!;
+  const all = document.getElementById('gallery-all')!;
+  const limit = Number(grid.dataset.limit) || 6;
+  let items: GalleryItem[] = [];
+
+  window.addEventListener('portfolio:data', (e) => {
+    items = (e as CustomEvent).detail.gallery ?? [];
+    grid.innerHTML = renderGalleryGrid(items, limit);
+    empty.classList.toggle('hidden', items.length > 0);
+    all.classList.toggle('hidden', items.length <= limit);
+  });
+
+  grid.addEventListener('click', (e) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-gallery-index]');
+    if (card && items.length) openLightbox(items, Number(card.dataset.galleryIndex));
+  });
+
+  // Reveal sections on scroll
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((en) => {
+        if (en.isIntersecting) {
+          en.target.classList.add('is-visible');
+          io.unobserve(en.target);
+        }
+      }),
+    { threshold: 0.08 },
+  );
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>

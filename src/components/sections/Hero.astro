@@ -1,0 +1,50 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderAvatar, safeUrl } from '../../lib/render';
+const { identity, projects, skills, gallery } = portfolioData;
+---
+
+<section class="relative max-w-6xl mx-auto w-full px-5 pt-16 pb-20 md:pt-24 md:pb-28 grid md:grid-cols-[1.4fr_1fr] gap-12 items-center">
+  <div class="reveal">
+    <span class="chip mb-6">
+      <span class="relative flex w-2 h-2">
+        <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping"></span>
+        <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-400"></span>
+      </span>
+      <span data-bind="location">{identity.location}</span>
+    </span>
+    <span class="chip mb-6 ml-2 font-mono !text-emerald-700 dark:!text-emerald-400 !border-emerald-500/30 !bg-emerald-500/10">SYSTEM.ONLINE</span>
+
+    <h1 class="font-display text-5xl md:text-7xl font-bold leading-[1.05] text-[var(--heading)]">
+      <span data-bind="name">{identity.name}</span>
+    </h1>
+    <p class="font-mono text-xl md:text-2xl mt-4 text-emerald-600 dark:text-emerald-400"><span class="select-none">▹ </span><span data-bind="role">{identity.role}</span></p>
+    <p data-bind="bio" class="mt-6 text-base md:text-lg leading-relaxed max-w-xl text-[var(--text-body)]">{identity.bio}</p>
+
+    <div class="flex flex-wrap items-center gap-3 mt-9">
+      <a href="#projects" class="btn btn-primary">View work →</a>
+      <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="btn">GitHub</a>
+      <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="btn">LinkedIn</a>
+    </div>
+
+    <dl class="flex gap-10 mt-12 text-[var(--heading)]">
+      <div>
+        <dt class="eyebrow !text-[var(--muted)]">Projects</dt>
+        <dd id="count-projects" class="font-display text-3xl font-bold mt-1">{projects.length}</dd>
+      </div>
+      <div>
+        <dt class="eyebrow !text-[var(--muted)]">Skills</dt>
+        <dd id="count-skills" class="font-display text-3xl font-bold mt-1">{skills.length}</dd>
+      </div>
+      <div>
+        <dt class="eyebrow !text-[var(--muted)]">Photos</dt>
+        <dd id="count-gallery" class="font-display text-3xl font-bold mt-1">{gallery.length}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="reveal relative mx-auto w-64 md:w-full max-w-sm" style="transition-delay:.15s">
+    <div class="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-emerald-500/30 via-emerald-500/5 to-blue-500/10 blur-2xl"></div>
+    <div id="bind-avatar" class="relative aspect-square rounded-[2rem] overflow-hidden border border-[var(--card-border)] shadow-2xl" set:html={renderAvatar(identity)}></div>
+  </div>
+</section>

@@ -1,5 +1,6 @@
 ---
 import Header from '../components/layout/Header.astro';
+import LiveData from '../components/common/LiveData.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -15,14 +16,18 @@ const {
   currentPath = '/',
   isDashboard = false,
 } = Astro.props;
+const hasCms = Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY);
 ---
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#09090b" />
+    <meta property="og:image" content={new URL('/og-image.png', Astro.site ?? Astro.url).href} />
+    <meta name="twitter:image" content={new URL('/og-image.png', Astro.site ?? Astro.url).href} />    <title>{title}</title>
     <meta name="description" content={description} />
     
     <!-- OpenGraph / Twitter -->
@@ -35,26 +40,36 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Tránh giật màn hình (FOUC) khi load trang matching mockup -->
+    <!-- Mặc định luôn là Dark theme trừ khi người dùng chủ động chọn Light -->
     <script is:inline>
-      if (
-        localStorage.getItem('color-theme') === 'dark' ||
-        (!('color-theme' in localStorage) &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ) {
-        document.documentElement.classList.add('dark');
-      } else {
+      if (localStorage.getItem('color-theme') === 'light') {
         document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
       }
     </script>
-  </head>
-  <body class={`flex flex-col ${isDashboard ? 'h-screen overflow-hidden' : 'min-h-screen'} relative transition-colors duration-300`}>
-    <div class="scanline" aria-hidden="true"></div>
+
+    <!-- Hide placeholder content until Supabase data arrives (max 4s) -->
+    {hasCms && (
+      <>
+        <style is:inline>
+          html.cms-loading body > main { opacity: 0; }
+          body > main { transition: opacity .35s ease; }
+        </style>
+        <script is:inline>
+          document.documentElement.classList.add('cms-loading');
+          setTimeout(function () { document.documentElement.classList.remove('cms-loading'); }, 4000);
+        </script>
+      </>
+    )}  </head>
+  <body class="flex flex-col min-h-screen relative">
+    <div class="ambient" aria-hidden="true"></div>
     <Header currentPath={currentPath} />
     <slot />
+    <LiveData />
   </body>
 </html>

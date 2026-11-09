@@ -14,6 +14,8 @@ export interface Identity {
     url: string;
   };
   bio: string;
+  /** Avatar image (data URL or path). Optional. */
+  avatar?: string;
 }
 
 export interface Skill {
@@ -42,6 +44,12 @@ export interface ExperienceItem {
   tags: string[];
 }
 
+export interface ProjectMedia {
+  /** Image or GIF (public URL or data URL) */
+  src: string;
+  caption?: string;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -51,6 +59,8 @@ export interface Project {
   link: string;
   color: 'emerald' | 'blue' | 'purple' | 'orange';
   status: 'ONLINE' | 'MAINTENANCE';
+  /** Screenshots / GIFs shown in the project detail modal */
+  media?: ProjectMedia[];
 }
 
 export interface APMSpan {
@@ -70,6 +80,23 @@ export interface Telemetry {
   spans: APMSpan[];
 }
 
+export interface GalleryDetail {
+  label: string;
+  value: string;
+}
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  description: string;
+  /** Image as data URL or path */
+  image: string;
+  date?: string;
+  location?: string;
+  tags: string[];
+  details: GalleryDetail[];
+}
+
 export interface PortfolioData {
   identity: Identity;
   skills: Skill[];
@@ -77,16 +104,17 @@ export interface PortfolioData {
   experience: ExperienceItem[];
   projects: Project[];
   telemetry: Telemetry;
+  gallery: GalleryItem[];
 }
 
-export const portfolioData: PortfolioData = {
+export const defaultPortfolioData: PortfolioData = {
   identity: {
     name: 'Nguyễn Thanh Quân',
     role: 'DevOps Engineer',
     node: 'HCM-VNM-01',
     ip: '192.168.1.104',
     location: 'Ho Chi Minh, VN',
-    email: 'quan.devops@email.com',
+    email: 'quannguyenthanh558@gmail.com',
     linkedin: {
       handle: 'in/quanblue',
       url: 'https://linkedin.com/in/quanblue',
@@ -169,4 +197,28 @@ export const portfolioData: PortfolioData = {
       { name: 'postgres-db (65ms)', duration: '65ms', leftPercent: 40, widthPercent: 45, color: 'orange', delay: '0.45s' },
     ],
   },
+  gallery: [],
 };
+
+// Build-time content override: drop an exported `content.json` into src/data/ and commit it.
+const buildOverrides = import.meta.glob<Partial<PortfolioData>>('./content.json', {
+  eager: true,
+  import: 'default',
+});
+
+export function mergePortfolioData(
+  base: PortfolioData,
+  override?: Partial<PortfolioData> | null,
+): PortfolioData {
+  if (!override) return base;
+  return {
+    ...base,
+    ...override,
+    identity: { ...base.identity, ...(override.identity ?? {}) },
+  } as PortfolioData;
+}
+
+export const portfolioData: PortfolioData = mergePortfolioData(
+  defaultPortfolioData,
+  Object.values(buildOverrides)[0] ?? null,
+);

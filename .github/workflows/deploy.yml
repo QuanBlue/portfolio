@@ -35,6 +35,9 @@ jobs:
 
       - name: Build Static Site (Astro SSG)
         run: npm run build
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL || vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY || vars.PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3

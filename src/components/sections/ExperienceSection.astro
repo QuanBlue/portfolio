@@ -1,0 +1,16 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderExperience } from '../../lib/render';
+const { experience } = portfolioData;
+---
+
+<section id="experience" class="max-w-4xl mx-auto w-full px-5 py-16">
+  <div class="mb-10 reveal">
+    <p class="eyebrow mb-2">Experience</p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-[var(--heading)]">Where I've worked</h2>
+  </div>
+  <div class="relative reveal">
+    <div class="absolute left-[5px] top-3 bottom-3 w-px bg-[var(--card-border)]"></div>
+    <div id="bind-experience" set:html={renderExperience(experience)}></div>
+  </div>
+</section>

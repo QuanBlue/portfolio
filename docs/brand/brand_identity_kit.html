@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quan DevOps - Brand Identity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #09090b; color: #e4e4e7; font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+        
+        /* Thumbnail scale helper */
+        .thumbnail-container {
+            width: 1200px;
+            height: 630px;
+            transform: scale(0.5);
+            transform-origin: top left;
+        }
+        @media (max-width: 768px) {
+            .thumbnail-container {
+                transform: scale(0.25);
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <header class="mb-12 border-b border-zinc-800 pb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2 font-mono">Brand_Identity.kit</h1>
+            <p class="text-zinc-400">Bộ nhận diện thương hiệu cho Portfolio - DevOps Engineer</p>
+        </div>
+        <div class="hidden md:block">
+            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded font-mono text-sm">v1.0.0</span>
+        </div>
+    </header>
+
+    <main class="space-y-16">
+        
+        <!-- SECTION 1: LOGO & FAVICON -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-emerald-500 font-mono text-xl">01</span>
+                <h2 class="text-2xl font-bold text-white">Logo & Favicon</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Primary Logo -->
+                <div class="col-span-1 md:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 grid-bg opacity-50"></div>
+                    <div class="relative z-10 w-48 h-48 mb-8" id="primary-logo">
+                        <!-- SVG LOGO -->
+                        <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                            <!-- Outer Hexagon -->
+                            <polygon points="256,24 456,140 456,372 256,488 56,372 56,140" fill="#09090b" stroke="#10b981" stroke-width="24" stroke-linejoin="round"/>
+                            <!-- Inner Hexagon (Decoration) -->
+                            <polygon points="256,64 422,160 422,352 256,448 90,352 90,160" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="10 10" opacity="0.5"/>
+                            
+                            <!-- The 'Q' shape -->
+                            <circle cx="230" cy="230" r="70" stroke="#10b981" stroke-width="32" fill="none"/>
+                            <line x1="280" y1="280" x2="330" y2="330" stroke="#10b981" stroke-width="32" stroke-linecap="round"/>
+                            
+                            <!-- The '_' Terminal Cursor -->
+                            <line x1="360" y1="330" x2="410" y2="330" stroke="#10b981" stroke-width="32" stroke-linecap="round" class="animate-pulse"/>
+                        </svg>
+                    </div>
+                    <div class="relative z-10 flex gap-4">
+                        <button onclick="copySVG('primary-logo')" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-sm font-mono text-zinc-300 rounded border border-zinc-700 transition">Copy SVG Code</button>
+                    </div>
+                    <p class="relative z-10 text-xs text-zinc-500 mt-4 text-center max-w-md">Ý tưởng: Biểu tượng Lục giác tượng trưng cho Node/Container. Chữ Q cách điệu kết hợp cùng dấu nháy terminal nhấp nháy tạo sự liên kết với hệ thống dòng lệnh.</p>
+                </div>
+
+                <!-- Favicon Previews -->
+                <div class="col-span-1 flex flex-col gap-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex-grow flex flex-col justify-center items-center">
+                        <h3 class="text-sm font-mono text-zinc-400 mb-6 w-full text-left uppercase">Favicon Preview (32x32)</h3>
+                        <div class="flex items-center gap-2 bg-zinc-800 py-2 px-4 rounded-t-lg border-b border-zinc-700 w-full max-w-[200px]">
+                            <!-- Tiny Logo -->
+                            <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4">
+                                <polygon points="256,24 456,140 456,372 256,488 56,372 56,140" fill="#09090b" stroke="#10b981" stroke-width="48" stroke-linejoin="round"/>
+                                <circle cx="230" cy="230" r="70" stroke="#10b981" stroke-width="48" fill="none"/>
+                                <line x1="280" y1="280" x2="340" y2="340" stroke="#10b981" stroke-width="48" stroke-linecap="round"/>
+                            </svg>
+                            <span class="text-[10px] text-zinc-300 truncate">Quan's Portfolio</span>
+                        </div>
+                        <div class="bg-zinc-950 w-full max-w-[200px] h-20 rounded-b-lg border border-t-0 border-zinc-800"></div>
+                        <p class="text-xs text-zinc-500 mt-4">Nổi bật và rõ nét ngay cả ở kích thước nhỏ nhất trên tab trình duyệt.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: BRAND COLORS -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-emerald-500 font-mono text-xl">02</span>
+                <h2 class="text-2xl font-bold text-white">Color System</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Color 1 -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                    <div class="h-24 bg-[#10b981] flex items-end p-3">
+                        <span class="font-mono text-zinc-900 font-bold text-sm">Primary</span>
+                    </div>
+                    <div class="p-3 bg-zinc-900 flex justify-between items-center text-sm font-mono">
+                        <span class="text-white">Emerald</span>
+                        <span class="text-zinc-500">#10B981</span>
+                    </div>
+                </div>
+                
+                <!-- Color 2 -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                    <div class="h-24 bg-[#09090b] border-b border-zinc-800 flex items-end p-3">
+                        <span class="font-mono text-emerald-500 font-bold text-sm">Background</span>
+                    </div>
+                    <div class="p-3 bg-zinc-900 flex justify-between items-center text-sm font-mono">
+                        <span class="text-white">Zinc 950</span>
+                        <span class="text-zinc-500">#09090B</span>
+                    </div>
+                </div>
+
+                <!-- Color 3 -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                    <div class="h-24 bg-[#27272a] flex items-end p-3">
+                        <span class="font-mono text-white font-bold text-sm">Panel / Stroke</span>
+                    </div>
+                    <div class="p-3 bg-zinc-900 flex justify-between items-center text-sm font-mono">
+                        <span class="text-white">Zinc 800</span>
+                        <span class="text-zinc-500">#27272A</span>
+                    </div>
+                </div>
+
+                <!-- Color 4 -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                    <div class="h-24 bg-[#a1a1aa] flex items-end p-3">
+                        <span class="font-mono text-zinc-900 font-bold text-sm">Text Muted</span>
+                    </div>
+                    <div class="p-3 bg-zinc-900 flex justify-between items-center text-sm font-mono">
+                        <span class="text-white">Zinc 400</span>
+                        <span class="text-zinc-500">#A1A1AA</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: APP THUMBNAIL / OPEN GRAPH -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-emerald-500 font-mono text-xl">03</span>
+                <h2 class="text-2xl font-bold text-white">OpenGraph / Social Thumbnail (1200x630)</h2>
+            </div>
+            
+            <p class="text-sm text-zinc-400 mb-6">Được sử dụng khi chia sẻ link lên LinkedIn, Facebook, Discord, v.v. (Tỷ lệ 1.91:1). Bạn có thể chụp ảnh màn hình vùng này hoặc sử dụng HTML/CSS để tạo og:image động.</p>
+            
+            <!-- THUMBNAIL CONTAINER -->
+            <div class="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-900 h-[340px] relative">
+                
+                <div class="thumbnail-container absolute top-0 left-0" id="og-thumbnail">
+                    <!-- THUMBNAIL DESIGN (Exactly 1200x630) -->
+                    <div class="w-full h-full bg-[#09090b] relative overflow-hidden flex flex-col justify-between p-16 box-border">
+                        <!-- Grid Background -->
+                        <div class="absolute inset-0 grid-bg opacity-30"></div>
+                        
+                        <!-- Glowing Orbs -->
+                        <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+                        <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+                        <!-- Top row -->
+                        <div class="relative z-10 flex justify-between items-start w-full">
+                            <div class="flex gap-4">
+                                <span class="px-6 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-2xl rounded-lg">SYSTEM.ONLINE</span>
+                                <span class="px-6 py-2 bg-zinc-800/50 border border-zinc-700 text-zinc-400 font-mono text-2xl rounded-lg">NODE: HCM-01</span>
+                            </div>
+                        </div>
+
+                        <!-- Center Content -->
+                        <div class="relative z-10 flex items-center gap-16 w-full">
+                            <!-- Big Logo -->
+                            <div class="w-56 h-56 flex-shrink-0">
+                                <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]">
+                                    <polygon points="256,24 456,140 456,372 256,488 56,372 56,140" fill="#09090b" stroke="#10b981" stroke-width="24" stroke-linejoin="round"/>
+                                    <circle cx="230" cy="230" r="70" stroke="#10b981" stroke-width="32" fill="none"/>
+                                    <line x1="280" y1="280" x2="330" y2="330" stroke="#10b981" stroke-width="32" stroke-linecap="round"/>
+                                    <line x1="360" y1="330" x2="410" y2="330" stroke="#10b981" stroke-width="32" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <!-- Text Info -->
+                            <div class="flex flex-col">
+                                <h1 class="text-7xl font-bold text-white mb-6 tracking-tight font-sans">Nguyễn Thanh Quân</h1>
+                                <p class="text-4xl text-emerald-400 font-mono mb-8">./devops_engineer.sh</p>
+                                <div class="flex gap-4 font-mono text-2xl text-zinc-400">
+                                    <span class="flex items-center gap-2"><span class="text-emerald-500">▹</span> Kubernetes</span>
+                                    <span class="flex items-center gap-2"><span class="text-emerald-500">▹</span> Ansible</span>
+                                    <span class="flex items-center gap-2"><span class="text-emerald-500">▹</span> CI/CD Pipeline</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom row -->
+                        <div class="relative z-10 flex justify-between items-end w-full border-t border-zinc-800 pt-8 mt-8">
+                            <div class="text-zinc-500 font-mono text-2xl">github.com/QuanBlue</div>
+                            <div class="flex items-center gap-4 text-emerald-500 font-mono text-2xl">
+                                <span class="w-4 h-4 bg-emerald-500 rounded-full shadow-[0_0_15px_#10b981]"></span>
+                                ACTIVE_CONNECTION
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification for Copy -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white px-6 py-3 rounded shadow-lg font-mono text-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        Copied to clipboard!
+    </div>
+
+    <script>
+        function copySVG(elementId) {
+            const container = document.getElementById(elementId);
+            // Lấy trực tiếp mã HTML (chính là thẻ SVG)
+            let svgCode = container.innerHTML.trim();
+            
+            // Format lại một chút cho đẹp khi paste
+            svgCode = svgCode.replace(/<!--.*?-->/g, ''); // Xóa comment
+            
+            // Tạo textarea ẩn để copy
+            const el = document.createElement('textarea');
+            el.value = svgCode;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            // Hiển thị thông báo
+            showToast('Đã copy mã SVG Logo!');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

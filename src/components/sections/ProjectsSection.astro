@@ -1,0 +1,13 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderProjects } from '../../lib/render';
+const { projects } = portfolioData;
+---
+
+<section id="projects" class="max-w-6xl mx-auto w-full px-5 py-16">
+  <div class="mb-8 reveal">
+    <p class="eyebrow mb-2">Projects</p>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-[var(--heading)]">Selected work</h2>
+  </div>
+  <div id="bind-projects" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 reveal" set:html={renderProjects(projects)}></div>
+</section>

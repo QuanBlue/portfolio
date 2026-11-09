@@ -1,0 +1,61 @@
+---
+// Applies the owner's locally saved edits (IndexedDB) on top of the built-in data.
+---
+
+<script>
+  import { loadLiveData } from '../../lib/store';
+  import { getSession, isOwnerSession } from '../../lib/supabase';
+  import {
+    safeUrl,
+    renderAvatar,
+    renderSkills,
+    renderCerts,
+    renderExperience,
+    renderProjects,
+  } from '../../lib/render';
+
+  getSession().then((session) => {
+    const lbl = document.getElementById('hdr-admin-label');
+    if (lbl && isOwnerSession(session)) {
+      lbl.textContent = 'Edit';
+    }
+  });
+
+  const html = (id: string, markup: string) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = markup;
+  };
+  const text = (sel: string, value: string) => {
+    document.querySelectorAll(sel).forEach((el) => (el.textContent = value));
+  };
+
+  loadLiveData().then((d) => {
+    const i = d.identity;
+
+    text('[data-bind="name"]', i.name);
+    text('[data-bind="role"]', i.role);
+    text('[data-bind="location"]', i.location);
+    text('[data-bind="bio"]', i.bio);
+
+    document.querySelectorAll<HTMLAnchorElement>('[data-bind="email"]').forEach((a) => {
+      a.textContent = i.email;
+      a.href = `mailto:${i.email}`;
+    });
+    for (const key of ['linkedin', 'github'] as const) {
+      document.querySelectorAll<HTMLAnchorElement>(`[data-bind="${key}"]`).forEach((a) => {
+        a.href = safeUrl(i[key].url);
+      });
+    }
+
+    html('bind-avatar', renderAvatar(i));
+    html('bind-skills', renderSkills(d.skills));
+    html('bind-certs', renderCerts(d.certifications));
+    html('bind-experience', renderExperience(d.experience));
+    html('bind-projects', renderProjects(d.projects));
+    text('#count-projects', String(d.projects.length));
+    text('#count-skills', String(d.skills.length));
+    text('#count-gallery', String((d.gallery ?? []).length));
+
+    window.dispatchEvent(new CustomEvent('portfolio:data', { detail: d }));
+  });
+</script>

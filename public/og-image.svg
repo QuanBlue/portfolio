@@ -1,0 +1,37 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="g" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.05"/>
+    </pattern>
+    <radialGradient id="o1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(60 60) scale(380)">
+      <stop stop-color="#10b981" stop-opacity="0.28"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="o2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1140 570) scale(380)">
+      <stop stop-color="#3b82f6" stop-opacity="0.16"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#09090b"/>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <rect width="1200" height="630" fill="url(#o1)"/>
+  <rect width="1200" height="630" fill="url(#o2)"/>
+
+  <rect x="64" y="64" width="260" height="52" rx="10" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-opacity="0.3"/>
+  <text x="194" y="99" text-anchor="middle" font-family="JetBrains Mono, Consolas, monospace" font-size="24" fill="#34d399">SYSTEM.ONLINE</text>
+  <rect x="340" y="64" width="250" height="52" rx="10" fill="#27272a" fill-opacity="0.5" stroke="#3f3f46"/>
+  <text x="465" y="99" text-anchor="middle" font-family="JetBrains Mono, Consolas, monospace" font-size="24" fill="#a1a1aa">NODE: HCM-01</text>
+
+  <g transform="translate(64 190) scale(0.43)">
+    <polygon points="256,24 456,140 456,372 256,488 56,372 56,140" fill="#09090b" stroke="#10b981" stroke-width="24" stroke-linejoin="round"/>
+    <circle cx="230" cy="230" r="70" stroke="#10b981" stroke-width="32" fill="none"/>
+    <line x1="280" y1="280" x2="330" y2="330" stroke="#10b981" stroke-width="32" stroke-linecap="round"/>
+    <line x1="360" y1="330" x2="410" y2="330" stroke="#10b981" stroke-width="32" stroke-linecap="round"/>
+  </g>
+  <text x="330" y="280" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="72" fill="#ffffff">Nguyễn Thanh Quân</text>
+  <text x="330" y="350" font-family="JetBrains Mono, Consolas, monospace" font-size="38" fill="#34d399">./devops_engineer.sh</text>
+  <text x="330" y="420" font-family="JetBrains Mono, Consolas, monospace" font-size="26" fill="#a1a1aa"><tspan fill="#10b981">▹</tspan> Kubernetes   <tspan fill="#10b981">▹</tspan> Ansible   <tspan fill="#10b981">▹</tspan> CI/CD Pipeline</text>
+
+  <line x1="64" y1="520" x2="1136" y2="520" stroke="#27272a"/>
+  <text x="64" y="574" font-family="JetBrains Mono, Consolas, monospace" font-size="26" fill="#71717a">github.com/QuanBlue</text>
+  <circle cx="866" cy="565" r="9" fill="#10b981"/>
+  <text x="1136" y="574" text-anchor="end" font-family="JetBrains Mono, Consolas, monospace" font-size="26" fill="#10b981">ACTIVE_CONNECTION</text>
+</svg>

@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { portfolioData } from '../data/portfolio';
+import { renderGalleryGrid } from '../lib/render';
+
+const { gallery } = portfolioData;
+---
+
+<BaseLayout title="Gallery | Nguyễn Thanh Quân" currentPath="/gallery">
+  <main class="flex-grow max-w-6xl w-full mx-auto px-5 py-14">
+    <div class="mb-10">
+      <p class="eyebrow mb-2">Gallery</p>
+      <h1 class="font-display text-4xl md:text-5xl font-bold text-[var(--heading)]">All visuals</h1>
+      <p class="mt-3 text-sm">Bấm vào ảnh để xem dạng network: ảnh ở trung tâm, thông tin xung quanh.</p>
+    </div>
+
+    <div id="gallery-empty" class:list={['card p-10 text-center text-sm', gallery.length ? 'hidden' : '']}>
+      <p class="mb-3">Chưa có ảnh nào.</p>
+      <a href="/admin" class="text-emerald-500 hover:underline">Thêm ảnh đầu tiên trong trang Edit →</a>
+    </div>
+
+    <div id="gallery-grid" class="masonry" set:html={renderGalleryGrid(gallery)}></div>
+  </main>
+</BaseLayout>
+
+<script>
+  import { openLightbox } from '../lib/lightbox';
+  import { renderGalleryGrid } from '../lib/render';
+  import type { GalleryItem } from '../data/portfolio';
+
+  const grid = document.getElementById('gallery-grid')!;
+  const empty = document.getElementById('gallery-empty')!;
+  let items: GalleryItem[] = [];
+
+  window.addEventListener('portfolio:data', (e) => {
+    items = (e as CustomEvent).detail.gallery ?? [];
+    grid.innerHTML = renderGalleryGrid(items);
+    empty.classList.toggle('hidden', items.length > 0);
+  });
+
+  grid.addEventListener('click', (e) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-gallery-index]');
+    if (card && items.length) openLightbox(items, Number(card.dataset.galleryIndex));
+  });
+</script>
