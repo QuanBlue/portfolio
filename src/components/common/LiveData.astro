@@ -54,7 +54,7 @@
     html('bind-projects', renderProjects(d.projects));
     text('#count-projects', String(d.projects.length));
     text('#count-skills', String(d.skills.length));
-    text('#count-gallery', String((d.gallery ?? []).length));
+    text('#count-gallery', String((d.gallery ?? []).filter((g) => Boolean(g.image && g.image.trim())).length));
 
     window.dispatchEvent(new CustomEvent('portfolio:data', { detail: d }));
   });

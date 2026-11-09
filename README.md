@@ -23,7 +23,7 @@
 
 <p align="center">
   <b>
-    <a href="https://quanblue.dev">Live Demo</a> •
+    <a href="https://thanhquan.dev">Live Demo</a> •
     <a href="./docs/custom_domain_setup.md">Documentation</a> •
     <a href="https://github.com/QuanBlue/portfolio/issues/">Report Bug</a> •
     <a href="https://github.com/QuanBlue/portfolio/issues/">Request Feature</a>

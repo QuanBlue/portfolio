@@ -51,7 +51,15 @@ export async function clearStored(): Promise<void> {
 export async function loadLiveData(): Promise<PortfolioData> {
   let data: PortfolioData;
   try {
-    const override = isSupabaseConfigured ? await fetchRemote() : await loadStored();
+    let override: Partial<PortfolioData> | null = null;
+    if (isSupabaseConfigured) {
+      override = await fetchRemote();
+      if (!override) {
+        override = await loadStored();
+      }
+    } else {
+      override = await loadStored();
+    }
     data = mergePortfolioData(portfolioData, override);
   } catch {
     data = portfolioData;
@@ -64,9 +72,21 @@ export async function loadLiveData(): Promise<PortfolioData> {
 
 /** Data the admin starts from: unpublished local draft if any, else the live data. */
 export async function loadAdminData(): Promise<{ data: PortfolioData; fromDraft: boolean }> {
+  const live = await (async () => {
+    try {
+      const remote = isSupabaseConfigured ? await fetchRemote() : null;
+      return mergePortfolioData(portfolioData, remote);
+    } catch {
+      return portfolioData;
+    }
+  })();
   const draft = await loadStored();
-  if (draft) return { data: mergePortfolioData(portfolioData, draft), fromDraft: true };
-  return { data: await loadLiveData(), fromDraft: false };
+  if (draft) {
+    const mergedDraft = mergePortfolioData(live, draft);
+    const isDifferent = JSON.stringify(mergedDraft) !== JSON.stringify(live);
+    return { data: mergedDraft, fromDraft: isDifferent };
+  }
+  return { data: live, fromDraft: false };
 }
 export { defaultPortfolioData, portfolioData };
 

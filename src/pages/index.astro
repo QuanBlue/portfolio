@@ -36,7 +36,7 @@ import ProjectModal from '../components/dashboard/ProjectModal.astro';
   let items: GalleryItem[] = [];
 
   window.addEventListener('portfolio:data', (e) => {
-    items = (e as CustomEvent).detail.gallery ?? [];
+    items = ((e as CustomEvent).detail.gallery ?? []).filter((g: GalleryItem) => Boolean(g.image && g.image.trim()));
     grid.innerHTML = renderGalleryGrid(items, limit);
     empty.classList.toggle('hidden', items.length > 0);
     all.classList.toggle('hidden', items.length <= limit);

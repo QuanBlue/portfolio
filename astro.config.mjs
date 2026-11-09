@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://quanblue.dev', // Can be set to user's custom domain
+  site: 'https://thanhquan.dev',
   vite: {
     plugins: [tailwindcss()],
   },

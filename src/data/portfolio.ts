@@ -111,6 +111,7 @@ export const defaultPortfolioData: PortfolioData = {
   identity: {
     name: 'Nguyễn Thanh Quân',
     role: 'DevOps Engineer',
+    avatar: 'https://ywjdrrmdnkdydeqprcib.supabase.co/storage/v1/object/public/portfolio/avatar/mw95dpo2-xvsbsl.jpg',
     node: 'HCM-VNM-01',
     ip: '192.168.1.104',
     location: 'Ho Chi Minh, VN',

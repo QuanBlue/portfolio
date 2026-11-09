@@ -43,8 +43,9 @@ const { identity, projects, skills, gallery } = portfolioData;
     </dl>
   </div>
 
-  <div class="reveal relative mx-auto w-64 md:w-full max-w-sm" style="transition-delay:.15s">
-    <div class="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-emerald-500/30 via-emerald-500/5 to-blue-500/10 blur-2xl"></div>
-    <div id="bind-avatar" class="relative aspect-square rounded-[2rem] overflow-hidden border border-[var(--card-border)] shadow-2xl" set:html={renderAvatar(identity)}></div>
+  <div class="reveal relative mx-auto w-64 md:w-full max-w-sm group" style="transition-delay:.15s">
+    <div class="avatar-glow absolute -inset-5 rounded-[2.75rem] bg-gradient-to-br from-emerald-500/35 via-emerald-500/10 to-blue-500/20 blur-2xl pointer-events-none"></div>
+    <div class="absolute -inset-1 rounded-[2.2rem] border border-emerald-500/25 pointer-events-none"></div>
+    <div id="bind-avatar" class="relative aspect-square rounded-[2rem] overflow-hidden border border-emerald-500/40 ring-1 ring-emerald-500/20 shadow-[0_0_45px_rgba(16,185,129,0.22)]" set:html={renderAvatar(identity)}></div>
   </div>
 </section>

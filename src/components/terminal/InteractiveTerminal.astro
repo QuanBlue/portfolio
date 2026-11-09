@@ -9,8 +9,9 @@ import { portfolioData } from '../../data/portfolio';
     <p class="mt-2 text-sm">Thử gõ <code class="font-mono text-emerald-600 dark:text-emerald-400">help</code>, <code class="font-mono text-emerald-600 dark:text-emerald-400">about</code> hoặc <code class="font-mono text-emerald-600 dark:text-emerald-400">projects</code>.</p>
   </div>
 
-  <div class="rounded-2xl overflow-hidden border border-[var(--card-border)] bg-zinc-950 shadow-2xl shadow-black/20 reveal">
-    <div class="flex items-center gap-2 px-4 py-3 bg-zinc-900/80 border-b border-white/5">
+  <div class="relative rounded-2xl overflow-hidden border border-[var(--card-border)] hover:border-emerald-500/40 transition-colors bg-zinc-950 shadow-2xl shadow-black/20 reveal">
+    <div class="scanline" aria-hidden="true"></div>
+    <div class="flex items-center gap-2 px-4 py-3 bg-zinc-900/80 border-b border-white/5 relative z-20">
       <span class="w-3 h-3 rounded-full bg-red-400/80"></span>
       <span class="w-3 h-3 rounded-full bg-yellow-400/80"></span>
       <span class="w-3 h-3 rounded-full bg-emerald-400/80"></span>

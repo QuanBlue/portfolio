@@ -9,8 +9,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         Edit content
       </h1>
       <div class="flex flex-wrap items-center gap-2 text-xs">
-        <span id="admin-status" class="text-zinc-500 mr-2"></span>
-        <button id="btn-publish" type="button" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700">Publish</button>
+        <span id="admin-status" class="text-zinc-500 mr-2 font-mono"></span>
+        <button id="btn-save" type="button" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 font-semibold px-4">Save changes</button>
         <button id="btn-export" type="button" class="adm-btn">Export content.json</button>
         <label class="adm-btn cursor-pointer">
           Import JSON
@@ -60,10 +60,39 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </form>
 
-    <div id="admin-app" class="hidden grid grid-cols-1 md:grid-cols-[180px_1fr] gap-4">
+    <div id="admin-app" class="hidden grid grid-cols-1 md:grid-cols-[180px_1fr] gap-4 pb-20">
       <nav id="admin-tabs" class="flex md:flex-col gap-1 overflow-x-auto text-xs"></nav>
       <section id="admin-panel" class="dashboard-panel p-4 min-w-0"></section>
-    </div>  </main>
+    </div>
+
+    <!-- Floating Unsaved Bar -->
+    <div id="unsaved-bar" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 card px-4 py-2.5 shadow-2xl border-emerald-500/40 flex items-center gap-3 text-xs">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+      <span class="text-[var(--heading)] font-medium">Bạn có thay đổi chưa lưu</span>
+      <button id="bar-btn-discard" type="button" class="adm-btn text-red-500 dark:text-red-400">Bỏ thay đổi</button>
+      <button id="bar-btn-save" type="button" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 font-semibold px-3.5">Save changes</button>
+    </div>
+
+    <!-- Unsaved Changes Confirmation Modal -->
+    <div id="unsaved-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="unsaved-modal-title">
+      <div class="card p-6 max-w-md w-full space-y-4 border-emerald-500/30 shadow-2xl">
+        <div class="flex items-start gap-3">
+          <span class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0 font-bold text-base">!</span>
+          <div>
+            <h3 id="unsaved-modal-title" class="font-display text-lg font-bold text-[var(--heading)]">Chưa lưu thay đổi</h3>
+            <p class="text-xs text-[var(--text-body)] mt-1 leading-relaxed">
+              Bạn vừa chỉnh sửa nội dung hoặc tải ảnh lên nhưng chưa bấm <b>Save</b>. Nếu rời đi ngay bây giờ, thay đổi chưa lưu sẽ không hiển thị trên trang chủ.
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-2 text-xs">
+          <button id="modal-btn-stay" type="button" class="adm-btn py-2 px-3">Chỉnh tiếp</button>
+          <button id="modal-btn-discard" type="button" class="adm-btn py-2 px-3 text-red-600 dark:text-red-400">Rời đi (không lưu)</button>
+          <button id="modal-btn-save" type="button" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 py-2 px-4 font-semibold">Save &amp; Rời đi</button>
+        </div>
+      </div>
+    </div>
+  </main>
 </BaseLayout>
 
 <style is:global>
@@ -269,24 +298,47 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     target[last] = value;
   };
 
-  // ---- persistence ----
+  // ---- persistence & dirty state ----
   let saveTimer: number | undefined;
   let signedIn = false;
-  const setStatus = (msg: string) => (status.textContent = msg);
+  let isDirty = false;
+  let pendingHref: string | null = null;
+
+  const setStatus = (msg: string, tone: 'muted' | 'warn' | 'ok' = 'muted') => {
+    status.textContent = msg;
+    status.className =
+      tone === 'warn'
+        ? 'text-amber-500 dark:text-amber-400 mr-2 font-mono'
+        : tone === 'ok'
+          ? 'text-emerald-600 dark:text-emerald-400 mr-2 font-mono'
+          : 'text-zinc-500 mr-2 font-mono';
+  };
+
+  const syncDirtyUi = () => {
+    const bar = document.getElementById('unsaved-bar');
+    if (bar) bar.classList.toggle('hidden', !(signedIn && isDirty));
+  };
+
+  const markDirty = (draftMsg?: string) => {
+    isDirty = true;
+    syncDirtyUi();
+    setStatus(draftMsg ?? 'Unsaved changes · Click Save', 'warn');
+  };
+
   const queueSave = () => {
-    setStatus('Saving…');
+    markDirty('Unsaved changes…');
     clearTimeout(saveTimer);
     saveTimer = window.setTimeout(async () => {
       try {
         await saveStored(data);
         const kb = Math.round(new Blob([JSON.stringify(data)]).size / 1024);
-        setStatus(
-          isSupabaseConfigured ? `Draft saved locally (not published) · ${kb} KB` : `Saved locally · ${kb} KB`,
-        );
+        if (isDirty) {
+          setStatus(`Unsaved (${kb} KB) · Click Save`, 'warn');
+        }
       } catch {
-        setStatus('Save failed (storage full?)');
+        setStatus('Local draft failed (storage full?)', 'warn');
       }
-    }, 400);
+    }, 350);
   };
 
   // ---- rendering ----
@@ -381,7 +433,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     panel.innerHTML = `
       <div class="flex justify-between items-center mb-3">
         <h2 class="font-bold text-sm text-[var(--heading)]">${section.title}</h2>
-        <button type="button" data-add="${section.id}" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 text-xs">+ Add</button>
+        <div class="flex items-center gap-2">
+          ${
+            section.id === 'gallery'
+              ? `<label class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 text-xs cursor-pointer">+ Upload photos
+                  <input type="file" accept="image/*" multiple class="hidden" data-gallery-batch="1" />
+                </label>`
+              : ''
+          }
+          <button type="button" data-add="${section.id}" class="adm-btn ${section.id === 'gallery' ? '' : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700'} text-xs">+ Add</button>
+        </div>
       </div>
       ${list.length === 0 ? '<p class="text-xs text-zinc-500">Empty. Click “+ Add”.</p>' : ''}
       <div class="space-y-3">
@@ -460,6 +521,31 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   panel.addEventListener('input', onEdit);
   panel.addEventListener('change', async (e) => {
     const el = e.target as HTMLInputElement;
+    if (el.dataset?.galleryBatch && el.files?.length) {
+      try {
+        let n = 0;
+        for (const file of Array.from(el.files)) {
+          setStatus(`Uploading photo ${++n}/${el.files.length}…`, 'muted');
+          const url = await processFile(file, 'gallery', 1600);
+          const baseName = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || 'Photo';
+          data.gallery.unshift({
+            id: uid(),
+            title: baseName,
+            description: '',
+            image: url,
+            date: new Date().toISOString().slice(0, 10),
+            location: '',
+            tags: [],
+            details: [],
+          });
+        }
+        queueSave();
+        render();
+      } catch (err) {
+        setStatus((err as Error).message || 'Could not upload photo', 'warn');
+      }
+      return;
+    }
     if (el.dataset?.mediaUpload && el.files?.length) {
       const path = el.dataset.mediaUpload;
       try {
@@ -569,32 +655,123 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   document.getElementById('btn-reset')!.addEventListener('click', async () => {
     const msg = isSupabaseConfigured
-      ? 'Discard your unpublished draft and reload the published content?'
+      ? 'Discard your unsaved changes and reload the live content?'
       : 'Discard all local edits and go back to the built-in content?';
     if (!confirm(msg)) return;
     await clearStored();
+    isDirty = false;
+    syncDirtyUi();
     await startEditor();
-    setStatus(isSupabaseConfigured ? 'Draft discarded' : 'Reset to built-in content');
+    setStatus('Changes discarded', 'muted');
   });
 
   const $ = (id: string) => document.getElementById(id)!;
   const adminHeader = $('admin-header');
-  const publishBtn = $('btn-publish');
+  const saveBtn = $('btn-save') as HTMLButtonElement;
+  const barSaveBtn = $('bar-btn-save') as HTMLButtonElement;
+  const barDiscardBtn = $('bar-btn-discard') as HTMLButtonElement;
+  const unsavedModal = $('unsaved-modal');
+  const modalStayBtn = $('modal-btn-stay');
+  const modalDiscardBtn = $('modal-btn-discard');
+  const modalSaveBtn = $('modal-btn-save') as HTMLButtonElement;
   const signoutBtn = $('btn-signout');
   const loginForm = $('admin-login') as HTMLFormElement;
   const app = $('admin-app');
   const note = $('admin-note');
 
-  publishBtn.addEventListener('click', async () => {
-    if (!confirm('Publish these changes to your live site?')) return;
+  async function saveAll(): Promise<boolean> {
     try {
-      setStatus('Publishing…');
+      saveBtn.disabled = true;
+      barSaveBtn.disabled = true;
+      modalSaveBtn.disabled = true;
+      setStatus('Saving to live site…', 'muted');
       clearTimeout(saveTimer);
-      await publishRemote(data);
-      await clearStored();
-      setStatus('Published ✓ — visitors see it on next load');
+      if (isSupabaseConfigured) {
+        await publishRemote(data);
+        await clearStored();
+      } else {
+        await saveStored(data);
+      }
+      isDirty = false;
+      syncDirtyUi();
+      setStatus('Saved ✓ — Live on site', 'ok');
+      return true;
     } catch (err) {
-      setStatus(`Publish failed: ${(err as Error).message}`);
+      setStatus(`Save failed: ${(err as Error).message}`, 'warn');
+      return false;
+    } finally {
+      saveBtn.disabled = false;
+      barSaveBtn.disabled = false;
+      modalSaveBtn.disabled = false;
+    }
+  }
+
+  saveBtn.addEventListener('click', () => saveAll());
+  barSaveBtn.addEventListener('click', () => saveAll());
+
+  barDiscardBtn.addEventListener('click', async () => {
+    if (!confirm('Bỏ các thay đổi chưa lưu?')) return;
+    await clearStored();
+    isDirty = false;
+    syncDirtyUi();
+    await startEditor();
+    setStatus('Changes discarded', 'muted');
+  });
+
+  // Ctrl+S / Cmd+S shortcut to save
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && signedIn) {
+      e.preventDefault();
+      saveAll();
+    }
+    if (e.key === 'Escape' && !unsavedModal.classList.contains('hidden')) {
+      unsavedModal.classList.add('hidden');
+      pendingHref = null;
+    }
+  });
+
+  // Intercept navigation links when there are unsaved changes
+  document.addEventListener('click', (e) => {
+    if (!signedIn || !isDirty) return;
+    const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href]');
+    if (!link) return;
+    if (link.target === '_blank' || link.hasAttribute('download')) return;
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    e.preventDefault();
+    pendingHref = link.href;
+    unsavedModal.classList.remove('hidden');
+  });
+
+  modalStayBtn.addEventListener('click', () => {
+    unsavedModal.classList.add('hidden');
+    pendingHref = null;
+  });
+
+  modalDiscardBtn.addEventListener('click', async () => {
+    const dest = pendingHref;
+    unsavedModal.classList.add('hidden');
+    pendingHref = null;
+    await clearStored();
+    isDirty = false;
+    syncDirtyUi();
+    if (dest) window.location.href = dest;
+  });
+
+  modalSaveBtn.addEventListener('click', async () => {
+    const dest = pendingHref;
+    const ok = await saveAll();
+    if (ok) {
+      unsavedModal.classList.add('hidden');
+      pendingHref = null;
+      if (dest) window.location.href = dest;
+    }
+  });
+
+  window.addEventListener('beforeunload', (e) => {
+    if (signedIn && isDirty) {
+      e.preventDefault();
+      e.returnValue = '';
     }
   });
 
@@ -666,7 +843,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     data = structuredClone(d);
     if (!Array.isArray(data.gallery)) data.gallery = [];
     render();
-    if (fromDraft) setStatus('Loaded your unpublished draft');
+    if (fromDraft) {
+      markDirty('Loaded unsaved draft · Click Save to apply');
+    } else {
+      isDirty = false;
+      syncDirtyUi();
+      setStatus('All changes saved', 'muted');
+    }
   }
 
   async function boot() {
@@ -689,8 +872,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       signoutBtn.textContent = `Sign out (${getSessionLabel(session)})`;
       note.innerHTML =
         role === 'root'
-          ? 'Signed in as <b>Repo Owner (ROOT)</b> via GitHub. Full privileges enabled — press <b>Publish</b> to push changes live.'
-          : 'Edits autosave as a local draft. Press <b>Publish</b> to push them (and uploaded images) to Supabase so everyone sees them.';
+          ? 'Signed in as <b>Repo Owner (ROOT)</b> via GitHub. Press <b>Save changes</b> (or <code>Ctrl+S</code>) to save your edits live.'
+          : 'Press <b>Save changes</b> (or <code>Ctrl+S</code>) to save your edits and uploaded images to your live site.';
     }
 
     adminHeader.classList.toggle('hidden', !signedIn);
@@ -698,6 +881,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     note.classList.toggle('hidden', !signedIn);
     app.classList.toggle('hidden', !signedIn);
     loginForm.classList.toggle('hidden', signedIn);
+    syncDirtyUi();
 
     if (signedIn) await startEditor();
   }
