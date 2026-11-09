@@ -125,7 +125,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   import type { PortfolioData } from '../data/portfolio';
   import { esc } from '../lib/render';
 
-  type FieldType = 'text' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media';
+  type FieldType = 'text' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media' | 'pdf';
   interface Field {
     key: string;
     label: string;
@@ -158,6 +158,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       title: 'Identity',
       fields: [
         { key: 'avatar', label: 'Avatar', type: 'image', maxDim: 480 },
+        { key: 'cvUrl', label: 'CV / Resume (PDF)', type: 'pdf', wide: true },
         { key: 'name', label: 'Name', type: 'text' },
         { key: 'role', label: 'Role', type: 'text' },
         { key: 'node', label: 'Node (header)', type: 'text' },
@@ -168,7 +169,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         { key: 'linkedin.url', label: 'LinkedIn URL', type: 'text' },
         { key: 'github.handle', label: 'GitHub handle', type: 'text' },
         { key: 'github.url', label: 'GitHub URL', type: 'text' },
-        { key: 'cvUrl', label: 'CV / Resume PDF URL (optional — leave blank to use built-in printable CV)', type: 'text', wide: true },
         { key: 'bio', label: 'Bio', type: 'textarea', wide: true },
       ],
     },
@@ -384,8 +384,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             ${value ? `<button type="button" class="adm-btn text-red-600 dark:text-red-400" data-clear="${esc(path)}">Remove</button>` : ''}
           </div></div>`;
         break;
+      case 'pdf': {
+        const hasPdf = Boolean(value && String(value).trim());
+        const isDataUrl = hasPdf && String(value).startsWith('data:');
+        control = `<div class="rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 p-3.5 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 text-xs">
+              <span class="grid size-8 place-items-center rounded-lg border border-[var(--signal)]/40 bg-emerald-500/10 text-[var(--signal)] font-mono font-bold">PDF</span>
+              <div>
+                <div class="font-semibold text-[var(--fg)]">${hasPdf ? 'Custom PDF CV attached' : 'No PDF uploaded (using dynamic Web CV)'}</div>
+                <div class="text-[11px] text-[var(--muted-fg)]">${isDataUrl ? 'Stored as embedded PDF' : hasPdf ? esc(String(value)) : 'Upload a .pdf file or paste a direct link below'}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <label class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 cursor-pointer font-semibold">
+                Upload CV (.pdf)
+                <input type="file" accept="application/pdf,.pdf" class="hidden" data-upload-pdf="${esc(path)}" />
+              </label>
+              ${hasPdf ? `<a href="${esc(String(value))}" target="_blank" rel="noopener noreferrer" class="adm-btn">View PDF ↗</a>` : ''}
+              ${hasPdf ? `<button type="button" class="adm-btn text-red-600 dark:text-red-400" data-clear="${esc(path)}">Remove</button>` : ''}
+            </div>
+          </div>
+          <input class="adm-input" placeholder="Or paste PDF link (https://…)" ${attrs} value="${esc(isDataUrl ? '' : (value ?? ''))}" />
+        </div>`;
+        break;
+      }
     }
-    return `<div class="${f.wide || f.type === 'image' ? 'md:col-span-2' : ''}"><span class="adm-label">${esc(f.label)}</span>${control}</div>`;
+    return `<div class="${f.wide || f.type === 'image' || f.type === 'pdf' ? 'md:col-span-2' : ''}"><span class="adm-label">${esc(f.label)}</span>${control}</div>`;
   };
 
   const render = () => {
@@ -537,6 +562,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         render();
       } catch (err) {
         setStatus((err as Error).message || 'Could not process/upload that image');
+      }
+      return;
+    }
+    if (el.dataset?.uploadPdf && el.files?.[0]) {
+      const file = el.files[0];
+      const PDF_MAX = isSupabaseConfigured ? 15 * 1024 * 1024 : 3 * 1024 * 1024;
+      try {
+        if (file.size > PDF_MAX) {
+          throw new Error(`PDF too large (max ${Math.round(PDF_MAX / 1048576)} MB)`);
+        }
+        setStatus('Uploading CV PDF…', 'muted');
+        const remote = isSupabaseConfigured && signedIn;
+        const url = remote
+          ? await uploadImage(file, 'cv', { ext: 'pdf', contentType: 'application/pdf' })
+          : await fileToRawDataUrl(file);
+        setPath(data, el.dataset.uploadPdf, url);
+        queueSave();
+        render();
+      } catch (err) {
+        setStatus((err as Error).message || 'Could not upload PDF', 'warn');
       }
       return;
     }

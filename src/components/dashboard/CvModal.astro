@@ -329,7 +329,10 @@ const { identity, experience, projects, education = [], skills } = portfolioData
       const hasPdf = Boolean(cvUrl && /^(https?:\/\/|\/|data:application\/pdf)/i.test(cvUrl));
       modeSwitcher?.classList.toggle('hidden', !hasPdf);
       if (hasPdf && pdfIframe) {
-        pdfIframe.src = cvUrl;
+        if (pdfIframe.getAttribute('src') !== cvUrl) {
+          pdfIframe.src = cvUrl;
+        }
+        switchCvTab('pdf');
       } else {
         switchCvTab('web');
       }
