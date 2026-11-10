@@ -6,17 +6,17 @@ const { identity, experience, projects, education = [], skills } = portfolioData
 
 <div
   id="cv-modal"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md hidden opacity-0 transition-opacity duration-250 p-3 sm:p-6"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-250 p-2 sm:p-5"
   role="dialog"
   aria-modal="true"
   aria-labelledby="cv-modal-title"
 >
   <div
     id="cv-modal-content"
-    class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border border-[var(--line-strong)] bg-[var(--card)] shadow-2xl transform scale-95 transition-transform duration-250 overflow-hidden"
+    class="w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl border border-[var(--line-strong)] bg-[var(--card)] shadow-2xl transform scale-95 transition-transform duration-250 overflow-hidden"
   >
     <!-- Top Sticky Modal Toolbar -->
-    <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-[var(--border)] bg-[var(--muted-bg)]/70 shrink-0">
+    <div class="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-[var(--border)] bg-[var(--muted-bg)]/80 shrink-0">
       <div class="flex items-center gap-3 min-w-0">
         <span class="grid size-9 place-items-center rounded-lg border border-[var(--signal)]/40 bg-emerald-500/10 text-[var(--signal)] shrink-0">
           <i class="fa-regular fa-file-lines text-sm"></i>
@@ -32,26 +32,41 @@ const { identity, experience, projects, education = [], skills } = portfolioData
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- Optional View Switcher (shown when a custom PDF URL is uploaded in /admin) -->
-        <div id="cv-mode-switcher" class="hidden inline-flex rounded-lg border border-[var(--border)] bg-[var(--bg)] p-0.5 font-mono text-[11px]">
-          <button type="button" id="cv-tab-web" class="px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition">Web CV</button>
-          <button type="button" id="cv-tab-pdf" class="px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition">PDF File</button>
+        <!-- Dual View Switcher (Web CV vs PDF File) -->
+        <div id="cv-mode-switcher" class="inline-flex rounded-lg border border-[var(--border)] bg-[var(--bg)] p-0.5 font-mono text-[11px]">
+          <button type="button" id="cv-tab-web" class="px-3 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition">Web CV</button>
+          <button type="button" id="cv-tab-pdf" class="px-3 py-1 rounded-md text-[var(--muted-fg)] hover:text-[var(--fg)] cursor-pointer transition">PDF File</button>
         </div>
 
+        <!-- Print Action -->
         <button
-          id="cv-download-btn"
+          id="cv-print-btn"
           type="button"
-          class="inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--signal)] px-3.5 text-xs font-mono font-semibold text-zinc-950 hover:opacity-90 active:scale-[0.98] cursor-pointer transition"
+          class="hidden sm:inline-flex h-8 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 text-xs font-mono font-medium text-[var(--fg)] hover:border-[var(--line-strong)] cursor-pointer transition"
+          title="In CV ra khổ A4 / Lưu PDF trình duyệt"
+        >
+          <i class="fa-solid fa-print text-xs"></i>
+          <span>Print</span>
+        </button>
+
+        <!-- Direct Download PDF Button -->
+        <a
+          id="cv-download-btn"
+          href="/cv.pdf"
+          download="Nguyen-Thanh-Quan-CV.pdf"
+          class="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--signal)] px-3 text-xs font-mono font-semibold text-zinc-950 hover:opacity-90 active:scale-[0.98] cursor-pointer transition"
+          title="Tải file CV PDF gốc"
         >
           <i class="fa-solid fa-download text-xs"></i>
           <span>Download CV</span>
-        </button>
+        </a>
 
+        <!-- Close Modal Button -->
         <button
           id="cv-close-btn"
           type="button"
           aria-label="Close CV modal"
-          class="inline-flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--muted-fg)] hover:text-[var(--fg)] hover:border-[var(--line-strong)] cursor-pointer transition"
+          class="inline-flex size-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--muted-fg)] hover:text-[var(--fg)] hover:border-[var(--line-strong)] cursor-pointer transition"
         >
           ✕
         </button>
@@ -59,143 +74,274 @@ const { identity, experience, projects, education = [], skills } = portfolioData
     </div>
 
     <!-- Scrollable CV Body -->
-    <div class="flex-1 overflow-y-auto p-5 sm:p-8 bg-[var(--bg)] custom-scrollbar">
-      <!-- View 1: Live Formatted Engineering CV Sheet -->
+    <div class="flex-1 overflow-y-auto p-3 sm:p-6 bg-zinc-950/70 custom-scrollbar">
+      <!-- View 1: Authentic A4 Paper CV Sheet (Generated matching attached PDF design) -->
       <article
         id="cv-sheet-view"
-        class="mx-auto max-w-3xl rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-10 shadow-sm space-y-7"
+        class="mx-auto max-w-[850px] bg-white text-zinc-900 rounded-lg shadow-2xl p-6 sm:p-10 font-sans border border-zinc-200 select-text leading-normal"
       >
-        <!-- CV Header -->
-        <header class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-[var(--border)] pb-6">
-          <div>
-            <h1 id="cv-sheet-name" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--fg)]">
-              {identity.name}
-            </h1>
-            <p id="cv-sheet-role" class="font-mono text-sm font-semibold text-[var(--signal)] mt-1">
-              {identity.role}
-            </p>
-          </div>
-          <div class="font-mono text-xs text-[var(--muted-fg)] space-y-1 sm:text-right">
-            <div id="cv-sheet-location"><i class="fa-solid fa-location-dot text-[var(--signal)] mr-1.5"></i>{identity.location}</div>
-            <div>
-              <a id="cv-sheet-email" href={`mailto:${identity.email}`} class="hover:text-[var(--fg)] underline-offset-2 hover:underline">
-                {identity.email}
-              </a>
-            </div>
-            <div class="flex sm:justify-end gap-3 pt-0.5">
-              <a id="cv-sheet-github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="text-[var(--primary)] hover:underline">
-                GitHub ({identity.github.handle})
-              </a>
-              <span>·</span>
-              <a id="cv-sheet-linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="text-[var(--primary)] hover:underline">
-                LinkedIn
-              </a>
-            </div>
+        <!-- Header: Centered Full Name, Contacts, Links -->
+        <header class="text-center pb-2">
+          <h1 id="cv-sheet-name" class="text-2xl sm:text-3xl font-extrabold uppercase tracking-wide text-zinc-950">
+            NGUYEN THANH QUAN
+          </h1>
+          <p id="cv-sheet-contact" class="text-xs sm:text-[13px] text-zinc-700 mt-2 font-normal">
+            quannguyenthanh558@gmail.com | +84 832 010 601 | District 10, Ho Chi Minh City
+          </p>
+          <div class="flex flex-wrap items-center justify-center gap-2 text-xs font-bold uppercase text-zinc-900 mt-1.5 tracking-wider">
+            <a id="cv-link-github" href="https://github.com/QuanBlue" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">GITHUB</a>
+            <span>|</span>
+            <a id="cv-link-portfolio" href="https://quanblue.netlify.app/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">PORTFOLIO</a>
+            <span>|</span>
+            <a id="cv-link-youtube" href="https://www.youtube.com/@quanblueee" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">YOUTUBE</a>
+            <span>|</span>
+            <a id="cv-link-linkedin" href="https://www.linkedin.com/in/quanblue/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">LINKEDIN</a>
           </div>
         </header>
 
-        <!-- Summary -->
-        <section>
-          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-2">
-            01 · Executive Summary
-          </h3>
-          <p id="cv-sheet-bio" class="text-sm leading-relaxed text-[var(--muted-fg)]">
-            {identity.bio}
-          </p>
-        </section>
+        <hr class="border-t-2 border-zinc-950 my-3 sm:my-4" />
 
-        <!-- Work Experience -->
-        <section>
-          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-3.5">
-            02 · Work Experience
-          </h3>
-          <div id="cv-sheet-experience" class="space-y-5">
-            {experience.map((exp) => (
-              <div class="border-l-2 border-[var(--border)] pl-4">
-                <div class="flex flex-wrap items-baseline justify-between gap-2">
-                  <h4 class="text-sm font-bold text-[var(--fg)]">
-                    {exp.role} <span class="text-[var(--signal)] font-mono text-xs font-semibold">@ {exp.company}</span>
-                  </h4>
-                  <span class="font-mono text-xs text-[var(--muted-fg)]">{exp.period}</span>
+        <div class="space-y-4 sm:space-y-5">
+          <!-- Section 1: ABOUT ME -->
+          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
+              ABOUT ME
+            </div>
+            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-2">
+              <p>
+                Solid foundation in Linux and Networking, and enthusiasm for setting up, managing, and protecting network systems.
+              </p>
+              <p>
+                Desire to learn more and keep up with up-to-date technologies. Ability to adapt to the working environment quickly and flexibly. Besides, looking forward to learning more technologies related to the data industry.
+              </p>
+            </div>
+          </section>
+
+          <!-- Section 2: SKILLS -->
+          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
+              SKILLS
+            </div>
+            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
+              <ul class="space-y-1 list-disc list-inside">
+                <li><span class="font-normal">C/C++, C#, Python, JavaScript, SQL/noSQL</span></li>
+                <li><span class="font-normal">Flask, Winform, ReactJS, Unity</span></li>
+                <li><span class="font-normal">Vagrant, Docker, Docker Swarm</span></li>
+                <li><span class="font-normal">Ansible, Prometheus, Grafana</span></li>
+              </ul>
+              <ul class="space-y-1 list-disc list-inside">
+                <li><span class="font-normal">Linux</span></li>
+                <li><span class="font-normal">Networking</span></li>
+                <li><span class="font-normal">Cryptography</span></li>
+                <li><span class="font-normal">Security</span></li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- Section 3: PROJECT/ OPEN-SOURCE -->
+          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5 leading-snug">
+              PROJECT/<br />OPEN-SOURCE
+            </div>
+            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-4">
+              <!-- Item 1: PORTFOLIO WEBSITE -->
+              <div>
+                <div class="flex items-baseline justify-between font-bold text-zinc-950">
+                  <span class="text-[13px] sm:text-sm">PORTFOLIO WEBSITE</span>
+                  <span class="font-normal text-zinc-600 text-xs">2021 - Present</span>
                 </div>
-                <ul class="mt-2 space-y-1 text-xs sm:text-sm text-[var(--muted-fg)]">
-                  {exp.bullets.map((b) => (
-                    <li>• {b}</li>
-                  ))}
+                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
+                  <li>
+                    <span>Description: My portfolio website so everyone can have an overview of information about me. In this project, I assume the role of:</span>
+                    <ul class="pl-5 mt-0.5 space-y-0.5 list-[circle] list-inside text-zinc-700">
+                      <li>A Full-stack web developer: using MERN stack to create the website</li>
+                      <li>A DevOps Engineer: monitoring performance and automating the deployment of this project to PaaS.</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <span>Technologies: ExpressJS, ReactJS, Bootstrap 5, Mongoose, Netlify, Render, GitHub Actions, Prometheus, Grafana.</span>
+                  </li>
+                  <li>
+                    <a href="https://github.com/QuanBlue/mearn-portfolio" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://quanblue.netlify.app/" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Deploy</a>
+                  </li>
                 </ul>
-                <div class="mt-2 flex flex-wrap gap-1.5 font-mono text-[11px] text-[var(--faint)]">
-                  {exp.tags.map((t) => (
-                    <span>#{t}</span>
-                  ))}
-                </div>
               </div>
-            ))}
-          </div>
-        </section>
 
-        <!-- Key Projects -->
-        <section>
-          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-3.5">
-            03 · Featured Infrastructure Projects
-          </h3>
-          <div id="cv-sheet-projects" class="grid gap-3.5 sm:grid-cols-2">
-            {projects.map((p) => (
-              <div class="rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/40 p-3.5">
-                <div class="flex items-center justify-between gap-2">
-                  <h4 class="font-mono text-xs font-bold text-[var(--fg)]">{p.title}</h4>
-                  <span class="font-mono text-[10px] text-[var(--signal)]">{p.status}</span>
+              <!-- Item 2: GMAIL REMOTE CONTROL -->
+              <div>
+                <div class="flex items-baseline justify-between font-bold text-zinc-950">
+                  <span class="text-[13px] sm:text-sm">GMAIL REMOTE CONTROL <span class="font-normal text-zinc-600 text-xs ml-2">Team size: 3</span></span>
+                  <span class="font-normal text-zinc-600 text-xs">Apr 2023 - May 2023</span>
                 </div>
-                <p class="mt-1.5 text-xs text-[var(--muted-fg)] leading-relaxed">{p.description || p.shortDesc}</p>
-                <div class="mt-2 flex flex-wrap gap-1 font-mono text-[10px] text-[var(--faint)]">
-                  {p.tags.map((t) => (
-                    <span class="rounded bg-[var(--card)] px-1.5 py-0.5 border border-[var(--border)]">{t}</span>
-                  ))}
-                </div>
+                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
+                  <li>
+                    <span>Description: A web app using Gmail to control the victim's machine by sending email requests. In this project, I assume the role of:</span>
+                    <ul class="pl-5 mt-0.5 space-y-0.5 list-[circle] list-inside text-zinc-700">
+                      <li>Team Leader: writes a document, manages and assigns tasks to team members.</li>
+                      <li>Front-end Developer: Conceptualize, design, and build UI.</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <span>Technologies: Python, Flask, JavaScript, Gmail API.</span>
+                  </li>
+                  <li>
+                    <a href="https://github.com/HCMUS-Project-Org/gmail-remote-control" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://youtu.be/bdlXKWeg4tY" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Demo</a>
+                  </li>
+                </ul>
               </div>
-            ))}
-          </div>
-        </section>
 
-        <!-- Education -->
-        <section>
-          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-3">
-            04 · Education
-          </h3>
-          <div id="cv-sheet-education" class="space-y-3">
-            {education.map((ed) => (
-              <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                <div>
-                  <span class="text-sm font-bold text-[var(--fg)]">{ed.degree}</span>
-                  <span class="text-xs text-[var(--muted-fg)]"> — {ed.school}</span>
+              <!-- Item 3: JURASSIC ADVENTURE GAME -->
+              <div>
+                <div class="flex items-baseline justify-between font-bold text-zinc-950">
+                  <span class="text-[13px] sm:text-sm">JURASSIC ADVENTURE GAME <span class="font-normal text-zinc-600 text-xs ml-2">Team size: 3</span></span>
+                  <span class="font-normal text-zinc-600 text-xs">Nov 2022 - Feb 2023</span>
                 </div>
-                <span class="font-mono text-xs text-[var(--muted-fg)] shrink-0">{ed.period}</span>
+                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
+                  <li>
+                    <span>Description: A 2D side scroll shooting game that is travel in the Prehistoric age. In this project, I assume the role of:</span>
+                    <ul class="pl-5 mt-0.5 space-y-0.5 list-[circle] list-inside text-zinc-700">
+                      <li>Team Leader: write a document, manages and assigns tasks to team members.</li>
+                      <li>Game Developer: code HUD, shop, inventory, map, animate,...</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <span>Technologies: Unity</span>
+                  </li>
+                  <li>
+                    <a href="https://github.com/HCMUS-Project-Org/Jurassic-Adventure-game" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://youtu.be/HihHOLtROmY" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Demo</a>
+                  </li>
+                </ul>
               </div>
-            ))}
-          </div>
-        </section>
 
-        <!-- Technical Skills -->
-        <section>
-          <h3 class="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--signal)] mb-2.5">
-            05 · Core Technical Stack
-          </h3>
-          <div id="cv-sheet-skills" class="flex flex-wrap gap-1.5 font-mono text-xs">
-            {skills.map((s) => (
-              <span class="rounded-md border border-[var(--border)] bg-[var(--muted-bg)] px-2.5 py-1 text-[var(--fg)]">
-                {s.name} <span class="text-[var(--faint)] text-[10px]">{s.tag}</span>
-              </span>
-            ))}
-          </div>
-        </section>
+              <!-- Item 4: STORAGE FILE SYSTEM APPLICATION -->
+              <div>
+                <div class="flex items-baseline justify-between font-bold text-zinc-950">
+                  <span class="text-[13px] sm:text-sm">STORAGE FILE SYSTEM APPLICATION <span class="font-normal text-zinc-600 text-xs ml-2">Team size: 5</span></span>
+                  <span class="font-normal text-zinc-600 text-xs">Jan 2022</span>
+                </div>
+                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
+                  <li>
+                    <span>Description: An application is used to safely store files, It allows users: to store files securely and share files between users. In this project, I assume the role of Front-end Developer: Conceptualize, design, and build UI based on a designed template.</span>
+                  </li>
+                  <li>
+                    <span>Technologies: C# Winform (FE). Python (Cryptography), Java (BE), MongoDB (DB), Cloudinary (Cloud DB)</span>
+                  </li>
+                  <li>
+                    <a href="https://github.com/HCMUS-Project-Org/Storage-File-System" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://youtu.be/Y2-wst1yYg0" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Demo</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4: EDUCATION -->
+          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6 pt-1">
+            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
+              EDUCATION
+            </div>
+            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed">
+              <div class="flex items-baseline justify-between font-bold text-zinc-950">
+                <span class="text-[13px] sm:text-sm">UNIVERSITY OF SCIENCE - VNUHCM</span>
+                <span class="font-normal text-zinc-600 text-xs">2019 - 2023</span>
+              </div>
+              <div class="flex items-baseline justify-between text-zinc-800 mt-0.5">
+                <span>Bachelor Computer Network and Information Security</span>
+                <span class="text-zinc-600 text-xs">Ho Chi Minh city</span>
+              </div>
+              <div class="font-medium text-zinc-900 mt-0.5">
+                GPA: 3.64 / 4.00
+              </div>
+            </div>
+          </section>
+        </div>
       </article>
 
-      <!-- View 2: Embedded PDF Viewer (when identity.cvUrl is configured) -->
-      <div id="cv-pdf-view" class="hidden h-[72vh] w-full rounded-xl border border-[var(--border)] overflow-hidden bg-[var(--card)]">
-        <iframe id="cv-pdf-iframe" src="" title="CV PDF Preview" class="w-full h-full border-0"></iframe>
+      <!-- View 2: High-Fidelity Embedded PDF Preview (with Quick Actions) -->
+      <div id="cv-pdf-view" class="hidden flex-col h-[76vh] w-full rounded-xl border border-[var(--border)] overflow-hidden bg-zinc-900 shadow-xl">
+        <!-- PDF Viewer Quick Controls Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 border-b border-zinc-800 bg-zinc-950 text-xs font-mono text-zinc-400 shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-zinc-200 font-semibold">Nguyen-Thanh-Quan-CV.pdf</span>
+            <span class="text-zinc-500 text-[11px] hidden sm:inline">(Bản PDF gốc đính kèm)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              id="cv-pdf-external-link"
+              href="/cv.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-zinc-700 hover:border-zinc-500 text-zinc-200 hover:text-white transition cursor-pointer"
+            >
+              <span>Mở tab mới ↗</span>
+            </a>
+            <a
+              id="cv-pdf-direct-download"
+              href="/cv.pdf"
+              download="Nguyen-Thanh-Quan-CV.pdf"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition font-semibold cursor-pointer"
+            >
+              <i class="fa-solid fa-download text-[11px]"></i>
+              <span>Tải file PDF</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Embedded Native PDF View -->
+        <div class="flex-1 w-full h-full relative bg-zinc-900">
+          <object
+            id="cv-pdf-object"
+            data="/cv.pdf#view=FitH"
+            type="application/pdf"
+            class="w-full h-full"
+          >
+            <iframe
+              id="cv-pdf-iframe"
+              src="/cv.pdf#view=FitH"
+              title="CV PDF Preview"
+              class="w-full h-full border-0"
+            >
+              <div class="p-8 text-center text-zinc-300 space-y-4">
+                <p class="text-sm font-semibold">Trình duyệt không hỗ trợ xem trực tiếp file PDF trong iframe.</p>
+                <a href="/cv.pdf" target="_blank" class="inline-block px-4 py-2 rounded bg-emerald-500 text-black font-bold">
+                  Mở file PDF trong tab mới ↗
+                </a>
+              </div>
+            </iframe>
+          </object>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<style is:global>
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+    #cv-sheet-view, #cv-sheet-view * {
+      visibility: visible !important;
+    }
+    #cv-sheet-view {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: #ffffff !important;
+      color: #111827 !important;
+    }
+    @page {
+      size: A4;
+      margin: 10mm 15mm;
+    }
+  }
+</style>
 
 <script>
   import { portfolioData, type PortfolioData } from '../../data/portfolio';
@@ -205,180 +351,71 @@ const { identity, experience, projects, education = [], skills } = portfolioData
     const modal = document.getElementById('cv-modal');
     const content = document.getElementById('cv-modal-content');
     const closeBtn = document.getElementById('cv-close-btn');
-    const downloadBtn = document.getElementById('cv-download-btn');
-    const modeSwitcher = document.getElementById('cv-mode-switcher');
+    const downloadBtn = document.getElementById('cv-download-btn') as HTMLAnchorElement | null;
+    const printBtn = document.getElementById('cv-print-btn');
     const tabWeb = document.getElementById('cv-tab-web');
     const tabPdf = document.getElementById('cv-tab-pdf');
     const sheetView = document.getElementById('cv-sheet-view');
     const pdfView = document.getElementById('cv-pdf-view');
+    const pdfObject = document.getElementById('cv-pdf-object') as HTMLObjectElement | null;
     const pdfIframe = document.getElementById('cv-pdf-iframe') as HTMLIFrameElement | null;
+    const externalLink = document.getElementById('cv-pdf-external-link') as HTMLAnchorElement | null;
+    const directDownload = document.getElementById('cv-pdf-direct-download') as HTMLAnchorElement | null;
 
     if (!modal || !content) return;
 
     let currentData: PortfolioData = (window as any).__PORTFOLIO__ ?? portfolioData;
+    let activeTab: 'web' | 'pdf' = 'web';
 
     function switchCvTab(mode: 'web' | 'pdf') {
+      activeTab = mode;
       const isWeb = mode === 'web';
       sheetView?.classList.toggle('hidden', !isWeb);
       pdfView?.classList.toggle('hidden', isWeb);
+      pdfView?.classList.toggle('flex', !isWeb);
+
       if (tabWeb && tabPdf) {
         tabWeb.className = isWeb
-          ? 'px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition'
-          : 'px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition';
+          ? 'px-3 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition'
+          : 'px-3 py-1 rounded-md text-[var(--muted-fg)] hover:text-[var(--fg)] cursor-pointer transition';
         tabPdf.className = !isWeb
-          ? 'px-2.5 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition'
-          : 'px-2.5 py-1 rounded-md text-[var(--muted-fg)] cursor-pointer transition';
+          ? 'px-3 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition'
+          : 'px-3 py-1 rounded-md text-[var(--muted-fg)] hover:text-[var(--fg)] cursor-pointer transition';
       }
+
+      // If switching to PDF, ensure PDF source is loaded
+      if (!isWeb) {
+        const cvUrl = (currentData.identity?.cvUrl || '/cv.pdf').trim();
+        const targetSrc = cvUrl.includes('#') ? cvUrl : `${cvUrl}#view=FitH`;
+        if (pdfObject && pdfObject.getAttribute('data') !== targetSrc) {
+          pdfObject.data = targetSrc;
+        }
+        if (pdfIframe && pdfIframe.getAttribute('src') !== targetSrc) {
+          pdfIframe.src = targetSrc;
+        }
+        if (externalLink) externalLink.href = cvUrl;
+        if (directDownload) directDownload.href = cvUrl;
+      }
+    }
+
+    function printCvSheet() {
+      // Switch to web view first so the sheet is rendered
+      switchCvTab('web');
+      setTimeout(() => {
+        window.print();
+      }, 100);
     }
 
     function syncCvData(d: PortfolioData) {
       currentData = d;
-      const { identity, experience = [], projects = [], education = [], skills = [] } = d;
+      const cvUrl = (d.identity?.cvUrl || '/cv.pdf').trim();
 
-      const setTxt = (id: string, val: string) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = val;
-      };
-      setTxt('cv-sheet-name', identity.name);
-      setTxt('cv-sheet-role', identity.role);
-      setTxt('cv-sheet-bio', identity.bio);
-
-      const locEl = document.getElementById('cv-sheet-location');
-      if (locEl) locEl.innerHTML = `<i class="fa-solid fa-location-dot text-[var(--signal)] mr-1.5"></i>${esc(identity.location)}`;
-
-      const emailEl = document.getElementById('cv-sheet-email') as HTMLAnchorElement | null;
-      if (emailEl) {
-        emailEl.textContent = identity.email;
-        emailEl.href = `mailto:${identity.email}`;
+      if (downloadBtn) {
+        downloadBtn.href = cvUrl;
+        downloadBtn.download = `Nguyen-Thanh-Quan-CV.pdf`;
       }
-
-      const ghEl = document.getElementById('cv-sheet-github') as HTMLAnchorElement | null;
-      if (ghEl) {
-        ghEl.textContent = `GitHub (${identity.github.handle})`;
-        ghEl.href = safeUrl(identity.github.url);
-      }
-
-      const liEl = document.getElementById('cv-sheet-linkedin') as HTMLAnchorElement | null;
-      if (liEl) {
-        liEl.href = safeUrl(identity.linkedin.url);
-      }
-
-      const expEl = document.getElementById('cv-sheet-experience');
-      if (expEl) {
-        expEl.innerHTML = experience
-          .map(
-            (exp) => `<div class="border-l-2 border-[var(--border)] pl-4">
-              <div class="flex flex-wrap items-baseline justify-between gap-2">
-                <h4 class="text-sm font-bold text-[var(--fg)]">${esc(exp.role)} <span class="text-[var(--signal)] font-mono text-xs font-semibold">@ ${esc(exp.company)}</span></h4>
-                <span class="font-mono text-xs text-[var(--muted-fg)]">${esc(exp.period)}</span>
-              </div>
-              <ul class="mt-2 space-y-1 text-xs sm:text-sm text-[var(--muted-fg)]">
-                ${exp.bullets.map((b) => `<li>• ${esc(b)}</li>`).join('')}
-              </ul>
-              <div class="mt-2 flex flex-wrap gap-1.5 font-mono text-[11px] text-[var(--faint)]">
-                ${exp.tags.map((t) => `<span>#${esc(t)}</span>`).join('')}
-              </div>
-            </div>`,
-          )
-          .join('');
-      }
-
-      const projEl = document.getElementById('cv-sheet-projects');
-      if (projEl) {
-        projEl.innerHTML = projects
-          .map(
-            (p) => `<div class="rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/40 p-3.5">
-              <div class="flex items-center justify-between gap-2">
-                <h4 class="font-mono text-xs font-bold text-[var(--fg)]">${esc(p.title)}</h4>
-                <span class="font-mono text-[10px] text-[var(--signal)]">${esc(p.status)}</span>
-              </div>
-              <p class="mt-1.5 text-xs text-[var(--muted-fg)] leading-relaxed">${esc(p.description || p.shortDesc)}</p>
-              <div class="mt-2 flex flex-wrap gap-1 font-mono text-[10px] text-[var(--faint)]">
-                ${p.tags.map((t) => `<span class="rounded bg-[var(--card)] px-1.5 py-0.5 border border-[var(--border)]">${esc(t)}</span>`).join('')}
-              </div>
-            </div>`,
-          )
-          .join('');
-      }
-
-      const eduEl = document.getElementById('cv-sheet-education');
-      if (eduEl) {
-        eduEl.innerHTML = education
-          .map(
-            (ed) => `<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-              <div>
-                <span class="text-sm font-bold text-[var(--fg)]">${esc(ed.degree)}</span>
-                <span class="text-xs text-[var(--muted-fg)]"> — ${esc(ed.school)}</span>
-              </div>
-              <span class="font-mono text-xs text-[var(--muted-fg)] shrink-0">${esc(ed.period)}</span>
-            </div>`,
-          )
-          .join('');
-      }
-
-      const skillsEl = document.getElementById('cv-sheet-skills');
-      if (skillsEl) {
-        skillsEl.innerHTML = skills
-          .map(
-            (s) => `<span class="rounded-md border border-[var(--border)] bg-[var(--muted-bg)] px-2.5 py-1 text-[var(--fg)]">${esc(s.name)} <span class="text-[var(--faint)] text-[10px]">${esc(s.tag)}</span></span>`,
-          )
-          .join('');
-      }
-
-      const cvUrl = (identity.cvUrl || '').trim();
-      const hasPdf = Boolean(cvUrl && /^(https?:\/\/|\/|data:application\/pdf)/i.test(cvUrl));
-      modeSwitcher?.classList.toggle('hidden', !hasPdf);
-      if (hasPdf && pdfIframe) {
-        if (pdfIframe.getAttribute('src') !== cvUrl) {
-          pdfIframe.src = cvUrl;
-        }
-        switchCvTab('pdf');
-      } else {
-        switchCvTab('web');
-      }
-    }
-
-    function downloadOrPrintCv() {
-      const cvUrl = (currentData.identity?.cvUrl || '').trim();
-      if (cvUrl && /^(https?:\/\/|\/|data:application\/pdf)/i.test(cvUrl)) {
-        const a = document.createElement('a');
-        a.href = cvUrl;
-        a.download = `CV-${(currentData.identity.name || 'DevOps-Engineer').replace(/\s+/g, '-')}.pdf`;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.click();
-        return;
-      }
-
-      // Clean A4 Print-to-PDF fallback using the formatted CV sheet
-      const sheetHtml = sheetView?.innerHTML || '';
-      const printWin = window.open('', '_blank', 'width=900,height=1100');
-      if (!printWin) return;
-      printWin.document.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <title>CV — ${esc(currentData.identity.name)}</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; color: #161615; background: #fff; padding: 32px 40px; line-height: 1.5; font-size: 13px; }
-    header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #161615; padding-bottom: 16px; margin-bottom: 20px; }
-    h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
-    h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #059669; margin: 18px 0 8px; border-bottom: 1px solid #e2dfd7; padding-bottom: 4px; }
-    h4 { font-size: 13.5px; font-weight: 700; margin-top: 8px; }
-    p, li { color: #3f3f46; font-size: 12.5px; }
-    ul { list-style: none; margin-top: 4px; }
-    a { color: #2563eb; text-decoration: none; }
-    @media print { body { padding: 12px 16px; } }
-  </style>
-</head>
-<body>
-  ${sheetHtml}
-  <script>window.onload = function() { setTimeout(function() { window.print(); }, 250); };<\/script>
-</body>
-</html>`);
-      printWin.document.close();
+      if (externalLink) externalLink.href = cvUrl;
+      if (directDownload) directDownload.href = cvUrl;
     }
 
     function openCvModal() {
@@ -400,7 +437,7 @@ const { identity, experience, projects, education = [], skills } = portfolioData
     tabWeb?.addEventListener('click', () => switchCvTab('web'));
     tabPdf?.addEventListener('click', () => switchCvTab('pdf'));
     closeBtn?.addEventListener('click', closeCvModal);
-    downloadBtn?.addEventListener('click', downloadOrPrintCv);
+    printBtn?.addEventListener('click', printCvSheet);
 
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeCvModal();
@@ -422,9 +459,14 @@ const { identity, experience, projects, education = [], skills } = portfolioData
       }
       const dlTrigger = target.closest?.('[data-download-cv]');
       if (dlTrigger) {
-        e.preventDefault();
-        syncCvData((window as any).__PORTFOLIO__ ?? portfolioData);
-        downloadOrPrintCv();
+        // If trigger is a direct download link, let native click or simulate download
+        const cvUrl = (currentData.identity?.cvUrl || '/cv.pdf').trim();
+        const a = document.createElement('a');
+        a.href = cvUrl;
+        a.download = 'Nguyen-Thanh-Quan-CV.pdf';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.click();
       }
     });
 

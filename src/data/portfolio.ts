@@ -5,11 +5,16 @@ export interface Identity {
   ip: string;
   location: string;
   email: string;
+  phone?: string;
   linkedin: {
     handle: string;
     url: string;
   };
   github: {
+    handle: string;
+    url: string;
+  };
+  youtube?: {
     handle: string;
     url: string;
   };
@@ -130,6 +135,7 @@ export const defaultPortfolioData: PortfolioData = {
     ip: '192.168.1.104',
     location: 'Ho Chi Minh, VN',
     email: 'quannguyenthanh558@gmail.com',
+    phone: '+84 832 010 601',
     linkedin: {
       handle: 'in/quanblue',
       url: 'https://linkedin.com/in/quanblue',
@@ -138,6 +144,11 @@ export const defaultPortfolioData: PortfolioData = {
       handle: '@QuanBlue',
       url: 'https://github.com/QuanBlue',
     },
+    youtube: {
+      handle: '@quanblueee',
+      url: 'https://www.youtube.com/@quanblueee',
+    },
+    cvUrl: '/cv.pdf',
     themeVariant: 'ascii',
     bio: 'DevOps Engineer focusing on container orchestration, automated infrastructure deployment, high-availability multi-zone networking, and production observability.',
   },
