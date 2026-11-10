@@ -23,13 +23,11 @@ const { identity, telemetry } = portfolioData;
       </div>
     </div>
 
-    <!-- Giant ASCII Art Title Banner (Authentic Forkfolio ASCII Style with Matrix Decoder) -->
+    <!-- Giant ASCII Art Title Banner (Authentic Figlet: NGUYEN THANH QUAN) -->
     <div class="overflow-x-auto py-2">
       <pre
-        id="ascii-banner-pre"
-        class="font-mono text-[9px] sm:text-[13px] md:text-[15px] lg:text-[17px] leading-[1.1] font-bold text-[var(--fg)] select-all tracking-tight whitespace-pre cursor-pointer"
+        class="font-mono text-[9px] sm:text-[13px] md:text-[15px] lg:text-[17px] leading-[1.1] font-bold text-[var(--fg)] select-all tracking-tight whitespace-pre"
         aria-label="NGUYEN THANH QUAN"
-        title="Click để chạy lại hiệu ứng giải mã banner ASCII"
       >
  _   _  ____  _   _ __   __ _____  _   _    _____  _   _     _     _   _  _   _     ___    _   _     _     _   _ 
 | \ | |/ ___|| | | |\ \ / /| ____|| \ | |  |_   _|| | | |   / \   | \ | || | | |   / _ \  | | | |   / \   | \ | |
@@ -42,31 +40,14 @@ const { identity, telemetry } = portfolioData;
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       <!-- Left Hero Details (lg:col-span-8) -->
       <div class="lg:col-span-8 space-y-6">
-        <!-- Encrypted Hacker Typewriter Name Header -->
-        <div class="space-y-1.5 pb-2 border-b border-[var(--border)]">
-          <div class="flex items-center gap-2 text-xs text-[var(--signal)]">
-            <span class="inline-block size-1.5 rounded-full bg-[var(--signal)] animate-ping"></span>
-            <span class="text-[var(--muted-fg)]">sys@infra-mesh:~$</span>
-            <span class="text-[var(--signal)] font-bold">decrypt_identity --target=owner</span>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-[var(--fg)] flex items-center select-all">
-              <span id="ascii-typewriter-name" data-target={identity.name} data-bind="name">
-                {identity.name}
-              </span>
-              <span id="ascii-typewriter-cursor" class="inline-block w-2.5 h-6 sm:h-8 bg-[var(--signal)] ml-1 animate-pulse" aria-hidden="true"></span>
-            </h1>
-
-            <button
-              type="button"
-              id="btn-trigger-cipher"
-              class="ff-btn text-[11px] text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 cursor-pointer"
-              title="Chạy lại hiệu ứng đánh máy mã hóa"
-            >
-              <span>[ ↻ re_decrypt ]</span>
-            </button>
-          </div>
+        <!-- Encrypted Hacker Typewriter Name Header (Clean, Auto 10s Loop) -->
+        <div class="pb-1 border-b border-[var(--border)]">
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-[var(--fg)] flex items-center select-all font-mono">
+            <span id="ascii-typewriter-name" data-target={identity.name} data-bind="name">
+              {identity.name}
+            </span>
+            <span id="ascii-typewriter-cursor" class="inline-block w-2.5 h-6 sm:h-8 bg-[var(--signal)] ml-1 animate-pulse" aria-hidden="true"></span>
+          </h1>
         </div>
 
         <!-- Subtitle & Role -->
@@ -211,15 +192,15 @@ const { identity, telemetry } = portfolioData;
   const avatarImg = document.getElementById('ascii-hero-avatar-img') as HTMLImageElement | null;
   const nameEl = document.getElementById('ascii-typewriter-name');
   const cursorEl = document.getElementById('ascii-typewriter-cursor');
-  const btnTriggerCipher = document.getElementById('btn-trigger-cipher');
-  const asciiBannerEl = document.getElementById('ascii-banner-pre');
 
-  // --- 1. Encrypted Hacker Typewriter Decoder for Name ---
+  // --- 1. Encrypted Hacker Typewriter Decoder with 10s Pause Loop ---
   let typewriterTimer: ReturnType<typeof setInterval> | null = null;
+  let pauseTimer: ReturnType<typeof setTimeout> | null = null;
 
   function runNameCipherDecoder() {
     if (!nameEl) return;
     if (typewriterTimer) clearInterval(typewriterTimer);
+    if (pauseTimer) clearTimeout(pauseTimer);
 
     const target = nameEl.dataset.target || nameEl.textContent?.trim() || 'Nguyễn Thanh Quân';
     const cipherChars = '01#@$%&*+=~_/?\\<>[];:!XABCDEF';
@@ -234,6 +215,11 @@ const { identity, telemetry } = portfolioData;
       if (currentIndex >= target.length) {
         if (typewriterTimer) clearInterval(typewriterTimer);
         nameEl.textContent = target;
+
+        // Pause for ~10 seconds, then repeat the typewriter decryption loop
+        pauseTimer = setTimeout(() => {
+          runNameCipherDecoder();
+        }, 10000);
         return;
       }
 
@@ -254,49 +240,10 @@ const { identity, telemetry } = portfolioData;
         currentIndex++;
         nameEl.textContent = target.slice(0, currentIndex);
       }
-    }, 36);
+    }, 38);
   }
 
-  // --- 2. Matrix Decoder for Giant ASCII Art Banner ---
-  let bannerTimer: ReturnType<typeof setInterval> | null = null;
-  const originalAscii = asciiBannerEl?.textContent || '';
-
-  function runBannerMatrixDecoder() {
-    if (!asciiBannerEl || !originalAscii) return;
-    if (bannerTimer) clearInterval(bannerTimer);
-
-    const lines = originalAscii.split('\n');
-    const maxLen = Math.max(...lines.map((l) => l.length));
-    const cipherChars = '01#@$%&*+=~_/?\\<>[];:!';
-    let col = 0;
-
-    bannerTimer = setInterval(() => {
-      col += 3;
-      if (col >= maxLen + 5) {
-        if (bannerTimer) clearInterval(bannerTimer);
-        asciiBannerEl.textContent = originalAscii;
-        return;
-      }
-
-      const decodedLines = lines.map((line) => {
-        let out = '';
-        for (let x = 0; x < line.length; x++) {
-          if (x < col) {
-            out += line[x];
-          } else if (x < col + 4 && line[x] !== ' ') {
-            out += cipherChars[Math.floor(Math.random() * cipherChars.length)];
-          } else {
-            out += ' ';
-          }
-        }
-        return out;
-      });
-
-      asciiBannerEl.textContent = decodedLines.join('\n');
-    }, 32);
-  }
-
-  // --- 3. Mode Switcher (Photo / ASCII) ---
+  // --- 2. Mode Switcher (Photo / ASCII) ---
   function setAvatarMode(mode: 'photo' | 'ascii') {
     if (mode === 'photo') {
       photoView?.classList.remove('hidden');
@@ -318,14 +265,6 @@ const { identity, telemetry } = portfolioData;
 
   btnPhoto?.addEventListener('click', () => setAvatarMode('photo'));
   btnAscii?.addEventListener('click', () => setAvatarMode('ascii'));
-  btnTriggerCipher?.addEventListener('click', () => {
-    runNameCipherDecoder();
-    runBannerMatrixDecoder();
-  });
-  asciiBannerEl?.addEventListener('click', () => {
-    runBannerMatrixDecoder();
-    runNameCipherDecoder();
-  });
 
   // High-Contrast Normalized ASCII Rasterizer
   function generateAsciiPortrait() {
@@ -450,14 +389,12 @@ const { identity, telemetry } = portfolioData;
 
   // Initial animation trigger
   runNameCipherDecoder();
-  runBannerMatrixDecoder();
 
   // Listen to theme variant switches
   window.addEventListener('theme:changed', (e: Event) => {
     const theme = (e as CustomEvent).detail?.theme;
     if (theme === 'ascii') {
       runNameCipherDecoder();
-      runBannerMatrixDecoder();
     }
   });
 
