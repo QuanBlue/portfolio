@@ -92,7 +92,7 @@ const { identity, telemetry } = portfolioData;
 
           <!-- Avatar Image -->
           <div class="aspect-square w-full rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted-bg)] relative group">
-            <div set:html={renderAvatar(identity)} class="w-full h-full [&_img]:w-full [&_img]:h-full [&_img]:object-cover"></div>
+            <div id="bind-avatar-forkfolio" set:html={renderAvatar(identity)} class="w-full h-full [&_img]:w-full [&_img]:h-full [&_img]:object-cover"></div>
           </div>
 
           <!-- Footer Metadata on plate -->

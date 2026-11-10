@@ -55,6 +55,10 @@
     }
 
     html('bind-avatar', renderAvatar(i));
+    html('bind-avatar-forkfolio', renderAvatar(i));
+    document.querySelectorAll<HTMLImageElement>('img[data-bind="avatar"]').forEach((img) => {
+      img.src = safeUrl(i.avatar);
+    });
     html('bind-skills', renderSkills(d.skills));
     html('bind-certs', renderCerts(d.certifications));
     html('bind-experience', renderExperience(d.experience));

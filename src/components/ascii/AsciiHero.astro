@@ -92,46 +92,76 @@ const { identity, telemetry } = portfolioData;
         </div>
       </div>
 
-      <!-- Right Column: Live ASCII Avatar Portrait Generator (lg:col-span-4) -->
+      <!-- Right Column: Avatar Plate with Photo & ASCII Toggle (lg:col-span-4) -->
       <div class="lg:col-span-4 flex flex-col items-center lg:items-end">
-        <div class="ff-cross-box w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 space-y-3 shadow-md">
+        <div class="ff-cross-box w-full max-w-sm rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 space-y-4 shadow-md">
           <span class="ff-cross-tl">+</span>
           <span class="ff-cross-tr">+</span>
           <span class="ff-cross-bl">+</span>
           <span class="ff-cross-br">+</span>
 
-          <div class="flex items-center justify-between border-b border-[var(--border)] pb-2 text-[11px] text-[var(--muted-fg)]">
-            <span class="font-bold text-[var(--fg)]">// ASCII_PORTRAIT_STREAM</span>
-            <span class="text-[var(--signal)]">● DITHERED</span>
+          <!-- Header with live status and View Toggle -->
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-2.5 text-[11px] text-[var(--muted-fg)]">
+            <div class="flex items-center gap-1.5">
+              <span class="size-1.5 rounded-full bg-[var(--signal)] animate-pulse"></span>
+              <span class="font-bold text-[var(--fg)]">// AVATAR_PORTRAIT</span>
+            </div>
+
+            <!-- View toggle: PHOTO vs ASCII -->
+            <div class="inline-flex items-center p-0.5 rounded-md border border-[var(--border)] bg-[var(--muted-bg)] text-[10px]">
+              <button
+                type="button"
+                id="btn-avatar-photo"
+                class="px-2 py-0.5 rounded text-[var(--fg)] font-bold bg-[var(--card)] shadow-xs transition cursor-pointer"
+              >
+                PHOTO
+              </button>
+              <button
+                type="button"
+                id="btn-avatar-ascii"
+                class="px-2 py-0.5 rounded text-[var(--muted-fg)] hover:text-[var(--fg)] transition cursor-pointer"
+              >
+                ASCII
+              </button>
+            </div>
           </div>
 
-          <!-- Pre-formatted ASCII Art Portrait (rendered dynamically from avatar or fallback) -->
-          <div class="bg-[var(--muted-bg)]/80 rounded-lg p-3 overflow-hidden flex items-center justify-center border border-[var(--border)]">
-            <pre
-              id="ascii-avatar-art"
-              class="font-mono text-[7px] sm:text-[8px] leading-[1.0] text-[var(--signal)] select-none text-center tracking-tighter"
-              data-src={identity.avatar || ''}
-            >
-              +--------------------------+
-              |   [ LOADING ASCII ART ]  |
-              |     .::*#@@@@@@#*::.     |
-              |   .+%@@@@@@@@@@@@@@%+.   |
-              |  .#@@@@@@@@@@@@@@@@@@#.  |
-              |  *@@@@@@@@@@@@@@@@@@@@*  |
-              |  %@@@@@@@@@@@@@@@@@@@@%  |
-              |  #@@@@@@@@@@@@@@@@@@@@#  |
-              |  *@@@@@@@@@@@@@@@@@@@@*  |
-              |  .#@@@@@@@@@@@@@@@@@@#.  |
-              |   .+%@@@@@@@@@@@@@@%+.   |
-              |     .::*#@@@@@@#*::.     |
-              |  DevOps Infrastructure   |
-              +--------------------------+
-            </pre>
+          <!-- Main Avatar Display Container -->
+          <div class="aspect-square w-full rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted-bg)] relative flex items-center justify-center group shadow-inner">
+            <!-- 1. Real Avatar Photo (Clear & Crisp) -->
+            <div id="avatar-photo-view" class="w-full h-full relative">
+              <img
+                id="ascii-hero-avatar-img"
+                src={safeUrl(identity.avatar || '')}
+                alt={identity.name}
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                data-bind="avatar"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+              <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[10px] text-white/90 drop-shadow">
+                <span>[ PROFILE: ONLINE ]</span>
+                <span data-bind="node">{identity.node}</span>
+              </div>
+            </div>
+
+            <!-- 2. Dynamic ASCII Rasterizer View -->
+            <div id="avatar-ascii-view" class="hidden w-full h-full p-2 bg-[var(--card)] overflow-hidden flex items-center justify-center">
+              <pre
+                id="ascii-avatar-art"
+                class="font-mono text-[6px] sm:text-[7px] leading-[1.0] text-[var(--signal)] select-none text-center tracking-tighter"
+                data-src={identity.avatar || ''}
+              ></pre>
+            </div>
           </div>
 
-          <div class="flex items-center justify-between text-[10px] text-[var(--muted-fg)] pt-1">
-            <span>RES: 48x28 GLYPHS</span>
-            <span class="text-[var(--fg)] font-semibold">{identity.name}</span>
+          <!-- Footer Metadata on plate -->
+          <div class="flex items-center justify-between text-[11px] text-[var(--muted-fg)] pt-1 border-t border-[var(--border)]">
+            <span class="truncate">
+              NODE: <strong class="text-[var(--fg)]" data-bind="node">{identity.node}</strong>
+            </span>
+            <span class="text-[var(--signal)] font-semibold truncate ml-2" data-bind="location">
+              {identity.location}
+            </span>
           </div>
         </div>
       </div>
@@ -139,20 +169,50 @@ const { identity, telemetry } = portfolioData;
   </div>
 </section>
 
-<!-- Client-side ASCII Portrait Generator & Matrix background -->
+<!-- Client-side Avatar Handler, Mode Switcher & Matrix background -->
 <script>
-  function generateAsciiPortrait() {
-    const el = document.getElementById('ascii-avatar-art');
-    if (!el) return;
+  const photoView = document.getElementById('avatar-photo-view');
+  const asciiView = document.getElementById('avatar-ascii-view');
+  const btnPhoto = document.getElementById('btn-avatar-photo');
+  const btnAscii = document.getElementById('btn-avatar-ascii');
+  const asciiPre = document.getElementById('ascii-avatar-art');
+  const avatarImg = document.getElementById('ascii-hero-avatar-img') as HTMLImageElement | null;
 
-    const src = el.dataset.src;
+  function setAvatarMode(mode: 'photo' | 'ascii') {
+    if (mode === 'photo') {
+      photoView?.classList.remove('hidden');
+      asciiView?.classList.add('hidden');
+      btnPhoto?.classList.add('bg-[var(--card)]', 'text-[var(--fg)]', 'font-bold', 'shadow-xs');
+      btnPhoto?.classList.remove('text-[var(--muted-fg)]');
+      btnAscii?.classList.remove('bg-[var(--card)]', 'text-[var(--fg)]', 'font-bold', 'shadow-xs');
+      btnAscii?.classList.add('text-[var(--muted-fg)]');
+    } else {
+      photoView?.classList.add('hidden');
+      asciiView?.classList.remove('hidden');
+      btnAscii?.classList.add('bg-[var(--card)]', 'text-[var(--fg)]', 'font-bold', 'shadow-xs');
+      btnAscii?.classList.remove('text-[var(--muted-fg)]');
+      btnPhoto?.classList.remove('bg-[var(--card)]', 'text-[var(--fg)]', 'font-bold', 'shadow-xs');
+      btnPhoto?.classList.add('text-[var(--muted-fg)]');
+      generateAsciiPortrait();
+    }
+  }
+
+  btnPhoto?.addEventListener('click', () => setAvatarMode('photo'));
+  btnAscii?.addEventListener('click', () => setAvatarMode('ascii'));
+
+  // High-Contrast Normalized ASCII Rasterizer
+  function generateAsciiPortrait() {
+    if (!asciiPre) return;
+    const src = asciiPre.dataset.src || avatarImg?.src;
     if (!src) return;
 
     const img = new Image();
     img.crossOrigin = 'anonymous';
+    img.referrerPolicy = 'no-referrer';
+
     img.onload = () => {
-      const cols = 44;
-      const rows = 24;
+      const cols = 42;
+      const rows = 26;
       const canvas = document.createElement('canvas');
       canvas.width = cols;
       canvas.height = rows;
@@ -160,25 +220,90 @@ const { identity, telemetry } = portfolioData;
       if (!ctx) return;
 
       ctx.drawImage(img, 0, 0, cols, rows);
-      const imgData = ctx.getImageData(0, 0, cols, rows).data;
-      const ramp = ' .:-=+*#%@';
-      let ascii = '';
+      let imgData: ImageData;
+      try {
+        imgData = ctx.getImageData(0, 0, cols, rows);
+      } catch {
+        // In case of CORS restriction, fallback to a clean stylized ASCII avatar
+        renderFallbackAscii();
+        return;
+      }
+
+      const data = imgData.data;
+      const brightnesses: number[] = [];
+      let minB = 1;
+      let maxB = 0;
+      let borderB = 0;
+      let borderCount = 0;
 
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
           const idx = (y * cols + x) * 4;
-          const r = imgData[idx];
-          const g = imgData[idx + 1];
-          const b = imgData[idx + 2];
-          const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-          const charIdx = Math.min(ramp.length - 1, Math.floor(brightness * ramp.length));
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          const br = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          brightnesses.push(br);
+          minB = Math.min(minB, br);
+          maxB = Math.max(maxB, br);
+
+          // Sample edges to detect background brightness
+          if (x === 0 || x === cols - 1 || y === 0 || y === rows - 1) {
+            borderB += br;
+            borderCount++;
+          }
+        }
+      }
+
+      const avgBorder = borderCount > 0 ? borderB / borderCount : 0.5;
+      const invert = avgBorder > 0.55; // If background is light, invert so background is dark space
+
+      const ramp = '  .:-=+*#%@';
+      const range = maxB - minB || 1;
+      let ascii = '';
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const raw = brightnesses[y * cols + x];
+          let norm = (raw - minB) / range;
+          if (invert) norm = 1 - norm;
+
+          const charIdx = Math.max(0, Math.min(ramp.length - 1, Math.floor(norm * ramp.length)));
           ascii += ramp[charIdx];
         }
         ascii += '\n';
       }
-      el.textContent = ascii;
+      asciiPre.textContent = ascii;
     };
+
+    img.onerror = () => {
+      renderFallbackAscii();
+    };
+
     img.src = src;
+  }
+
+  function renderFallbackAscii() {
+    if (!asciiPre) return;
+    asciiPre.textContent = [
+      '    +------------------------------+    ',
+      '    |      [ NGUYEN THANH QUAN ]   |    ',
+      '    |                              |    ',
+      '    |           .::+*+=:.          |    ',
+      '    |         -#@@@@@@@@#-         |    ',
+      '    |        +@@@@@@@@@@@@+        |    ',
+      '    |        *@@@@@@@@@@@@*        |    ',
+      '    |        +@@@@@@@@@@@@+        |    ',
+      '    |         =%@@@@@@@@%=         |    ',
+      '    |          .:=++++=:.          |    ',
+      '    |        .:-=+*##*+=-:.        |    ',
+      '    |     .+#@@@@@@@@@@@@@@#+.     |    ',
+      '    |    *@@@@@@@@@@@@@@@@@@@@*    |    ',
+      '    |   #@@@@@@@@@@@@@@@@@@@@@@#   |    ',
+      '    |                              |    ',
+      '    |      DEVOPS · SRE ENGINEER   |    ',
+      '    +------------------------------+    ',
+    ].join('\n');
   }
 
   function initMatrixBg() {
@@ -196,16 +321,17 @@ const { identity, telemetry } = portfolioData;
     bg.textContent = lines.join('\n');
   }
 
-  generateAsciiPortrait();
   initMatrixBg();
 
   window.addEventListener('portfolio:data', (e) => {
     const detail = (e as CustomEvent).detail;
     if (detail?.identity?.avatar) {
-      const el = document.getElementById('ascii-avatar-art');
-      if (el) {
-        el.dataset.src = detail.identity.avatar;
-        generateAsciiPortrait();
+      if (avatarImg) avatarImg.src = detail.identity.avatar;
+      if (asciiPre) {
+        asciiPre.dataset.src = detail.identity.avatar;
+        if (!asciiView?.classList.contains('hidden')) {
+          generateAsciiPortrait();
+        }
       }
     }
   });
