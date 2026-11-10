@@ -18,6 +18,8 @@ export interface Identity {
   avatar?: string;
   /** Optional CV / Resume PDF URL or uploaded file URL. */
   cvUrl?: string;
+  /** Active theme layout: 'forkfolio' (Modern Mono Brutalist) or 'editorial' (DevOps 3D Book & Pipeline) */
+  themeVariant?: 'forkfolio' | 'editorial';
 }
 
 export interface Skill {
@@ -136,6 +138,7 @@ export const defaultPortfolioData: PortfolioData = {
       handle: '@QuanBlue',
       url: 'https://github.com/QuanBlue',
     },
+    themeVariant: 'forkfolio',
     bio: 'DevOps Engineer focusing on container orchestration, automated infrastructure deployment, high-availability multi-zone networking, and production observability.',
   },
   skills: [

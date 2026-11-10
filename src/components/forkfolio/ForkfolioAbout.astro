@@ -1,0 +1,115 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { identity } = portfolioData;
+---
+
+<section id="about" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
+    <!-- Section Heading -->
+    <div class="space-y-2">
+      <div class="font-mono text-xs text-[var(--signal)] tracking-wider">// 01. ABOUT</div>
+      <h2 class="font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+        ABOUT
+      </h2>
+    </div>
+
+    <!-- 2-Column Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <!-- Left Narrative Story (lg:col-span-7) -->
+      <div class="lg:col-span-7 space-y-5 text-sm sm:text-base text-[var(--muted-fg)] leading-relaxed">
+        <p class="text-base sm:text-lg text-[var(--fg)] font-medium">
+          Tốt nghiệp Kỹ sư Công nghệ Thông tin chuyên ngành Mạng và Hệ thống Phân tán, mình xây dựng sự nghiệp từ nền tảng quản trị hệ thống Linux nội bộ trước khi đảm nhận vai trò <strong class="text-[var(--signal)]"><span data-bind="role">{identity.role}</span> tại Viettel</strong>.
+        </p>
+        <p>
+          Điểm mạnh cốt lõi của mình là khả năng kết hợp sâu rộng giữa hạ tầng vật lý (Linux Kernel, cấu hình mạng L4/L7, cân bằng tải HAProxy/Keepalived) và nền tảng Cloud-Native tự động hóa (Kubernetes, Ansible, CI/CD Jenkins, Prometheus).
+        </p>
+        <p>
+          Mọi kiến trúc mình thiết kế đều hướng đến mục tiêu: <span class="text-[var(--fg)] font-semibold">Zero Single-Point-of-Failure (Zero SPOF)</span>, tự động hóa 100% quy trình triển khai và bảo mật chuỗi cung ứng phần mềm ngay từ bước commit đầu tiên.
+        </p>
+
+        <!-- 4 Pillars -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
+            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
+              <i class="fa-solid fa-server text-[var(--signal)]"></i>
+              <span>01. HA Platform</span>
+            </div>
+            <p class="text-xs text-[var(--muted-fg)]">Cụm K8s multi-master chịu lỗi cao, Keepalived/HAProxy không điểm nghẽn.</p>
+          </div>
+
+          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
+            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
+              <i class="fa-solid fa-code text-[var(--signal)]"></i>
+              <span>02. Air-Gapped IaC</span>
+            </div>
+            <p class="text-xs text-[var(--muted-fg)]">Ansible Playbooks triển khai 100% tự động trong môi trường biệt lập.</p>
+          </div>
+
+          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
+            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-[var(--signal)]"></i>
+              <span>03. DevSecOps Supply Chain</span>
+            </div>
+            <p class="text-xs text-[var(--muted-fg)]">Quét Trivy, sinh SBOM tự động, ký số &amp; xác thực Image trước khi deploy.</p>
+          </div>
+
+          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
+            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-[var(--signal)]"></i>
+              <span>04. Observability &amp; SRE</span>
+            </div>
+            <p class="text-xs text-[var(--muted-fg)]">Prometheus, Grafana, Alertmanager &amp; ELK Stack giám sát toàn diện 24/7.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Infrastructure Fact Sheet Table (lg:col-span-5) -->
+      <div class="lg:col-span-5">
+        <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+            <h3 class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--fg)]">
+              // SPECIFICATION_DATA
+            </h3>
+            <span class="font-mono text-[11px] text-[var(--signal)]">VERIFIED</span>
+          </div>
+
+          <dl class="divide-y divide-[var(--border)] font-mono text-xs">
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">Role</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right" data-bind="role">{identity.role}</dd>
+            </div>
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">Organization</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right">Viettel Group</dd>
+            </div>
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">Location</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right" data-bind="location">{identity.location}</dd>
+            </div>
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">Architecture</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right">Bare-metal / Multi-zone HA</dd>
+            </div>
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">CI/CD Engine</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right">Jenkins (Trivy + SBOM + Cosign)</dd>
+            </div>
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">IaC Platform</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right">Ansible Core</dd>
+            </div>
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">Availability SLA</dt>
+              <dd class="text-[var(--signal)] font-bold text-right">99.9% Zero-Downtime</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

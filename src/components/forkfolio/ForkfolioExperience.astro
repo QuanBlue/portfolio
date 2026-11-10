@@ -1,0 +1,76 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { experience } = portfolioData;
+---
+
+<section id="experience" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
+    <!-- Section Header -->
+    <div class="space-y-2">
+      <div class="font-mono text-xs text-[var(--signal)] tracking-wider">// 03. EXPERIENCE</div>
+      <h2 class="font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+        EXPERIENCE
+      </h2>
+    </div>
+
+    <!-- 2-Column Clean Brutalist Experience Rows -->
+    <div class="space-y-8">
+      {experience.map((exp, idx) => (
+        <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8 hover:border-[var(--line-strong)] transition">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+            <!-- Left Date & Metadata (md:col-span-4) -->
+            <div class="md:col-span-4 space-y-2 font-mono">
+              <span class="text-xs text-[var(--muted-fg)] block">0{idx + 1} / 0{experience.length}</span>
+              <div class="text-sm sm:text-base font-bold text-[var(--fg)]">
+                {exp.period}
+              </div>
+              {exp.isCurrent && (
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[var(--signal)]/40 bg-emerald-500/10 text-[11px] font-semibold text-[var(--signal)]">
+                  <span class="size-1.5 rounded-full bg-[var(--signal)] animate-pulse"></span>
+                  CURRENT ROLE
+                </span>
+              )}
+            </div>
+
+            <!-- Right Role & Highlights (md:col-span-8) -->
+            <div class="md:col-span-8 space-y-4">
+              <div>
+                <h3 class="font-mono text-xl sm:text-2xl font-black text-[var(--fg)] tracking-tight">
+                  {exp.role}
+                </h3>
+                <p class="font-mono text-sm font-semibold text-[var(--signal)] mt-0.5">
+                  @ {exp.company}
+                </p>
+              </div>
+
+              <!-- Bullets -->
+              <ul class="space-y-2 text-sm text-[var(--muted-fg)] leading-relaxed font-sans">
+                {exp.bullets.map((b) => (
+                  <li class="flex items-start gap-2.5">
+                    <span class="font-mono text-[var(--signal)] select-none shrink-0 mt-0.5">›</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-2 pt-2 border-t border-[var(--border)]">
+                {exp.tags.map((t) => (
+                  <span class="ff-tag">
+                    <span class="text-[var(--signal)]">#</span>
+                    <span>{t}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

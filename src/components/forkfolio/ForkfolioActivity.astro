@@ -1,0 +1,119 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { telemetry } = portfolioData;
+
+const months = ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+// Generate a clean 26-column by 7-row activity pattern
+const seed = [
+  [0, 1, 2, 3, 1, 0, 2], [1, 2, 3, 2, 1, 1, 0], [0, 1, 1, 2, 3, 1, 0], [2, 3, 4, 3, 2, 1, 1],
+  [1, 2, 2, 1, 0, 1, 2], [3, 4, 3, 2, 1, 0, 1], [1, 1, 2, 3, 4, 2, 1], [0, 2, 3, 1, 2, 3, 0],
+  [2, 3, 4, 3, 2, 1, 2], [1, 1, 2, 3, 2, 1, 0], [3, 4, 4, 3, 2, 1, 1], [0, 1, 2, 3, 2, 1, 0],
+  [2, 3, 1, 2, 3, 4, 1], [1, 2, 3, 2, 1, 0, 1], [3, 4, 3, 2, 1, 2, 3], [1, 0, 2, 3, 4, 3, 1],
+  [2, 3, 4, 3, 2, 1, 0], [1, 2, 3, 1, 2, 3, 2], [0, 1, 2, 3, 4, 3, 1], [3, 4, 3, 2, 1, 0, 2],
+  [1, 2, 1, 3, 4, 2, 1], [2, 3, 4, 3, 2, 1, 0], [1, 1, 2, 3, 2, 1, 2], [3, 4, 3, 2, 1, 0, 1],
+  [2, 3, 4, 3, 2, 1, 2], [4, 4, 3, 2, 1, 2, 3],
+];
+---
+
+<section id="activity" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
+    <!-- Header -->
+    <div class="space-y-2">
+      <div class="font-mono text-xs text-[var(--signal)] tracking-wider">// 06. ACTIVITY &amp; TELEMETRY</div>
+      <h2 class="font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+        TELEMETRY
+      </h2>
+    </div>
+
+    <!-- 4 Stats Banner -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 font-mono">
+      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+        <span class="ff-cross-tl">+</span>
+        <span class="ff-cross-tr">+</span>
+        <span class="ff-cross-bl">+</span>
+        <span class="ff-cross-br">+</span>
+        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Uptime SLA</span>
+        <span class="text-2xl sm:text-3xl font-black text-[var(--signal)] mt-1 block">{telemetry.uptimeSLA}</span>
+        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">Zero SPOF platform</span>
+      </div>
+
+      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+        <span class="ff-cross-tl">+</span>
+        <span class="ff-cross-tr">+</span>
+        <span class="ff-cross-bl">+</span>
+        <span class="ff-cross-br">+</span>
+        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Throughput</span>
+        <span class="text-2xl sm:text-3xl font-black text-[var(--fg)] mt-1 block">2,489</span>
+        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">reqs/min telemetry</span>
+      </div>
+
+      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+        <span class="ff-cross-tl">+</span>
+        <span class="ff-cross-tr">+</span>
+        <span class="ff-cross-bl">+</span>
+        <span class="ff-cross-br">+</span>
+        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Code Activity</span>
+        <span class="text-2xl sm:text-3xl font-black text-[var(--fg)] mt-1 block">1,680+</span>
+        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">commits &amp; deploys</span>
+      </div>
+
+      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+        <span class="ff-cross-tl">+</span>
+        <span class="ff-cross-tr">+</span>
+        <span class="ff-cross-bl">+</span>
+        <span class="ff-cross-br">+</span>
+        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">APM Latency</span>
+        <span class="text-2xl sm:text-3xl font-black text-[var(--signal)] mt-1 block">{telemetry.traceLatency}</span>
+        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">trace {telemetry.traceId}</span>
+      </div>
+    </div>
+
+    <!-- Forkfolio-style Activity Heatmap Matrix -->
+    <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-4">
+      <span class="ff-cross-tl">+</span>
+      <span class="ff-cross-tr">+</span>
+      <span class="ff-cross-bl">+</span>
+      <span class="ff-cross-br">+</span>
+
+      <div class="flex items-center justify-between border-b border-[var(--border)] pb-3 font-mono text-xs">
+        <span class="text-[var(--fg)] font-bold">// INFRASTRUCTURE_ACTIVITY_HEATMAP</span>
+        <span class="text-[var(--muted-fg)]">Last 12 Months · 111 Active Days</span>
+      </div>
+
+      <!-- Month Labels -->
+      <div class="overflow-x-auto pb-2">
+        <div class="min-w-[580px] space-y-2">
+          <div class="flex justify-between font-mono text-[10px] text-[var(--muted-fg)] px-1">
+            {months.map((m) => (
+              <span>{m}</span>
+            ))}
+          </div>
+
+          <!-- Heatmap grid -->
+          <div class="flex gap-1.5 p-2 rounded-xl bg-[var(--muted-bg)]/40 border border-[var(--border)]">
+            {seed.map((week) => (
+              <div class="flex flex-col gap-1.5">
+                {week.map((level) => (
+                  <span class={`ff-heatmap-cell ${level > 0 ? `ff-heatmap-${level}` : ''}`} title={`Level ${level}`}></span>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          <div class="flex items-center justify-between font-mono text-[11px] text-[var(--muted-fg)] pt-1 px-1">
+            <span>Longest streak: <strong class="text-[var(--fg)]">26 days</strong></span>
+            <div class="flex items-center gap-1.5">
+              <span>Less</span>
+              <span class="ff-heatmap-cell"></span>
+              <span class="ff-heatmap-cell ff-heatmap-1"></span>
+              <span class="ff-heatmap-cell ff-heatmap-2"></span>
+              <span class="ff-heatmap-cell ff-heatmap-3"></span>
+              <span class="ff-heatmap-cell ff-heatmap-4"></span>
+              <span>More</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -126,11 +126,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   import { esc } from '../lib/render';
 
   type FieldType = 'text' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media' | 'pdf';
+  type SelectOption = string | { value: string; label: string };
   interface Field {
     key: string;
     label: string;
     type: FieldType;
-    options?: string[];
+    options?: SelectOption[];
     maxDim?: number;
     wide?: boolean;
   }
@@ -159,6 +160,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       fields: [
         { key: 'avatar', label: 'Avatar', type: 'image', maxDim: 480 },
         { key: 'cvUrl', label: 'CV / Resume (PDF)', type: 'pdf', wide: true },
+        {
+          key: 'themeVariant',
+          label: 'Theme hiển thị (Giao diện)',
+          type: 'select',
+          options: [
+            { value: 'forkfolio', label: 'Forkfolio Modern Mono (Tươi sáng, tinh gọn, phong cách developer)' },
+            { value: 'editorial', label: 'DevOps Editorial (Tạp chí 3D mở sách, Jenkins Pipeline & Terminal)' },
+          ],
+          wide: true,
+        },
         { key: 'name', label: 'Name', type: 'text' },
         { key: 'role', label: 'Role', type: 'text' },
         { key: 'node', label: 'Node (header)', type: 'text' },
@@ -332,7 +343,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         break;
       case 'select':
         control = `<select class="adm-input" ${attrs}>${f.options!
-          .map((o) => `<option ${o === value ? 'selected' : ''}>${esc(o)}</option>`)
+          .map((o) => {
+            const val = typeof o === 'string' ? o : o.value;
+            const text = typeof o === 'string' ? o : o.label;
+            return `<option value="${esc(val)}" ${val === value ? 'selected' : ''}>${esc(text)}</option>`;
+          })
           .join('')}</select>`;
         break;
       case 'bool':

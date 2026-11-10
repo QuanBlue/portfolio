@@ -39,6 +39,8 @@
     text('[data-bind="role"]', i.role);
     text('[data-bind="location"]', i.location);
     text('[data-bind="bio"]', i.bio);
+    if (i.node) text('[data-bind="node"]', i.node);
+    if (i.ip) text('[data-bind="ip"]', i.ip);
 
     document.querySelectorAll<HTMLAnchorElement>('[data-bind="email"]').forEach((a) => {
       if (a.dataset.bindKeepText !== 'true') {

@@ -40,10 +40,11 @@ describe('render helpers', () => {
 describe('mergePortfolioData', () => {
   it('overrides sections and deep-merges identity', () => {
     const merged = mergePortfolioData(defaultPortfolioData, {
-      identity: { name: 'New' } as any,
+      identity: { name: 'New', themeVariant: 'editorial' } as any,
       gallery: [{ id: 'g', title: 't', description: '', image: '', tags: [], details: [] }],
     });
     expect(merged.identity.name).toBe('New');
+    expect(merged.identity.themeVariant).toBe('editorial');
     expect(merged.identity.role).toBe(defaultPortfolioData.identity.role);
     expect(merged.gallery).toHaveLength(1);
     expect(merged.skills).toHaveLength(7);

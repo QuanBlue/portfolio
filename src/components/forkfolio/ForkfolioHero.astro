@@ -1,0 +1,110 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderAvatar, safeUrl } from '../../lib/render';
+const { identity, telemetry } = portfolioData;
+---
+
+<section id="top" class="relative pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-[var(--border)] overflow-hidden">
+  <!-- Subtle tech grid background in dark/light mode -->
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-25 pointer-events-none" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+      <!-- Left Hero Content (lg:col-span-8) -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- Eyebrow Tag -->
+        <div class="inline-flex items-center gap-2 font-mono text-xs text-[var(--signal)]">
+          <span class="inline-block size-2 rounded-full bg-[var(--signal)] animate-pulse"></span>
+          <span class="tracking-wider uppercase">// DEVOPS &amp; SRE INFRASTRUCTURE ENGINEER</span>
+        </div>
+
+        <!-- Giant Bold Typographic Headline (Forkfolio style, highly legible, bright & energetic) -->
+        <h1 class="font-mono text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight text-[var(--fg)] leading-[0.95]">
+          <span class="block">Nguyen</span>
+          <span class="block text-[var(--fg)]">Thanh</span>
+          <span class="block text-[var(--signal)]">Quan</span>
+        </h1>
+
+        <!-- Role Subtitle -->
+        <p class="font-mono text-base sm:text-xl font-bold text-[var(--fg)] tracking-tight">
+          <span data-bind="role">{identity.role}</span>
+          <span class="text-[var(--muted-fg)] font-medium"> @ Viettel · High-Availability &amp; Supply Chain Security</span>
+        </p>
+
+        <!-- Bio text -->
+        <p data-bind="bio" class="text-sm sm:text-base text-[var(--muted-fg)] leading-relaxed max-w-2xl font-sans">
+          {identity.bio}
+        </p>
+
+        <!-- Monospace Action Buttons / Links in Forkfolio Bracket Style -->
+        <div class="flex flex-wrap items-center gap-2.5 pt-2">
+          <a href="#projects" class="ff-btn ff-btn-primary">
+            <span>[ view_projects → ]</span>
+          </a>
+          <a href="#experience" class="ff-btn">
+            <span>[ career_path ↓ ]</span>
+          </a>
+          <button type="button" data-open-cv="1" class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10">
+            <i class="fa-regular fa-file-lines text-xs"></i>
+            <span>[ view_cv.pdf ]</span>
+          </button>
+          <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="ff-btn">
+            <i class="fa-brands fa-github text-xs"></i>
+            <span>[ github ↗ ]</span>
+          </a>
+          <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="ff-btn">
+            <i class="fa-brands fa-linkedin text-xs"></i>
+            <span>[ linkedin ↗ ]</span>
+          </a>
+        </div>
+
+        <!-- Live Status Ticker (Monospace System Telemetry) -->
+        <div class="pt-4 border-t border-[var(--border)] flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[11px] text-[var(--muted-fg)]">
+          <span class="inline-flex items-center gap-1.5 text-[var(--signal)] font-semibold">
+            <span class="size-1.5 rounded-full bg-[var(--signal)]"></span>
+            CLUSTER: ONLINE
+          </span>
+          <span>·</span>
+          <span>SLA: <strong class="text-[var(--fg)]">{telemetry.uptimeSLA}</strong></span>
+          <span>·</span>
+          <span>NODE: <strong class="text-[var(--fg)]" data-bind="node">{identity.node}</strong></span>
+          <span>·</span>
+          <span>IP: <strong class="text-[var(--fg)]" data-bind="ip">{identity.ip}</strong></span>
+          <span>·</span>
+          <span class="hidden sm:inline">SUPPLY CHAIN: <strong class="text-[var(--signal)]">TRIVY + SBOM + SIGNED</strong></span>
+        </div>
+      </div>
+
+      <!-- Right Column: Avatar Plate with Forkfolio Corner Crosshairs (lg:col-span-4) -->
+      <div class="lg:col-span-4 flex justify-center lg:justify-end">
+        <div class="ff-cross-box w-full max-w-xs p-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-lg shadow-black/5">
+          <!-- 4 Corner Crosshairs (+) -->
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <!-- Header info on avatar plate -->
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border)] font-mono text-[11px] text-[var(--muted-fg)]">
+            <span class="font-bold text-[var(--fg)]">[ PROFILE_NODE ]</span>
+            <span class="text-[var(--signal)]">● ACTIVE</span>
+          </div>
+
+          <!-- Avatar Image -->
+          <div class="aspect-square w-full rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted-bg)] relative group">
+            <div set:html={renderAvatar(identity)} class="w-full h-full [&_img]:w-full [&_img]:h-full [&_img]:object-cover"></div>
+          </div>
+
+          <!-- Footer Metadata on plate -->
+          <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-mono text-[var(--muted-fg)]">
+            <div class="flex items-center gap-1.5 truncate">
+              <i class="fa-solid fa-location-dot text-[var(--signal)] text-[10px]"></i>
+              <span data-bind="location" class="truncate">{identity.location}</span>
+            </div>
+            <span class="text-[10px] text-[var(--faint)]">VN_SRE_01</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

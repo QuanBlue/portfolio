@@ -1,4 +1,6 @@
 ---
+import { portfolioData } from '../../data/portfolio';
+
 interface Props {
   currentPath?: string;
 }
@@ -6,18 +8,18 @@ interface Props {
 const { currentPath = '/' } = Astro.props;
 
 const navSections = [
-  { id: 'experience', href: '/#experience', label: 'Experience' },
-  { id: 'projects', href: '/#projects', label: 'Projects' },
-  { id: 'education', href: '/#education', label: 'Education' },
-  { id: 'skills', href: '/#skills', label: 'Skills' },
-  { id: 'about', href: '/#about', label: 'About' },
+  { id: 'about', href: '/#about', label: 'About', ffLabel: 'about' },
+  { id: 'projects', href: '/#projects', label: 'Projects', ffLabel: 'projects' },
+  { id: 'experience', href: '/#experience', label: 'Experience', ffLabel: 'experience' },
+  { id: 'skills', href: '/#skills', label: 'Skills', ffLabel: 'skills' },
+  { id: 'contact', href: '/#contact', label: 'Contact', ffLabel: 'contact' },
 ];
 ---
 
 <header id="site-header" class="nav-enter sticky inset-x-0 top-0 z-50 border-b border-transparent transition-all duration-200">
   <nav class="relative mx-auto flex h-16 max-w-[76rem] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Main">
-    <!-- Brand Logo -->
-    <a href="/" class="flex items-center gap-3 group">
+    <!-- Brand Logo: Switches based on data-portfolio-theme -->
+    <a href="/" class="flex items-center gap-3 group shrink-0">
       <img
         src="/logo.svg"
         alt="Quan DevOps"
@@ -25,20 +27,24 @@ const navSections = [
         width="32"
         height="32"
       />
-      <span class="font-mono text-xs font-bold leading-tight tracking-wider text-[var(--fg)]">
-        THANH QUÂN<br />
-        <span class="text-[10px] font-medium text-[var(--muted-fg)]">DEVOPS · SRE</span>
-      </span>
+      <div class="leading-tight">
+        <span id="hdr-brand-name" class="font-mono text-xs font-bold tracking-wider text-[var(--fg)] block">
+          THANH QUÂN
+        </span>
+        <span id="hdr-brand-sub" class="text-[10px] font-mono font-medium text-[var(--muted-fg)] block">
+          DEVOPS · SRE
+        </span>
+      </div>
     </a>
 
-    <!-- Center Navigation (Experience -> Projects -> Education -> Skills -> About) -->
-    <ul id="nav-list" class="relative hidden items-center gap-1 lg:flex">
+    <!-- Center Navigation -->
+    <ul id="nav-list" class="relative hidden items-center gap-1 lg:flex font-mono text-xs">
       {navSections.map((item) => (
         <li>
           <a
             href={item.href}
             data-section={item.id}
-            class="nav-link inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)] hover:bg-[var(--muted-bg)] hover:text-[var(--fg)] transition"
+            class="nav-link ff-br inline-flex h-9 items-center rounded-lg px-2.5 font-medium text-[var(--muted-fg)] hover:text-[var(--fg)] transition"
           >
             {item.label}
           </a>
@@ -46,11 +52,23 @@ const navSections = [
       ))}
     </ul>
 
-    <!-- Sliding Active Tab Indicator at bottom of Header -->
-    <span id="tab-indicator" class="tab-indicator hidden lg:block" aria-hidden="true"></span>
+    <!-- Sliding Active Tab Indicator (for Editorial theme) -->
+    <span id="tab-indicator" class="tab-indicator hidden" aria-hidden="true"></span>
 
-    <!-- Right Controls: Blog, Admin (Login/Edit), Theme Toggle, Contact CTA -->
-    <div class="flex items-center gap-1.5">
+    <!-- Right Controls: Theme Variant Switcher, Blog, Admin, Light/Dark, Contact CTA -->
+    <div class="flex items-center gap-1.5 shrink-0">
+      <!-- Quick Theme Variant Switcher Pill -->
+      <button
+        id="theme-variant-toggle"
+        type="button"
+        class="inline-flex h-8 items-center gap-1 px-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] font-mono text-[11px] text-[var(--muted-fg)] hover:border-[var(--signal)] hover:text-[var(--fg)] cursor-pointer transition"
+        title="Đổi giao diện: Forkfolio ⇄ Editorial"
+        aria-label="Toggle portfolio layout style"
+      >
+        <span class="text-[var(--signal)]">❖</span>
+        <span id="theme-variant-label" class="font-semibold">Forkfolio</span>
+      </button>
+
       <a
         href="/blog"
         class={`inline-flex h-9 items-center justify-center rounded-lg px-2.5 font-mono text-xs font-semibold transition ${
@@ -76,6 +94,7 @@ const navSections = [
         <span id="hdr-admin-label">Login</span>
       </a>
 
+      <!-- Dark / Light theme toggle -->
       <button
         id="theme-toggle"
         type="button"
@@ -88,10 +107,9 @@ const navSections = [
 
       <a
         href="/#contact"
-        class="ml-1 hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--fg)] px-4 text-sm font-medium text-[var(--bg)] hover:opacity-90 active:scale-[0.98] transition"
+        class="ml-1 hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--fg)] px-3.5 font-mono text-xs font-medium text-[var(--bg)] hover:opacity-90 active:scale-[0.98] transition"
       >
-        <span>Contact</span>
-        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10v10M7 17L17 7"/></svg>
+        <span>[ contact ]</span>
       </a>
     </div>
   </nav>
@@ -99,6 +117,7 @@ const navSections = [
 
 <script is:inline>
   (function () {
+    // 1. Dark / Light Mode Sync
     var icon = document.getElementById('theme-icon');
     var syncThemeIcon = function () {
       var isDark = document.documentElement.classList.contains('dark');
@@ -115,26 +134,10 @@ const navSections = [
       });
     }
 
-    var sections = ['experience', 'projects', 'education', 'skills', 'about'];
+    // 2. Active Section Tracker on Scroll
+    var sections = ['about', 'projects', 'experience', 'education', 'skills', 'contact'];
     var navLinks = document.querySelectorAll('.nav-link');
     var tabIndicator = document.getElementById('tab-indicator');
-
-    function updateTabIndicator(activeId) {
-      if (!tabIndicator) return;
-      var activeLink = document.querySelector('.nav-link[data-section="' + activeId + '"]');
-      if (!activeLink) {
-        tabIndicator.style.opacity = '0';
-        return;
-      }
-      var navEl = activeLink.closest('nav');
-      if (!navEl) return;
-      var navRect = navEl.getBoundingClientRect();
-      var linkRect = activeLink.getBoundingClientRect();
-      var left = linkRect.left - navRect.left;
-      tabIndicator.style.width = linkRect.width + 'px';
-      tabIndicator.style.transform = 'translateX(' + left + 'px)';
-      tabIndicator.style.opacity = '1';
-    }
 
     function onHeaderScroll() {
       var h = document.documentElement;
@@ -145,10 +148,10 @@ const navSections = [
       var header = document.getElementById('site-header');
       if (header) {
         if (window.scrollY > 16) {
-          header.classList.add('bg-[var(--bg)]/85', 'backdrop-blur-md', 'border-[var(--border)]');
+          header.classList.add('bg-[var(--bg)]/90', 'backdrop-blur-md', 'border-[var(--border)]');
           header.classList.remove('border-transparent');
         } else {
-          header.classList.remove('bg-[var(--bg)]/85', 'backdrop-blur-md', 'border-[var(--border)]');
+          header.classList.remove('bg-[var(--bg)]/90', 'backdrop-blur-md', 'border-[var(--border)]');
           header.classList.add('border-transparent');
         }
       }
@@ -170,7 +173,6 @@ const navSections = [
         link.classList.toggle('text-[var(--fg)]', isCurrent);
         link.classList.toggle('text-[var(--muted-fg)]', !isCurrent);
       });
-      updateTabIndicator(currentSection);
     }
 
     window.addEventListener('scroll', onHeaderScroll, { passive: true });

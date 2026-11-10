@@ -1,25 +1,25 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/sections/Hero.astro';
-import ExperienceSection from '../components/sections/ExperienceSection.astro';
-import ProjectsSection from '../components/sections/ProjectsSection.astro';
-import EducationSection from '../components/sections/EducationSection.astro';
-import SkillsSection from '../components/sections/SkillsSection.astro';
-import AboutSection from '../components/sections/AboutSection.astro';
-import ContactSection from '../components/sections/ContactSection.astro';
+import ForkfolioTheme from '../components/themes/ForkfolioTheme.astro';
+import EditorialTheme from '../components/themes/EditorialTheme.astro';
 import ProjectModal from '../components/dashboard/ProjectModal.astro';
 import CvModal from '../components/dashboard/CvModal.astro';
+import { portfolioData } from '../data/portfolio';
+
+const initialTheme = portfolioData.identity?.themeVariant || 'forkfolio';
 ---
 
 <BaseLayout title="Nguyễn Thanh Quân — DevOps & Infrastructure Engineer" currentPath="/">
-  <main class="flex-grow">
-    <Hero />
-    <ExperienceSection />
-    <ProjectsSection />
-    <EducationSection />
-    <SkillsSection />
-    <AboutSection />
-    <ContactSection />
+  <main class="flex-grow" id="main-content">
+    <!-- Theme 1: Forkfolio Modern Mono (Bright, minimalist developer theme) -->
+    <div id="theme-forkfolio-wrapper" class={initialTheme === 'forkfolio' ? 'block' : 'hidden'}>
+      <ForkfolioTheme />
+    </div>
+
+    <!-- Theme 2: DevOps Editorial (3D Book-open timeline, Jenkins pipeline & interactive terminal) -->
+    <div id="theme-editorial-wrapper" class={initialTheme === 'editorial' ? 'block' : 'hidden'}>
+      <EditorialTheme />
+    </div>
   </main>
 
   <ProjectModal />
@@ -27,7 +27,7 @@ import CvModal from '../components/dashboard/CvModal.astro';
 </BaseLayout>
 
 <script>
-  // Reveal sections & editorial headings on scroll
+  // 1. Reveal sections & editorial headings on scroll
   const io = new IntersectionObserver(
     (entries) =>
       entries.forEach((en) => {
@@ -36,7 +36,7 @@ import CvModal from '../components/dashboard/CvModal.astro';
           io.unobserve(en.target);
         }
       }),
-    { threshold: 0.1, rootMargin: '0px 0px -30px 0px' },
+    { threshold: 0.08, rootMargin: '0px 0px -30px 0px' },
   );
 
   function observeReveals() {
@@ -44,14 +44,14 @@ import CvModal from '../components/dashboard/CvModal.astro';
   }
   observeReveals();
 
-  // Timeline progress line & 3D Book-Opening Scroll Effect ("mở sách")
+  // 2. Timeline progress line & 3D Book-Opening Scroll Effect ("mở sách" in Editorial theme)
   const journeyTimeline = document.getElementById('journey-timeline');
   const journeyProgressBar = document.getElementById('journey-progress-bar');
 
   function onExperienceScroll() {
     const vh = window.innerHeight || document.documentElement.clientHeight;
 
-    // 1. Center spine green progress fill
+    // Center spine green progress fill
     if (journeyTimeline && journeyProgressBar) {
       const rect = journeyTimeline.getBoundingClientRect();
       const start = vh * 0.72;
@@ -62,24 +62,21 @@ import CvModal from '../components/dashboard/CvModal.astro';
       journeyProgressBar.style.transform = `translateX(-50%) scaleY(${ratio.toFixed(3)})`;
     }
 
-    // 2. Book-opening 3D unfold per row based on scroll position
+    // Book-opening 3D unfold per row based on scroll position
     const bookRows = document.querySelectorAll<HTMLElement>('.timeline-book-row');
     bookRows.forEach((row) => {
       const r = row.getBoundingClientRect();
       const rowCenter = r.top + r.height * 0.35;
-      // Start opening when row enters bottom 94% of viewport, fully flat at 56% of viewport
       const enterY = vh * 0.94;
       const flatY = vh * 0.56;
       const raw = (enterY - rowCenter) / (enterY - flatY);
       const p = Math.max(0, Math.min(1, raw));
-      // Smooth cubic ease-out so the page settles gently like a heavy hardcover page
       const eased = 1 - Math.pow(1 - p, 2.6);
 
       const leftPage = row.querySelector<HTMLElement>('.book-page-left');
       const rightPage = row.querySelector<HTMLElement>('.book-page-right');
       const dotNode = row.querySelector<HTMLElement>('.timeline-dot-node');
 
-      // Max closed angle: 76deg folded inward toward the center spine
       const maxAngle = 76;
       const angle = (1 - eased) * maxAngle;
       const tiltX = (1 - eased) * 6;
@@ -88,13 +85,11 @@ import CvModal from '../components/dashboard/CvModal.astro';
       const spineShadow = ((1 - eased) * 0.85).toFixed(3);
 
       if (leftPage) {
-        // Left page hinges on right edge (spine); negative rotateY folds outer left edge toward viewer/spine
         leftPage.style.transform = `rotateY(${-angle.toFixed(2)}deg) rotateX(${tiltX.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
         leftPage.style.opacity = opacity.toFixed(3);
         leftPage.style.setProperty('--spine-shadow', spineShadow);
       }
       if (rightPage) {
-        // Right page hinges on left edge (spine); positive rotateY folds outer right edge toward viewer/spine
         rightPage.style.transform = `rotateY(${angle.toFixed(2)}deg) rotateX(${tiltX.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
         rightPage.style.opacity = opacity.toFixed(3);
         rightPage.style.setProperty('--spine-shadow', spineShadow);
@@ -107,9 +102,85 @@ import CvModal from '../components/dashboard/CvModal.astro';
 
   window.addEventListener('scroll', onExperienceScroll, { passive: true });
   window.addEventListener('resize', onExperienceScroll, { passive: true });
-  window.addEventListener('portfolio:data', () => {
+
+  // 3. Dynamic Theme Variant Switcher (Forkfolio ⇄ Editorial)
+  const ffWrapper = document.getElementById('theme-forkfolio-wrapper');
+  const edWrapper = document.getElementById('theme-editorial-wrapper');
+  const variantBtn = document.getElementById('theme-variant-toggle');
+  const variantLabel = document.getElementById('theme-variant-label');
+  const brandName = document.getElementById('hdr-brand-name');
+  const brandSub = document.getElementById('hdr-brand-sub');
+
+  let activeThemeVariant: 'forkfolio' | 'editorial' = 'forkfolio';
+
+  function applyThemeVariant(variant: 'forkfolio' | 'editorial', persist = false) {
+    activeThemeVariant = variant;
+    const isForkfolio = variant === 'forkfolio';
+
+    if (ffWrapper) ffWrapper.classList.toggle('hidden', !isForkfolio);
+    if (edWrapper) edWrapper.classList.toggle('hidden', isForkfolio);
+
+    if (variantLabel) {
+      variantLabel.textContent = isForkfolio ? 'Forkfolio' : 'Editorial';
+    }
+
+    if (brandName && brandSub) {
+      if (isForkfolio) {
+        brandName.textContent = 'nguyen.thanh.quan';
+        brandSub.textContent = 'devops · sre';
+      } else {
+        brandName.textContent = 'THANH QUÂN';
+        brandSub.textContent = 'DEVOPS · SRE';
+      }
+    }
+
+    document.documentElement.dataset.portfolioTheme = variant;
+
+    if (persist) {
+      localStorage.setItem('user-theme-variant', variant);
+    }
+
+    if (!isForkfolio) {
+      requestAnimationFrame(() => {
+        observeReveals();
+        onExperienceScroll();
+      });
+    }
+  }
+
+  // Check URL query param first: ?theme=editorial or ?theme=forkfolio
+  const urlParams = new URLSearchParams(window.location.search);
+  const qTheme = urlParams.get('theme');
+  if (qTheme === 'editorial' || qTheme === 'forkfolio') {
+    applyThemeVariant(qTheme);
+  } else {
+    // Check saved user preference or window portfolio data
+    const saved = localStorage.getItem('user-theme-variant');
+    const storeTheme = (window as any).__PORTFOLIO__?.identity?.themeVariant;
+    if (saved === 'editorial' || saved === 'forkfolio') {
+      applyThemeVariant(saved);
+    } else if (storeTheme === 'editorial' || storeTheme === 'forkfolio') {
+      applyThemeVariant(storeTheme);
+    } else {
+      applyThemeVariant('forkfolio');
+    }
+  }
+
+  variantBtn?.addEventListener('click', () => {
+    const next = activeThemeVariant === 'forkfolio' ? 'editorial' : 'forkfolio';
+    applyThemeVariant(next, true);
+  });
+
+  // Listen to remote changes or Admin Saves
+  window.addEventListener('portfolio:data', (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    if (detail?.identity?.themeVariant) {
+      // If admin changed the site theme, respect it
+      if (!localStorage.getItem('user-theme-variant')) {
+        applyThemeVariant(detail.identity.themeVariant);
+      }
+    }
     observeReveals();
     requestAnimationFrame(onExperienceScroll);
   });
-  onExperienceScroll();
 </script>

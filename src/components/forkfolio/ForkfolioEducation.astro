@@ -1,0 +1,48 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const education = portfolioData.education ?? [];
+---
+
+<section id="education" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
+    <!-- Header -->
+    <div class="space-y-2">
+      <div class="font-mono text-xs text-[var(--signal)] tracking-wider">// 04. EDUCATION &amp; RESEARCH</div>
+      <h2 class="font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+        EDUCATION
+      </h2>
+    </div>
+
+    <!-- Education cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {education.map((ed, idx) => (
+        <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-4 hover:border-[var(--line-strong)] transition">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-3">
+            <span class="px-2.5 py-0.5 rounded bg-[var(--muted-bg)] text-[var(--signal)] font-bold">
+              [{ed.badge || `0${idx + 1}`}]
+            </span>
+            <span class="text-[var(--muted-fg)]">{ed.period}</span>
+          </div>
+
+          <div>
+            <h3 class="font-mono text-lg sm:text-xl font-bold text-[var(--fg)]">
+              {ed.degree}
+            </h3>
+            <p class="font-mono text-xs text-[var(--signal)] font-medium mt-1">
+              {ed.school}
+            </p>
+          </div>
+
+          <p class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-sans">
+            {ed.description}
+          </p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
