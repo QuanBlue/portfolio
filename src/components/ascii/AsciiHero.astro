@@ -17,23 +17,30 @@ const { identity, telemetry } = portfolioData;
         <span class="text-[var(--fg)]">cat /etc/banner.ascii</span>
       </div>
       <div class="flex items-center gap-3 text-[11px]">
+        <div class="flex items-center gap-1.5 border border-[var(--border)] rounded px-2 py-0.5 bg-[var(--muted-bg)]/40">
+          <span class="text-[var(--muted-fg)]">FONT:</span>
+          <button type="button" id="btn-font-slant" class="font-bold text-[var(--signal)] transition cursor-pointer" title="Switch to Slant ASCII font">SLANT</button>
+          <span class="text-[var(--border)]">|</span>
+          <button type="button" id="btn-font-ansi" class="font-medium text-[var(--muted-fg)] hover:text-[var(--fg)] transition cursor-pointer" title="Switch to ANSI Cyber Shadow font">ANSI</button>
+        </div>
         <span>[ ARCH: X86_64 ]</span>
         <span>[ UPTIME: <strong class="text-[var(--signal)]">{telemetry.uptimeSLA}</strong> ]</span>
         <span>[ STATUS: <strong class="text-[var(--signal)]">ONLINE</strong> ]</span>
       </div>
     </div>
 
-    <!-- Giant ASCII Art Title Banner (Authentic Figlet: NGUYEN THANH QUAN) -->
+    <!-- Giant ASCII Art Title Banner (Authentic Slant: NGUYEN THANH QUAN) -->
     <div class="overflow-x-auto py-2">
       <pre
+        id="ascii-banner-pre"
         class="font-mono text-[9px] sm:text-[13px] md:text-[15px] lg:text-[17px] leading-[1.1] font-bold text-[var(--fg)] select-all tracking-tight whitespace-pre"
         aria-label="NGUYEN THANH QUAN"
       >
- _   _  ____  _   _ __   __ _____  _   _    _____  _   _     _     _   _  _   _     ___    _   _     _     _   _ 
-| \ | |/ ___|| | | |\ \ / /| ____|| \ | |  |_   _|| | | |   / \   | \ | || | | |   / _ \  | | | |   / \   | \ | |
-|  \| || |__ | | | | \ V / |  _|  |  \| |    | |  | |_| |  / _ \  |  \| || |_| |  | | | | | | | |  / _ \  |  \| |
-| |\  || |_| || |_| |  | |  | |___ | |\  |    | |  |  _  | / ___ \ | |\  ||  _  |  | |_| | | |_| | / ___ \ | |\  |
-|_| \_|\____| \___/   |_|  |_____||_| \_|    |_|  |_| |_|/_/   \_\|_| \_||_| |_|   \__\_\  \___/ /_/   \_\|_| \_|
+    _   __________  ____  _________   __   ________  _____    _   ____  __   ____  __  _____    _   __
+   / | / / ____/ / / /\ \/ / ____/ | / /  /_  __/ / / /   |  / | / / / / /  / __ \/ / / /   |  / | / /
+  /  |/ / / __/ / / /  \  / __/ /  |/ /    / / / /_/ / /| | /  |/ / /_/ /  / / / / / / / /| | /  |/ / 
+ / /|  / /_/ / /_/ /   / / /___/ /|  /    / / / __  / ___ |/ /|  / __  /  / /_/ / /_/ / ___ |/ /|  /  
+/_/ |_/\____/\____/   /_/_____/_/ |_/    /_/ /_/ /_/_/  |_/_/ |_/_/ /_/   \___\_\____/_/  |_/_/ |_/   
       </pre>
     </div>
 
@@ -386,6 +393,45 @@ const { identity, telemetry } = portfolioData;
   }
 
   initMatrixBg();
+
+  // --- Banner Font Switcher (Slant / ANSI Cyber Shadow) ---
+  const bannerPre = document.getElementById('ascii-banner-pre');
+  const btnFontSlant = document.getElementById('btn-font-slant');
+  const btnFontAnsi = document.getElementById('btn-font-ansi');
+
+  const BANNER_FONTS = {
+    slant: `    _   __________  ____  _________   __   ________  _____    _   ____  __   ____  __  _____    _   __
+   / | / / ____/ / / /\\ \\/ / ____/ | / /  /_  __/ / / /   |  / | / / / / /  / __ \\/ / / /   |  / | / /
+  /  |/ / / __/ / / /  \\  / __/ /  |/ /    / / / /_/ / /| | /  |/ / /_/ /  / / / / / / / /| | /  |/ / 
+ / /|  / /_/ / /_/ /   / / /___/ /|  /    / / / __  / ___ |/ /|  / __  /  / /_/ / /_/ / ___ |/ /|  /  
+/_/ |_/\\____/\\____/   /_/_____/_/ |_/    /_/ /_/ /_/_/  |_/_/ |_/_/ /_/   \\___\\_\\____/_/  |_/_/ |_/   `,
+
+    ansi: `███╗   ██╗ ██████╗ ██╗   ██╗██╗   ██╗███████╗███╗   ██╗    ████████╗██╗  ██╗ █████╗ ███╗   ██╗██╗  ██╗     ██████╗ ██╗   ██╗ █████╗ ███╗   ██╗
+████╗  ██║██╔════╝ ██║   ██║╚██╗ ██╔╝██╔════╝████╗  ██║    ╚══██╔══╝██║  ██║██╔══██╗████╗  ██║██║  ██║    ██╔═══██╗██║   ██║██╔══██╗████╗  ██║
+██╔██╗ ██║██║  ███╗██║   ██║ ╚████╔╝ █████╗  ██╔██╗ ██║       ██║   ███████║███████║██╔██╗ ██║███████║    ██║   ██║██║   ██║███████║██╔██╗ ██║
+██║╚██╗██║██║   ██║██║   ██║  ╚██╔╝  ██╔══╝  ██║╚██╗██║       ██║   ██╔══██║██╔══██║██║╚██╗██║██╔══██║    ██║▄▄ ██║██║   ██║██╔══██║██║╚██╗██║
+██║ ╚████║╚██████╔╝╚██████╔╝   ██║   ███████╗██║ ╚████║       ██║   ██║  ██║██║  ██║██║ ╚████║██║  ██║    ╚██████╔╝╚██████╔╝██║  ██║██║ ╚████║
+╚═╝  ╚═══╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚═╝  ╚═══╝       ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝     ╚══▀▀═╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝`
+  };
+
+  function setBannerFont(font: 'slant' | 'ansi') {
+    if (!bannerPre) return;
+    bannerPre.textContent = BANNER_FONTS[font];
+    if (font === 'slant') {
+      btnFontSlant?.classList.add('text-[var(--signal)]', 'font-bold');
+      btnFontSlant?.classList.remove('text-[var(--muted-fg)]');
+      btnFontAnsi?.classList.remove('text-[var(--signal)]', 'font-bold');
+      btnFontAnsi?.classList.add('text-[var(--muted-fg)]');
+    } else {
+      btnFontAnsi?.classList.add('text-[var(--signal)]', 'font-bold');
+      btnFontAnsi?.classList.remove('text-[var(--muted-fg)]');
+      btnFontSlant?.classList.remove('text-[var(--signal)]', 'font-bold');
+      btnFontSlant?.classList.add('text-[var(--muted-fg)]');
+    }
+  }
+
+  btnFontSlant?.addEventListener('click', () => setBannerFont('slant'));
+  btnFontAnsi?.addEventListener('click', () => setBannerFont('ansi'));
 
   // Initial animation trigger
   runNameCipherDecoder();
