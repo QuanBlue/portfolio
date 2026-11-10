@@ -146,6 +146,7 @@ const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
     }
 
     document.documentElement.dataset.portfolioTheme = variant;
+    window.dispatchEvent(new CustomEvent('theme:changed', { detail: { theme: variant } }));
 
     if (persist) {
       localStorage.setItem('user-theme-variant', variant);
