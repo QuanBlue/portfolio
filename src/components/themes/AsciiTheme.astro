@@ -9,7 +9,11 @@ import AsciiActivity from '../ascii/AsciiActivity.astro';
 import AsciiContact from '../ascii/AsciiContact.astro';
 ---
 
-<div class="theme-ascii-container min-h-screen font-mono">
+<div class="theme-ascii-container min-h-screen font-mono relative">
+  <!-- Viewport Top & Bottom Fade Vignette (Forkfolio Scroll Mask) -->
+  <div class="ascii-viewport-fade-top pointer-events-none fixed top-0 left-0 right-0 h-20 z-40" aria-hidden="true"></div>
+  <div class="ascii-viewport-fade-bottom pointer-events-none fixed bottom-0 left-0 right-0 h-16 z-40" aria-hidden="true"></div>
+
   <AsciiHero />
   <AsciiAbout />
   <AsciiProjects />
@@ -19,3 +23,146 @@ import AsciiContact from '../ascii/AsciiContact.astro';
   <AsciiActivity />
   <AsciiContact />
 </div>
+
+<style is:global>
+  /* 1. Viewport Top & Bottom Edge Fades */
+  .ascii-viewport-fade-top {
+    background: linear-gradient(
+      to bottom,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 85%, transparent) 40%,
+      transparent 100%
+    );
+  }
+  .ascii-viewport-fade-bottom {
+    background: linear-gradient(
+      to top,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 85%, transparent) 40%,
+      transparent 100%
+    );
+  }
+
+  /* 2. Continuous Distance-Based Scroll Fade on Sections */
+  .theme-ascii-container section {
+    opacity: var(--ascii-scroll-opacity, 1);
+    transform: translateY(var(--ascii-scroll-y, 0px));
+    transition: opacity 0.28s ease-out, transform 0.28s ease-out;
+    will-change: opacity, transform;
+  }
+</style>
+
+<script>
+  // Continuous Scroll-Driven Focus Fade (Spotlight Effect like quanblue.forkfolio.dev)
+  function setupAsciiScrollFade() {
+    const container = document.querySelector('.theme-ascii-container');
+    if (!container) return;
+
+    const sections = container.querySelectorAll<HTMLElement>('section');
+
+    function onScroll() {
+      // Only run when ASCII theme is active
+      if (document.documentElement.dataset.portfolioTheme !== 'ascii') return;
+
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+
+      sections.forEach((sec) => {
+        const rect = sec.getBoundingClientRect();
+        // Calculate center of section
+        const secCenter = rect.top + rect.height * 0.42;
+        // Distance to center of viewport
+        const distFromCenter = Math.abs(secCenter - vh * 0.5);
+        // Normalized distance (fade starts as section leaves center 50%)
+        const maxDist = vh * 0.88;
+        const progress = Math.max(0, Math.min(1, 1 - distFromCenter / maxDist));
+        // Easing curve: stays sharp near center, gently dims towards edges
+        const eased = Math.pow(progress, 1.25);
+        const opacity = (0.28 + 0.72 * eased).toFixed(3);
+        const translateY = ((1 - eased) * 14).toFixed(1);
+
+        sec.style.setProperty('--ascii-scroll-opacity', opacity);
+        sec.style.setProperty('--ascii-scroll-y', `${translateY}px`);
+      });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    onScroll();
+
+    // 3. Matrix Decoders for ASCII Banners on Scroll
+    const banners = container.querySelectorAll<HTMLElement>('[data-ascii-banner]');
+
+    function decodeBanner(preEl: HTMLElement) {
+      if (preEl.dataset.isDecoding === 'true') return;
+      preEl.dataset.isDecoding = 'true';
+      const original = preEl.textContent || '';
+      const lines = original.split('\n');
+      const maxLen = Math.max(...lines.map((l) => l.length));
+      const cipherChars = '01#@$%&*+=~_/?\\<>[];:!';
+      let col = 0;
+
+      const interval = setInterval(() => {
+        col += 3;
+        if (col >= maxLen + 5) {
+          clearInterval(interval);
+          preEl.textContent = original;
+          preEl.dataset.isDecoding = 'false';
+          return;
+        }
+
+        const decoded = lines.map((line) => {
+          let out = '';
+          for (let x = 0; x < line.length; x++) {
+            if (x < col) {
+              out += line[x];
+            } else if (x < col + 4 && line[x] !== ' ') {
+              out += cipherChars[Math.floor(Math.random() * cipherChars.length)];
+            } else {
+              out += ' ';
+            }
+          }
+          return out;
+        });
+        preEl.textContent = decoded.join('\n');
+      }, 28);
+    }
+
+    // Attach click listeners to all banners for re-decryption
+    banners.forEach((b) => {
+      b.addEventListener('click', () => decodeBanner(b));
+    });
+
+    // IntersectionObserver to trigger decode when scrolling into view
+    const bannerIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((en) => {
+          if (en.isIntersecting) {
+            const target = en.target as HTMLElement;
+            decodeBanner(target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' },
+    );
+
+    banners.forEach((b) => bannerIo.observe(b));
+
+    // Listen to theme switch to re-run on current visible section
+    window.addEventListener('theme:changed', (e: Event) => {
+      const theme = (e as CustomEvent).detail?.theme;
+      if (theme === 'ascii') {
+        requestAnimationFrame(() => {
+          onScroll();
+          banners.forEach((b) => {
+            const rect = b.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              decodeBanner(b);
+            }
+          });
+        });
+      }
+    });
+  }
+
+  setupAsciiScrollFade();
+</script>
