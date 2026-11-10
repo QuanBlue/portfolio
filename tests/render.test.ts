@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esc, safeUrl, renderProjects, renderGalleryGrid } from '../src/lib/render';
+import { esc, safeUrl, renderProjects, renderGalleryGrid, renderCvSheetHtml } from '../src/lib/render';
 import { defaultPortfolioData, mergePortfolioData } from '../src/data/portfolio';
 
 describe('render helpers', () => {
@@ -34,6 +34,18 @@ describe('render helpers', () => {
       { id: '1', title: 'A', description: '', image: 'data:image/png;base64,AA', tags: ['x'], details: [] },
     ]);
     expect(html).toContain('data-gallery-index="0"');
+  });
+
+  it('dynamically renders authentic CV sheet from PortfolioData', () => {
+    const cvHtml = renderCvSheetHtml(defaultPortfolioData);
+    expect(cvHtml).toContain(defaultPortfolioData.identity.name.toUpperCase());
+    expect(cvHtml).toContain(defaultPortfolioData.identity.email);
+    expect(cvHtml).toContain('ABOUT ME');
+    expect(cvHtml).toContain('SKILLS');
+    expect(cvHtml).toContain('PROJECT/');
+    expect(cvHtml).toContain('EDUCATION');
+    expect(cvHtml).toContain('Kubernetes');
+    expect(cvHtml).toContain('ansible-airgap-k8s');
   });
 });
 

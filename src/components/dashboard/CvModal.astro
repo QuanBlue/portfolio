@@ -1,7 +1,9 @@
 ---
 import { portfolioData } from '../../data/portfolio';
-import { safeUrl } from '../../lib/render';
-const { identity, experience, projects, education = [], skills } = portfolioData;
+import { renderCvSheetHtml } from '../../lib/render';
+
+const { identity } = portfolioData;
+const initialCvHtml = renderCvSheetHtml(portfolioData);
 ---
 
 <div
@@ -32,7 +34,7 @@ const { identity, experience, projects, education = [], skills } = portfolioData
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- Dual View Switcher (Web CV vs PDF File) -->
+        <!-- Dual View Switcher (Web CV vs Dynamic PDF) -->
         <div id="cv-mode-switcher" class="inline-flex rounded-lg border border-[var(--border)] bg-[var(--bg)] p-0.5 font-mono text-[11px]">
           <button type="button" id="cv-tab-web" class="px-3 py-1 rounded-md bg-[var(--card)] text-[var(--fg)] font-semibold cursor-pointer transition">Web CV</button>
           <button type="button" id="cv-tab-pdf" class="px-3 py-1 rounded-md text-[var(--muted-fg)] hover:text-[var(--fg)] cursor-pointer transition">PDF File</button>
@@ -49,17 +51,16 @@ const { identity, experience, projects, education = [], skills } = portfolioData
           <span>Print</span>
         </button>
 
-        <!-- Direct Download PDF Button -->
-        <a
+        <!-- Direct Download PDF Button (Generates from current data) -->
+        <button
           id="cv-download-btn"
-          href="/cv.pdf"
-          download="Nguyen-Thanh-Quan-CV.pdf"
+          type="button"
           class="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--signal)] px-3 text-xs font-mono font-semibold text-zinc-950 hover:opacity-90 active:scale-[0.98] cursor-pointer transition"
-          title="Tải file CV PDF gốc"
+          title="Tải file PDF tự động gen từ dữ liệu"
         >
           <i class="fa-solid fa-download text-xs"></i>
-          <span>Download CV</span>
-        </a>
+          <span id="cv-download-btn-text">Download CV</span>
+        </button>
 
         <!-- Close Modal Button -->
         <button
@@ -75,240 +76,60 @@ const { identity, experience, projects, education = [], skills } = portfolioData
 
     <!-- Scrollable CV Body -->
     <div class="flex-1 overflow-y-auto p-3 sm:p-6 bg-zinc-950/70 custom-scrollbar">
-      <!-- View 1: Authentic A4 Paper CV Sheet (Generated matching attached PDF design) -->
+      <!-- View 1: Authentic A4 Paper CV Sheet (Generated dynamically matching attached PDF design) -->
       <article
         id="cv-sheet-view"
         class="mx-auto max-w-[850px] bg-white text-zinc-900 rounded-lg shadow-2xl p-6 sm:p-10 font-sans border border-zinc-200 select-text leading-normal"
       >
-        <!-- Header: Centered Full Name, Contacts, Links -->
-        <header class="text-center pb-2">
-          <h1 id="cv-sheet-name" class="text-2xl sm:text-3xl font-extrabold uppercase tracking-wide text-zinc-950">
-            NGUYEN THANH QUAN
-          </h1>
-          <p id="cv-sheet-contact" class="text-xs sm:text-[13px] text-zinc-700 mt-2 font-normal">
-            quannguyenthanh558@gmail.com | +84 832 010 601 | District 10, Ho Chi Minh City
-          </p>
-          <div class="flex flex-wrap items-center justify-center gap-2 text-xs font-bold uppercase text-zinc-900 mt-1.5 tracking-wider">
-            <a id="cv-link-github" href="https://github.com/QuanBlue" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">GITHUB</a>
-            <span>|</span>
-            <a id="cv-link-portfolio" href="https://quanblue.netlify.app/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">PORTFOLIO</a>
-            <span>|</span>
-            <a id="cv-link-youtube" href="https://www.youtube.com/@quanblueee" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">YOUTUBE</a>
-            <span>|</span>
-            <a id="cv-link-linkedin" href="https://www.linkedin.com/in/quanblue/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">LINKEDIN</a>
-          </div>
-        </header>
-
-        <hr class="border-t-2 border-zinc-950 my-3 sm:my-4" />
-
-        <div class="space-y-4 sm:space-y-5">
-          <!-- Section 1: ABOUT ME -->
-          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
-            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
-              ABOUT ME
-            </div>
-            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-2">
-              <p>
-                Solid foundation in Linux and Networking, and enthusiasm for setting up, managing, and protecting network systems.
-              </p>
-              <p>
-                Desire to learn more and keep up with up-to-date technologies. Ability to adapt to the working environment quickly and flexibly. Besides, looking forward to learning more technologies related to the data industry.
-              </p>
-            </div>
-          </section>
-
-          <!-- Section 2: SKILLS -->
-          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
-            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
-              SKILLS
-            </div>
-            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
-              <ul class="space-y-1 list-disc list-inside">
-                <li><span class="font-normal">C/C++, C#, Python, JavaScript, SQL/noSQL</span></li>
-                <li><span class="font-normal">Flask, Winform, ReactJS, Unity</span></li>
-                <li><span class="font-normal">Vagrant, Docker, Docker Swarm</span></li>
-                <li><span class="font-normal">Ansible, Prometheus, Grafana</span></li>
-              </ul>
-              <ul class="space-y-1 list-disc list-inside">
-                <li><span class="font-normal">Linux</span></li>
-                <li><span class="font-normal">Networking</span></li>
-                <li><span class="font-normal">Cryptography</span></li>
-                <li><span class="font-normal">Security</span></li>
-              </ul>
-            </div>
-          </section>
-
-          <!-- Section 3: PROJECT/ OPEN-SOURCE -->
-          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
-            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5 leading-snug">
-              PROJECT/<br />OPEN-SOURCE
-            </div>
-            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-4">
-              <!-- Item 1: PORTFOLIO WEBSITE -->
-              <div>
-                <div class="flex items-baseline justify-between font-bold text-zinc-950">
-                  <span class="text-[13px] sm:text-sm">PORTFOLIO WEBSITE</span>
-                  <span class="font-normal text-zinc-600 text-xs">2021 - Present</span>
-                </div>
-                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
-                  <li>
-                    <span>Description: My portfolio website so everyone can have an overview of information about me. In this project, I assume the role of:</span>
-                    <ul class="pl-5 mt-0.5 space-y-0.5 list-[circle] list-inside text-zinc-700">
-                      <li>A Full-stack web developer: using MERN stack to create the website</li>
-                      <li>A DevOps Engineer: monitoring performance and automating the deployment of this project to PaaS.</li>
-                    </ul>
-                  </li>
-                  <li>
-                    <span>Technologies: ExpressJS, ReactJS, Bootstrap 5, Mongoose, Netlify, Render, GitHub Actions, Prometheus, Grafana.</span>
-                  </li>
-                  <li>
-                    <a href="https://github.com/QuanBlue/mearn-portfolio" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://quanblue.netlify.app/" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Deploy</a>
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Item 2: GMAIL REMOTE CONTROL -->
-              <div>
-                <div class="flex items-baseline justify-between font-bold text-zinc-950">
-                  <span class="text-[13px] sm:text-sm">GMAIL REMOTE CONTROL <span class="font-normal text-zinc-600 text-xs ml-2">Team size: 3</span></span>
-                  <span class="font-normal text-zinc-600 text-xs">Apr 2023 - May 2023</span>
-                </div>
-                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
-                  <li>
-                    <span>Description: A web app using Gmail to control the victim's machine by sending email requests. In this project, I assume the role of:</span>
-                    <ul class="pl-5 mt-0.5 space-y-0.5 list-[circle] list-inside text-zinc-700">
-                      <li>Team Leader: writes a document, manages and assigns tasks to team members.</li>
-                      <li>Front-end Developer: Conceptualize, design, and build UI.</li>
-                    </ul>
-                  </li>
-                  <li>
-                    <span>Technologies: Python, Flask, JavaScript, Gmail API.</span>
-                  </li>
-                  <li>
-                    <a href="https://github.com/HCMUS-Project-Org/gmail-remote-control" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://youtu.be/bdlXKWeg4tY" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Demo</a>
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Item 3: JURASSIC ADVENTURE GAME -->
-              <div>
-                <div class="flex items-baseline justify-between font-bold text-zinc-950">
-                  <span class="text-[13px] sm:text-sm">JURASSIC ADVENTURE GAME <span class="font-normal text-zinc-600 text-xs ml-2">Team size: 3</span></span>
-                  <span class="font-normal text-zinc-600 text-xs">Nov 2022 - Feb 2023</span>
-                </div>
-                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
-                  <li>
-                    <span>Description: A 2D side scroll shooting game that is travel in the Prehistoric age. In this project, I assume the role of:</span>
-                    <ul class="pl-5 mt-0.5 space-y-0.5 list-[circle] list-inside text-zinc-700">
-                      <li>Team Leader: write a document, manages and assigns tasks to team members.</li>
-                      <li>Game Developer: code HUD, shop, inventory, map, animate,...</li>
-                    </ul>
-                  </li>
-                  <li>
-                    <span>Technologies: Unity</span>
-                  </li>
-                  <li>
-                    <a href="https://github.com/HCMUS-Project-Org/Jurassic-Adventure-game" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://youtu.be/HihHOLtROmY" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Demo</a>
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Item 4: STORAGE FILE SYSTEM APPLICATION -->
-              <div>
-                <div class="flex items-baseline justify-between font-bold text-zinc-950">
-                  <span class="text-[13px] sm:text-sm">STORAGE FILE SYSTEM APPLICATION <span class="font-normal text-zinc-600 text-xs ml-2">Team size: 5</span></span>
-                  <span class="font-normal text-zinc-600 text-xs">Jan 2022</span>
-                </div>
-                <ul class="mt-1 space-y-1 list-disc list-inside text-zinc-800">
-                  <li>
-                    <span>Description: An application is used to safely store files, It allows users: to store files securely and share files between users. In this project, I assume the role of Front-end Developer: Conceptualize, design, and build UI based on a designed template.</span>
-                  </li>
-                  <li>
-                    <span>Technologies: C# Winform (FE). Python (Cryptography), Java (BE), MongoDB (DB), Cloudinary (Cloud DB)</span>
-                  </li>
-                  <li>
-                    <a href="https://github.com/HCMUS-Project-Org/Storage-File-System" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Source code</a> and <a href="https://youtu.be/Y2-wst1yYg0" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Demo</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <!-- Section 4: EDUCATION -->
-          <section class="flex flex-col sm:flex-row gap-3 sm:gap-6 pt-1">
-            <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
-              EDUCATION
-            </div>
-            <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed">
-              <div class="flex items-baseline justify-between font-bold text-zinc-950">
-                <span class="text-[13px] sm:text-sm">UNIVERSITY OF SCIENCE - VNUHCM</span>
-                <span class="font-normal text-zinc-600 text-xs">2019 - 2023</span>
-              </div>
-              <div class="flex items-baseline justify-between text-zinc-800 mt-0.5">
-                <span>Bachelor Computer Network and Information Security</span>
-                <span class="text-zinc-600 text-xs">Ho Chi Minh city</span>
-              </div>
-              <div class="font-medium text-zinc-900 mt-0.5">
-                GPA: 3.64 / 4.00
-              </div>
-            </div>
-          </section>
-        </div>
+        <Fragment set:html={initialCvHtml} />
       </article>
 
-      <!-- View 2: High-Fidelity Embedded PDF Preview (with Quick Actions) -->
+      <!-- View 2: High-Fidelity Dynamically-Generated PDF Preview -->
       <div id="cv-pdf-view" class="hidden flex-col h-[76vh] w-full rounded-xl border border-[var(--border)] overflow-hidden bg-zinc-900 shadow-xl">
         <!-- PDF Viewer Quick Controls Bar -->
         <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 border-b border-zinc-800 bg-zinc-950 text-xs font-mono text-zinc-400 shrink-0">
           <div class="flex items-center gap-2">
             <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="text-zinc-200 font-semibold">Nguyen-Thanh-Quan-CV.pdf</span>
-            <span class="text-zinc-500 text-[11px] hidden sm:inline">(Bản PDF gốc đính kèm)</span>
+            <span id="cv-pdf-filename" class="text-zinc-200 font-semibold">CV-Generated.pdf</span>
+            <span class="text-emerald-400 text-[11px] hidden sm:inline">(Tự động gen từ dữ liệu Portfolio)</span>
           </div>
           <div class="flex items-center gap-2">
             <a
               id="cv-pdf-external-link"
-              href="/cv.pdf"
+              href="#"
               target="_blank"
               rel="noopener noreferrer"
               class="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-zinc-700 hover:border-zinc-500 text-zinc-200 hover:text-white transition cursor-pointer"
             >
               <span>Mở tab mới ↗</span>
             </a>
-            <a
+            <button
               id="cv-pdf-direct-download"
-              href="/cv.pdf"
-              download="Nguyen-Thanh-Quan-CV.pdf"
+              type="button"
               class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition font-semibold cursor-pointer"
             >
               <i class="fa-solid fa-download text-[11px]"></i>
               <span>Tải file PDF</span>
-            </a>
+            </button>
           </div>
         </div>
 
-        <!-- Embedded Native PDF View -->
+        <!-- Embedded Generated PDF Preview or Loading State -->
         <div class="flex-1 w-full h-full relative bg-zinc-900">
-          <object
-            id="cv-pdf-object"
-            data="/cv.pdf#view=FitH"
-            type="application/pdf"
-            class="w-full h-full"
+          <!-- Loading State -->
+          <div id="cv-pdf-loading" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center gap-3 bg-zinc-900 z-10">
+            <div class="size-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="font-mono text-xs text-zinc-300">Đang tạo file PDF trực tiếp từ dữ liệu Portfolio...</p>
+            <p class="font-mono text-[11px] text-zinc-500">Render đồ họa A4 độ phân giải cao</p>
+          </div>
+
+          <!-- PDF Iframe -->
+          <iframe
+            id="cv-pdf-iframe"
+            title="CV PDF Preview"
+            class="w-full h-full border-0 hidden"
           >
-            <iframe
-              id="cv-pdf-iframe"
-              src="/cv.pdf#view=FitH"
-              title="CV PDF Preview"
-              class="w-full h-full border-0"
-            >
-              <div class="p-8 text-center text-zinc-300 space-y-4">
-                <p class="text-sm font-semibold">Trình duyệt không hỗ trợ xem trực tiếp file PDF trong iframe.</p>
-                <a href="/cv.pdf" target="_blank" class="inline-block px-4 py-2 rounded bg-emerald-500 text-black font-bold">
-                  Mở file PDF trong tab mới ↗
-                </a>
-              </div>
-            </iframe>
-          </object>
+          </iframe>
         </div>
       </div>
     </div>
@@ -345,27 +166,114 @@ const { identity, experience, projects, education = [], skills } = portfolioData
 
 <script>
   import { portfolioData, type PortfolioData } from '../../data/portfolio';
-  import { esc, safeUrl } from '../../lib/render';
+  import { renderCvSheetHtml } from '../../lib/render';
 
   function initCvModal() {
     const modal = document.getElementById('cv-modal');
     const content = document.getElementById('cv-modal-content');
     const closeBtn = document.getElementById('cv-close-btn');
-    const downloadBtn = document.getElementById('cv-download-btn') as HTMLAnchorElement | null;
+    const downloadBtn = document.getElementById('cv-download-btn');
+    const downloadBtnText = document.getElementById('cv-download-btn-text');
     const printBtn = document.getElementById('cv-print-btn');
     const tabWeb = document.getElementById('cv-tab-web');
     const tabPdf = document.getElementById('cv-tab-pdf');
     const sheetView = document.getElementById('cv-sheet-view');
     const pdfView = document.getElementById('cv-pdf-view');
-    const pdfObject = document.getElementById('cv-pdf-object') as HTMLObjectElement | null;
     const pdfIframe = document.getElementById('cv-pdf-iframe') as HTMLIFrameElement | null;
+    const pdfLoading = document.getElementById('cv-pdf-loading');
+    const pdfFilename = document.getElementById('cv-pdf-filename');
     const externalLink = document.getElementById('cv-pdf-external-link') as HTMLAnchorElement | null;
-    const directDownload = document.getElementById('cv-pdf-direct-download') as HTMLAnchorElement | null;
+    const directDownload = document.getElementById('cv-pdf-direct-download');
 
     if (!modal || !content) return;
 
     let currentData: PortfolioData = (window as any).__PORTFOLIO__ ?? portfolioData;
     let activeTab: 'web' | 'pdf' = 'web';
+    let cachedPdfBlobUrl: string | null = null;
+    let isGenerating = false;
+
+    function getCvFileName(): string {
+      const safeName = (currentData.identity?.name || 'Nguyen-Thanh-Quan')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '-');
+      return `${safeName}-CV.pdf`;
+    }
+
+    async function generatePdfBlob(): Promise<string> {
+      if (!sheetView) throw new Error('CV sheet element not found');
+
+      const fileName = getCvFileName();
+      const html2pdfModule = await import('html2pdf.js');
+      const html2pdf = (html2pdfModule as any).default || html2pdfModule;
+
+      const opt = {
+        margin: [6, 8, 6, 8] as [number, number, number, number],
+        filename: fileName,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        enableLinks: true,
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait' as const,
+        },
+      };
+
+      const worker = html2pdf().set(opt).from(sheetView);
+      const blob: Blob = await worker.outputPdf('blob');
+
+      if (cachedPdfBlobUrl) {
+        URL.revokeObjectURL(cachedPdfBlobUrl);
+      }
+      cachedPdfBlobUrl = URL.createObjectURL(blob);
+      return cachedPdfBlobUrl;
+    }
+
+    async function loadPdfPreview() {
+      if (!pdfView || !pdfIframe) return;
+
+      const fileName = getCvFileName();
+      if (pdfFilename) pdfFilename.textContent = fileName;
+
+      if (cachedPdfBlobUrl) {
+        pdfIframe.src = `${cachedPdfBlobUrl}#view=FitH`;
+        pdfIframe.classList.remove('hidden');
+        pdfLoading?.classList.add('hidden');
+        if (externalLink) externalLink.href = cachedPdfBlobUrl;
+        return;
+      }
+
+      pdfIframe.classList.add('hidden');
+      pdfLoading?.classList.remove('hidden');
+
+      try {
+        isGenerating = true;
+        const blobUrl = await generatePdfBlob();
+        pdfIframe.src = `${blobUrl}#view=FitH`;
+        pdfIframe.classList.remove('hidden');
+        pdfLoading?.classList.add('hidden');
+        if (externalLink) externalLink.href = blobUrl;
+      } catch (err) {
+        console.error('Failed to generate PDF:', err);
+        if (pdfLoading) {
+          pdfLoading.innerHTML = `
+            <div class="text-amber-400 font-mono text-xs space-y-2">
+              <p>⚠️ Không thể kết xuất PDF trong trình duyệt.</p>
+              <button id="cv-pdf-retry" type="button" class="px-3 py-1 rounded bg-zinc-800 text-white hover:bg-zinc-700">Thử lại</button>
+            </div>
+          `;
+          document.getElementById('cv-pdf-retry')?.addEventListener('click', loadPdfPreview);
+        }
+      } finally {
+        isGenerating = false;
+      }
+    }
 
     function switchCvTab(mode: 'web' | 'pdf') {
       activeTab = mode;
@@ -383,39 +291,73 @@ const { identity, experience, projects, education = [], skills } = portfolioData
           : 'px-3 py-1 rounded-md text-[var(--muted-fg)] hover:text-[var(--fg)] cursor-pointer transition';
       }
 
-      // If switching to PDF, ensure PDF source is loaded
       if (!isWeb) {
-        const cvUrl = (currentData.identity?.cvUrl || '/cv.pdf').trim();
-        const targetSrc = cvUrl.includes('#') ? cvUrl : `${cvUrl}#view=FitH`;
-        if (pdfObject && pdfObject.getAttribute('data') !== targetSrc) {
-          pdfObject.data = targetSrc;
-        }
-        if (pdfIframe && pdfIframe.getAttribute('src') !== targetSrc) {
-          pdfIframe.src = targetSrc;
-        }
-        if (externalLink) externalLink.href = cvUrl;
-        if (directDownload) directDownload.href = cvUrl;
+        loadPdfPreview();
       }
     }
 
     function printCvSheet() {
-      // Switch to web view first so the sheet is rendered
       switchCvTab('web');
       setTimeout(() => {
         window.print();
       }, 100);
     }
 
+    async function downloadCvPdf() {
+      if (isGenerating) return;
+
+      const fileName = getCvFileName();
+
+      // If cached blob already exists, download directly
+      if (cachedPdfBlobUrl) {
+        const a = document.createElement('a');
+        a.href = cachedPdfBlobUrl;
+        a.download = fileName;
+        a.click();
+        return;
+      }
+
+      // Otherwise generate and save
+      if (downloadBtn && downloadBtnText) {
+        const prevText = downloadBtnText.textContent;
+        downloadBtnText.textContent = 'Generating...';
+        downloadBtn.setAttribute('disabled', 'true');
+
+        try {
+          isGenerating = true;
+          const blobUrl = await generatePdfBlob();
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = fileName;
+          a.click();
+        } catch (err) {
+          console.error('Error generating PDF for download:', err);
+          window.print();
+        } finally {
+          isGenerating = false;
+          downloadBtnText.textContent = prevText;
+          downloadBtn.removeAttribute('disabled');
+        }
+      }
+    }
+
     function syncCvData(d: PortfolioData) {
       currentData = d;
-      const cvUrl = (d.identity?.cvUrl || '/cv.pdf').trim();
-
-      if (downloadBtn) {
-        downloadBtn.href = cvUrl;
-        downloadBtn.download = `Nguyen-Thanh-Quan-CV.pdf`;
+      // Invalidate cached PDF blob whenever data changes
+      if (cachedPdfBlobUrl) {
+        URL.revokeObjectURL(cachedPdfBlobUrl);
+        cachedPdfBlobUrl = null;
       }
-      if (externalLink) externalLink.href = cvUrl;
-      if (directDownload) directDownload.href = cvUrl;
+
+      // Re-render sheet HTML dynamically from PortfolioData
+      if (sheetView) {
+        sheetView.innerHTML = renderCvSheetHtml(d);
+      }
+
+      // If currently on PDF tab, regenerate preview
+      if (activeTab === 'pdf') {
+        loadPdfPreview();
+      }
     }
 
     function openCvModal() {
@@ -438,6 +380,8 @@ const { identity, experience, projects, education = [], skills } = portfolioData
     tabPdf?.addEventListener('click', () => switchCvTab('pdf'));
     closeBtn?.addEventListener('click', closeCvModal);
     printBtn?.addEventListener('click', printCvSheet);
+    downloadBtn?.addEventListener('click', downloadCvPdf);
+    directDownload?.addEventListener('click', downloadCvPdf);
 
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeCvModal();
@@ -459,14 +403,9 @@ const { identity, experience, projects, education = [], skills } = portfolioData
       }
       const dlTrigger = target.closest?.('[data-download-cv]');
       if (dlTrigger) {
-        // If trigger is a direct download link, let native click or simulate download
-        const cvUrl = (currentData.identity?.cvUrl || '/cv.pdf').trim();
-        const a = document.createElement('a');
-        a.href = cvUrl;
-        a.download = 'Nguyen-Thanh-Quan-CV.pdf';
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.click();
+        e.preventDefault();
+        syncCvData((window as any).__PORTFOLIO__ ?? portfolioData);
+        downloadCvPdf();
       }
     });
 

@@ -148,9 +148,8 @@ export const defaultPortfolioData: PortfolioData = {
       handle: '@quanblueee',
       url: 'https://www.youtube.com/@quanblueee',
     },
-    cvUrl: '/cv.pdf',
     themeVariant: 'ascii',
-    bio: 'DevOps Engineer focusing on container orchestration, automated infrastructure deployment, high-availability multi-zone networking, and production observability.',
+    bio: 'Solid foundation in Linux and Networking, and enthusiasm for setting up, managing, and protecting network systems. Desire to learn more and keep up with up-to-date technologies. Ability to adapt to the working environment quickly and flexibly.',
   },
   skills: [
     { id: 'k8s', tag: '[k8s-core]', name: 'Kubernetes', status: 'ACTIVE', delay: '0s' },
@@ -192,12 +191,12 @@ export const defaultPortfolioData: PortfolioData = {
   ],
   education: [
     {
-      id: 'beng-it',
-      badge: 'B.Eng',
-      period: 'Graduated · Honors',
-      degree: 'Kỹ sư Công nghệ Thông tin (B.Eng in Information Technology)',
-      school: 'Đại học Công nghệ Thông tin / Bách Khoa',
-      description: 'Chuyên ngành Mạng máy tính, Hệ điều hành Linux & Hệ thống Phân tán. Nghiên cứu chuyên sâu về ảo hóa nhân Linux (namespaces, cgroups) và định tuyến mạng container.',
+      id: 'hcmus-it',
+      badge: 'Bachelor',
+      period: '2019 - 2023',
+      degree: 'Bachelor Computer Network and Information Security',
+      school: 'UNIVERSITY OF SCIENCE - VNUHCM',
+      description: 'GPA: 3.64 / 4.00 · Ho Chi Minh City',
     },
     {
       id: 'capstone-k8s',

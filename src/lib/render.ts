@@ -10,6 +10,7 @@ import type {
   Identity,
   Project,
   Skill,
+  PortfolioData,
 } from '../data/portfolio';
 
 export function esc(value: unknown): string {
@@ -253,4 +254,215 @@ export function renderGalleryGrid(items: GalleryItem[], limit?: number): string 
 </button>`,
     )
     .join('');
+}
+
+/**
+ * Renders the clean, authentic 2-column A4 CV paper layout dynamically from PortfolioData.
+ * Shared across SSR (build time) and client-side (real-time live edits / PDF export).
+ */
+export function renderCvSheetHtml(d: PortfolioData): string {
+  const i = d.identity;
+  const fullName = String(i.name || 'Nguyen Thanh Quan').toUpperCase();
+  const contactParts = [
+    i.email ? esc(i.email) : '',
+    i.phone ? esc(i.phone) : '',
+    i.location ? esc(i.location) : '',
+  ].filter(Boolean);
+
+  const links: { label: string; url: string }[] = [];
+  if (i.github?.url) links.push({ label: 'GITHUB', url: i.github.url });
+  links.push({ label: 'PORTFOLIO', url: 'https://quanblue.netlify.app/' });
+  if (i.youtube?.url) links.push({ label: 'YOUTUBE', url: i.youtube.url });
+  if (i.linkedin?.url) links.push({ label: 'LINKEDIN', url: i.linkedin.url });
+
+  const linksMarkup = links
+    .map(
+      (l) =>
+        `<a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-700 underline underline-offset-2">${esc(l.label)}</a>`,
+    )
+    .join('<span>|</span>');
+
+  // Bio / About Me
+  const bioParagraphs = String(i.bio || '')
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  // Skills: 2-column balanced list
+  const skills = d.skills || [];
+  const half = Math.ceil(skills.length / 2);
+  const leftSkills = skills.slice(0, half);
+  const rightSkills = skills.slice(half);
+
+  const renderSkillList = (list: Skill[]) =>
+    list
+      .map(
+        (s) =>
+          `<li><span class="font-medium text-zinc-900">${esc(s.name)}</span> <span class="text-zinc-500 font-mono text-[11px]">${esc(s.tag)}</span></li>`,
+      )
+      .join('');
+
+  // Experience
+  const expItems = (d.experience || [])
+    .map((exp) => {
+      const bullets = (exp.bullets || []).map((b) => `<li><span>${esc(b)}</span></li>`).join('');
+      const techLine = exp.tags?.length
+        ? `<li><span class="font-semibold text-zinc-900">Technologies:</span> ${exp.tags.map(esc).join(', ')}</li>`
+        : '';
+      return `<div>
+      <div class="flex items-baseline justify-between font-bold text-zinc-950">
+        <span class="text-[13px] sm:text-sm">${esc(exp.role)} — ${esc(exp.company)}</span>
+        <span class="font-normal text-zinc-600 text-xs">${esc(exp.period)}</span>
+      </div>
+      <ul class="mt-1 space-y-0.5 list-disc list-inside text-zinc-800 text-xs sm:text-[13px]">
+        ${bullets}
+        ${techLine}
+      </ul>
+    </div>`;
+    })
+    .join('');
+
+  // Projects
+  const projectItems = (d.projects || [])
+    .map((p) => {
+      const techLine = p.tags?.length
+        ? `<li><span class="font-semibold text-zinc-900">Technologies:</span> ${p.tags.map(esc).join(', ')}</li>`
+        : '';
+      const linkLine = p.link
+        ? `<li><a href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800 font-medium">${p.link.includes('github') ? 'Source code' : 'Demo / Link'} ↗</a></li>`
+        : '';
+      return `<div>
+      <div class="flex items-baseline justify-between font-bold text-zinc-950">
+        <span class="text-[13px] sm:text-sm uppercase">${esc(p.title)}</span>
+        <span class="font-mono text-xs ${p.status === 'ONLINE' ? 'text-emerald-700' : 'text-zinc-500'}">● ${esc(p.status)}</span>
+      </div>
+      <ul class="mt-1 space-y-0.5 list-disc list-inside text-zinc-800 text-xs sm:text-[13px]">
+        <li><span>Description: ${esc(p.description || p.shortDesc)}</span></li>
+        ${techLine}
+        ${linkLine}
+      </ul>
+    </div>`;
+    })
+    .join('');
+
+  // Education
+  const eduItems = (d.education || [])
+    .map((ed) => {
+      return `<div>
+      <div class="flex items-baseline justify-between font-bold text-zinc-950">
+        <span class="text-[13px] sm:text-sm uppercase">${esc(ed.school)}</span>
+        <span class="font-normal text-zinc-600 text-xs">${esc(ed.period)}</span>
+      </div>
+      <div class="text-zinc-800 text-xs sm:text-[13px] mt-0.5 font-medium">${esc(ed.degree)}</div>
+      ${ed.description ? `<p class="text-zinc-700 text-xs mt-0.5">${esc(ed.description)}</p>` : ''}
+    </div>`;
+    })
+    .join('');
+
+  // Certifications (optional)
+  const certItems = (d.certifications || [])
+    .map((c) => {
+      return `<li><span class="font-semibold text-zinc-950">${esc(c.name)}</span> — <span class="text-zinc-600">${esc(c.issuer)}</span></li>`;
+    })
+    .join('');
+
+  return `<!-- Header: Centered Full Name, Contacts, Links -->
+<header class="text-center pb-2">
+  <h1 id="cv-sheet-name" class="text-2xl sm:text-3xl font-extrabold uppercase tracking-wide text-zinc-950">
+    ${esc(fullName)}
+  </h1>
+  <p id="cv-sheet-contact" class="text-xs sm:text-[13px] text-zinc-700 mt-2 font-normal">
+    ${contactParts.join(' | ')}
+  </p>
+  <div class="flex flex-wrap items-center justify-center gap-2 text-xs font-bold uppercase text-zinc-900 mt-1.5 tracking-wider">
+    ${linksMarkup}
+  </div>
+</header>
+
+<hr class="border-t-2 border-zinc-950 my-3 sm:my-4" />
+
+<div class="space-y-4 sm:space-y-5">
+  <!-- Section 1: ABOUT ME -->
+  <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+    <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
+      ABOUT ME
+    </div>
+    <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-2">
+      ${bioParagraphs.map((p) => `<p>${esc(p)}</p>`).join('')}
+    </div>
+  </section>
+
+  <!-- Section 2: SKILLS -->
+  <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+    <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
+      SKILLS
+    </div>
+    <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
+      <ul class="space-y-1 list-disc list-inside">
+        ${renderSkillList(leftSkills)}
+      </ul>
+      <ul class="space-y-1 list-disc list-inside">
+        ${renderSkillList(rightSkills)}
+      </ul>
+    </div>
+  </section>
+
+  ${
+    expItems
+      ? `<!-- Section 3: EXPERIENCE -->
+  <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+    <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5 leading-snug">
+      EXPERIENCE
+    </div>
+    <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-3">
+      ${expItems}
+    </div>
+  </section>`
+      : ''
+  }
+
+  ${
+    projectItems
+      ? `<!-- Section 4: PROJECT/ OPEN-SOURCE -->
+  <section class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+    <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5 leading-snug">
+      PROJECT/<br />OPEN-SOURCE
+    </div>
+    <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-3">
+      ${projectItems}
+    </div>
+  </section>`
+      : ''
+  }
+
+  ${
+    eduItems
+      ? `<!-- Section 5: EDUCATION -->
+  <section class="flex flex-col sm:flex-row gap-3 sm:gap-6 pt-1">
+    <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
+      EDUCATION
+    </div>
+    <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed space-y-2">
+      ${eduItems}
+    </div>
+  </section>`
+      : ''
+  }
+
+  ${
+    certItems
+      ? `<!-- Section 6: CERTIFICATIONS -->
+  <section class="flex flex-col sm:flex-row gap-3 sm:gap-6 pt-1">
+    <div class="w-full sm:w-44 shrink-0 font-bold text-xs sm:text-sm uppercase tracking-wider text-zinc-950 pt-0.5">
+      CERTIFICATIONS
+    </div>
+    <div class="flex-1 min-w-0 text-xs sm:text-[13px] text-zinc-800 leading-relaxed">
+      <ul class="space-y-1 list-disc list-inside">
+        ${certItems}
+      </ul>
+    </div>
+  </section>`
+      : ''
+  }
+</div>`;
 }
