@@ -2,16 +2,33 @@
 import { portfolioData } from '../../data/portfolio';
 const { telemetry } = portfolioData;
 
-const months = ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
-// Generate a clean 26-column by 7-row activity pattern
-const seed = [
-  [0, 1, 2, 3, 1, 0, 2], [1, 2, 3, 2, 1, 1, 0], [0, 1, 1, 2, 3, 1, 0], [2, 3, 4, 3, 2, 1, 1],
-  [1, 2, 2, 1, 0, 1, 2], [3, 4, 3, 2, 1, 0, 1], [1, 1, 2, 3, 4, 2, 1], [0, 2, 3, 1, 2, 3, 0],
-  [2, 3, 4, 3, 2, 1, 2], [1, 1, 2, 3, 2, 1, 0], [3, 4, 4, 3, 2, 1, 1], [0, 1, 2, 3, 2, 1, 0],
-  [2, 3, 1, 2, 3, 4, 1], [1, 2, 3, 2, 1, 0, 1], [3, 4, 3, 2, 1, 2, 3], [1, 0, 2, 3, 4, 3, 1],
-  [2, 3, 4, 3, 2, 1, 0], [1, 2, 3, 1, 2, 3, 2], [0, 1, 2, 3, 4, 3, 1], [3, 4, 3, 2, 1, 0, 2],
-  [1, 2, 1, 3, 4, 2, 1], [2, 3, 4, 3, 2, 1, 0], [1, 1, 2, 3, 2, 1, 2], [3, 4, 3, 2, 1, 0, 1],
-  [2, 3, 4, 3, 2, 1, 2], [4, 4, 3, 2, 1, 2, 3],
+const rawCal =
+  '003033000000003030300300000030330033000000000300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000030343333003304304033643400300003000000003000300000000000000000000000000000000000000000000000000334694567669558363475400036840003054303003554440043303043033400343034444345799675779536689944';
+
+const weeks52: number[][] = [];
+for (let i = 0; i < 52; i++) {
+  const week: number[] = [];
+  for (let d = 0; d < 7; d++) {
+    const val = Number(rawCal[i * 7 + d]) || 0;
+    const lvl = val === 0 ? 0 : val <= 3 ? 1 : val <= 5 ? 2 : val <= 7 ? 3 : 4;
+    week.push(lvl);
+  }
+  weeks52.push(week);
+}
+
+const monthMarkers = [
+  { name: 'Dec', week: 0 },
+  { name: 'Jan', week: 4 },
+  { name: 'Feb', week: 8 },
+  { name: 'Mar', week: 13 },
+  { name: 'Apr', week: 17 },
+  { name: 'May', week: 21 },
+  { name: 'Jun', week: 26 },
+  { name: 'Jul', week: 30 },
+  { name: 'Aug', week: 35 },
+  { name: 'Sep', week: 39 },
+  { name: 'Oct', week: 43 },
+  { name: 'Nov', week: 48 },
 ];
 ---
 
@@ -68,8 +85,8 @@ const seed = [
       </div>
     </div>
 
-    <!-- Forkfolio-style Activity Heatmap Matrix -->
-    <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-4">
+    <!-- Forkfolio-style Activity Heatmap Matrix (Full 52 Weeks) -->
+    <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-5">
       <span class="ff-cross-tl">+</span>
       <span class="ff-cross-tr">+</span>
       <span class="ff-cross-bl">+</span>
@@ -77,31 +94,47 @@ const seed = [
 
       <div class="flex items-center justify-between border-b border-[var(--border)] pb-3 font-mono text-xs">
         <span class="text-[var(--fg)] font-bold">// INFRASTRUCTURE_ACTIVITY_HEATMAP</span>
-        <span class="text-[var(--muted-fg)]">Last 12 Months · 111 Active Days</span>
+        <span class="text-[var(--muted-fg)]">Last 12 Months · 1,680 Contributions</span>
       </div>
 
       <!-- Month Labels -->
       <div class="overflow-x-auto pb-2">
-        <div class="min-w-[580px] space-y-2">
-          <div class="flex justify-between font-mono text-[10px] text-[var(--muted-fg)] px-1">
-            {months.map((m) => (
-              <span>{m}</span>
+        <div class="min-w-[780px] space-y-2">
+          <div class="relative h-4 text-[10px] text-[var(--muted-fg)] font-mono pl-8">
+            {monthMarkers.map((m) => (
+              <span
+                class="absolute top-0 -translate-x-1/2 first:translate-x-0"
+                style={`left: calc(2rem + ${(m.week / 52) * 100}% * 0.96);`}
+              >
+                {m.name}
+              </span>
             ))}
           </div>
 
           <!-- Heatmap grid -->
-          <div class="flex gap-1.5 p-2 rounded-xl bg-[var(--muted-bg)]/40 border border-[var(--border)]">
-            {seed.map((week) => (
-              <div class="flex flex-col gap-1.5">
-                {week.map((level) => (
-                  <span class={`ff-heatmap-cell ${level > 0 ? `ff-heatmap-${level}` : ''}`} title={`Level ${level}`}></span>
-                ))}
-              </div>
-            ))}
+          <div class="flex items-start gap-2">
+            <div class="flex flex-col justify-between h-[86px] text-[9px] text-[var(--muted-fg)] select-none pt-0.5 w-6 shrink-0 font-mono">
+              <span>Mon</span>
+              <span>Wed</span>
+              <span>Fri</span>
+            </div>
+
+            <div class="flex gap-1.5 p-2.5 rounded-xl bg-[var(--muted-bg)]/40 border border-[var(--border)] flex-grow justify-between">
+              {weeks52.map((week, wIdx) => (
+                <div class="flex flex-col gap-1.5">
+                  {week.map((level, dIdx) => (
+                    <span
+                      class={`ff-heatmap-cell ${level > 0 ? `ff-heatmap-${level}` : ''}`}
+                      title={`Week ${wIdx + 1}, Day ${dIdx + 1} · Level ${level}`}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div class="flex items-center justify-between font-mono text-[11px] text-[var(--muted-fg)] pt-1 px-1">
-            <span>Longest streak: <strong class="text-[var(--fg)]">26 days</strong></span>
+          <div class="flex items-center justify-between font-mono text-[11px] text-[var(--muted-fg)] pt-2 px-1">
+            <span>Longest streak: <strong class="text-[var(--fg)]">26 days</strong> · Active days: <strong class="text-[var(--signal)]">111 days</strong></span>
             <div class="flex items-center gap-1.5">
               <span>Less</span>
               <span class="ff-heatmap-cell"></span>
