@@ -1,17 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import AsciiTheme from '../components/themes/AsciiTheme.astro';
 import ForkfolioTheme from '../components/themes/ForkfolioTheme.astro';
 import EditorialTheme from '../components/themes/EditorialTheme.astro';
 import ProjectModal from '../components/dashboard/ProjectModal.astro';
 import CvModal from '../components/dashboard/CvModal.astro';
 import { portfolioData } from '../data/portfolio';
 
-const initialTheme = portfolioData.identity?.themeVariant || 'forkfolio';
+const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
 ---
 
 <BaseLayout title="Nguyễn Thanh Quân — DevOps & Infrastructure Engineer" currentPath="/">
   <main class="flex-grow" id="main-content">
-    <!-- Theme 1: Forkfolio Modern Mono (Bright, minimalist developer theme) -->
+    <!-- Theme 0: Forkfolio Authentic ASCII Character Art Theme -->
+    <div id="theme-ascii-wrapper" class={initialTheme === 'ascii' ? 'block' : 'hidden'}>
+      <AsciiTheme />
+    </div>
+
+    <!-- Theme 1: Forkfolio Modern Clean Mono (Bright, minimalist developer theme) -->
     <div id="theme-forkfolio-wrapper" class={initialTheme === 'forkfolio' ? 'block' : 'hidden'}>
       <ForkfolioTheme />
     </div>
@@ -103,7 +109,8 @@ const initialTheme = portfolioData.identity?.themeVariant || 'forkfolio';
   window.addEventListener('scroll', onExperienceScroll, { passive: true });
   window.addEventListener('resize', onExperienceScroll, { passive: true });
 
-  // 3. Dynamic Theme Variant Switcher (Forkfolio ⇄ Editorial)
+  // 3. Dynamic Theme Variant Switcher (ASCII ⇄ Forkfolio ⇄ Editorial)
+  const asciiWrapper = document.getElementById('theme-ascii-wrapper');
   const ffWrapper = document.getElementById('theme-forkfolio-wrapper');
   const edWrapper = document.getElementById('theme-editorial-wrapper');
   const variantBtn = document.getElementById('theme-variant-toggle');
@@ -111,21 +118,25 @@ const initialTheme = portfolioData.identity?.themeVariant || 'forkfolio';
   const brandName = document.getElementById('hdr-brand-name');
   const brandSub = document.getElementById('hdr-brand-sub');
 
-  let activeThemeVariant: 'forkfolio' | 'editorial' = 'forkfolio';
+  type ThemeVariant = 'ascii' | 'forkfolio' | 'editorial';
+  let activeThemeVariant: ThemeVariant = 'ascii';
 
-  function applyThemeVariant(variant: 'forkfolio' | 'editorial', persist = false) {
+  function applyThemeVariant(variant: ThemeVariant, persist = false) {
     activeThemeVariant = variant;
-    const isForkfolio = variant === 'forkfolio';
 
-    if (ffWrapper) ffWrapper.classList.toggle('hidden', !isForkfolio);
-    if (edWrapper) edWrapper.classList.toggle('hidden', isForkfolio);
+    if (asciiWrapper) asciiWrapper.classList.toggle('hidden', variant !== 'ascii');
+    if (ffWrapper) ffWrapper.classList.toggle('hidden', variant !== 'forkfolio');
+    if (edWrapper) edWrapper.classList.toggle('hidden', variant !== 'editorial');
 
     if (variantLabel) {
-      variantLabel.textContent = isForkfolio ? 'Forkfolio' : 'Editorial';
+      variantLabel.textContent = variant === 'ascii' ? 'ASCII' : variant === 'forkfolio' ? 'Forkfolio' : 'Editorial';
     }
 
     if (brandName && brandSub) {
-      if (isForkfolio) {
+      if (variant === 'ascii') {
+        brandName.textContent = 'quan@infra-node:~$';
+        brandSub.textContent = 'devops · sre';
+      } else if (variant === 'forkfolio') {
         brandName.textContent = 'nguyen.thanh.quan';
         brandSub.textContent = 'devops · sre';
       } else {
@@ -140,7 +151,7 @@ const initialTheme = portfolioData.identity?.themeVariant || 'forkfolio';
       localStorage.setItem('user-theme-variant', variant);
     }
 
-    if (!isForkfolio) {
+    if (variant === 'editorial') {
       requestAnimationFrame(() => {
         observeReveals();
         onExperienceScroll();
@@ -148,27 +159,29 @@ const initialTheme = portfolioData.identity?.themeVariant || 'forkfolio';
     }
   }
 
-  // Check URL query param first: ?theme=editorial or ?theme=forkfolio
+  // Check URL query param first: ?theme=ascii or ?theme=forkfolio or ?theme=editorial
   const urlParams = new URLSearchParams(window.location.search);
-  const qTheme = urlParams.get('theme');
-  if (qTheme === 'editorial' || qTheme === 'forkfolio') {
+  const qTheme = urlParams.get('theme') as ThemeVariant;
+  if (qTheme === 'ascii' || qTheme === 'forkfolio' || qTheme === 'editorial') {
     applyThemeVariant(qTheme);
   } else {
     // Check saved user preference or window portfolio data
-    const saved = localStorage.getItem('user-theme-variant');
-    const storeTheme = (window as any).__PORTFOLIO__?.identity?.themeVariant;
-    if (saved === 'editorial' || saved === 'forkfolio') {
+    const saved = localStorage.getItem('user-theme-variant') as ThemeVariant;
+    const storeTheme = (window as any).__PORTFOLIO__?.identity?.themeVariant as ThemeVariant;
+    if (saved === 'ascii' || saved === 'forkfolio' || saved === 'editorial') {
       applyThemeVariant(saved);
-    } else if (storeTheme === 'editorial' || storeTheme === 'forkfolio') {
+    } else if (storeTheme === 'ascii' || storeTheme === 'forkfolio' || storeTheme === 'editorial') {
       applyThemeVariant(storeTheme);
     } else {
-      applyThemeVariant('forkfolio');
+      applyThemeVariant('ascii');
     }
   }
 
+  const cycleOrder: ThemeVariant[] = ['ascii', 'forkfolio', 'editorial'];
   variantBtn?.addEventListener('click', () => {
-    const next = activeThemeVariant === 'forkfolio' ? 'editorial' : 'forkfolio';
-    applyThemeVariant(next, true);
+    const currentIndex = cycleOrder.indexOf(activeThemeVariant);
+    const nextIndex = (currentIndex + 1) % cycleOrder.length;
+    applyThemeVariant(cycleOrder[nextIndex], true);
   });
 
   // Listen to remote changes or Admin Saves

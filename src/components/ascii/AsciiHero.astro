@@ -1,0 +1,212 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { safeUrl } from '../../lib/render';
+const { identity, telemetry } = portfolioData;
+---
+
+<section id="top" class="relative pt-10 pb-16 sm:pt-16 sm:pb-20 border-b border-[var(--border)] overflow-hidden font-mono">
+  <!-- Subtle ASCII Matrix Background Grid -->
+  <div class="ascii-matrix-bg absolute inset-0 opacity-15 pointer-events-none select-none overflow-hidden text-[10px] leading-3 text-[var(--signal)] font-mono" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-8">
+    <!-- Top Terminal Header Prompt -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-3 text-xs text-[var(--muted-fg)]">
+      <div class="flex items-center gap-2">
+        <span class="inline-block size-2 rounded-full bg-[var(--signal)] animate-pulse"></span>
+        <span class="text-[var(--signal)] font-bold">quan@infra-node:~$</span>
+        <span class="text-[var(--fg)]">cat /etc/banner.ascii</span>
+      </div>
+      <div class="flex items-center gap-3 text-[11px]">
+        <span>[ ARCH: X86_64 ]</span>
+        <span>[ UPTIME: <strong class="text-[var(--signal)]">{telemetry.uptimeSLA}</strong> ]</span>
+        <span>[ STATUS: <strong class="text-[var(--signal)]">ONLINE</strong> ]</span>
+      </div>
+    </div>
+
+    <!-- Giant ASCII Art Title Banner (Authentic Forkfolio ASCII Style) -->
+    <div class="overflow-x-auto py-2">
+      <pre class="font-mono text-[9px] sm:text-[13px] md:text-[15px] lg:text-[17px] leading-[1.1] font-bold text-[var(--fg)] select-all tracking-tight whitespace-pre" aria-label="NGUYEN THANH QUAN">
+ _   _  ____ _   _ _   _ _____ _   _   _____ _   _    _    _   _ _   _    ___  _   _    _    _   _ 
+| \ | |/ ___| | | | \ | | ____| \ | | |_   _| | | |  / \  | \ | | | | |  / _ \| | | |  / \  | \ | |
+|  \| | |  _| | | |  \| |  _| |  \| |   | | | |_| | / _ \ |  \| | | | | | | | | | | | / _ \ |  \| |
+| |\  | |_| | |_| | |\  | |___| |\  |   | | |  _  |/ ___ \| |\  | |_| | | |_| | |_| |/ ___ \| |\  |
+|_| \_|\____|\___/|_| \_|_____|_| \_|   |_| |_| |_/_/   \_\_| \_|\___/   \__\_\\___//_/   \_\_| \_|
+      </pre>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Left Hero Details (lg:col-span-8) -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- Subtitle & Role -->
+        <div class="space-y-1">
+          <p class="text-sm sm:text-base font-bold text-[var(--signal)]">
+            &gt; <span data-bind="role">{identity.role}</span> @ Viettel Group
+          </p>
+          <p class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed">
+            High-Availability Kubernetes · 100% Air-Gapped Ansible Automation · DevSecOps Supply Chain
+          </p>
+        </div>
+
+        <!-- Bio text -->
+        <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed">
+          <p data-bind="bio">{identity.bio}</p>
+        </div>
+
+        <!-- Action Links in Monospace Brackets -->
+        <div class="flex flex-wrap items-center gap-2.5 text-xs">
+          <a href="#projects" class="ff-btn ff-btn-primary">
+            [ view_projects → ]
+          </a>
+          <a href="#experience" class="ff-btn">
+            [ career_path ↓ ]
+          </a>
+          <button type="button" data-open-cv="1" class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10">
+            [ view_cv.pdf 📄 ]
+          </button>
+          <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="ff-btn">
+            [ github: @QuanBlue ↗ ]
+          </a>
+          <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="ff-btn">
+            [ linkedin: in/quanblue ↗ ]
+          </a>
+        </div>
+
+        <!-- System Node Info Box -->
+        <div class="p-3.5 rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)] text-[11px] text-[var(--muted-fg)] grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <span class="text-[var(--faint)] block uppercase text-[10px]">Node</span>
+            <span class="text-[var(--fg)] font-bold" data-bind="node">{identity.node}</span>
+          </div>
+          <div>
+            <span class="text-[var(--faint)] block uppercase text-[10px]">Host IP</span>
+            <span class="text-[var(--fg)] font-bold" data-bind="ip">{identity.ip}</span>
+          </div>
+          <div>
+            <span class="text-[var(--faint)] block uppercase text-[10px]">Location</span>
+            <span class="text-[var(--fg)] font-bold truncate block" data-bind="location">{identity.location}</span>
+          </div>
+          <div>
+            <span class="text-[var(--faint)] block uppercase text-[10px]">SPOF Tolerance</span>
+            <span class="text-[var(--signal)] font-bold">Zero-Downtime</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live ASCII Avatar Portrait Generator (lg:col-span-4) -->
+      <div class="lg:col-span-4 flex flex-col items-center lg:items-end">
+        <div class="ff-cross-box w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 space-y-3 shadow-md">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-2 text-[11px] text-[var(--muted-fg)]">
+            <span class="font-bold text-[var(--fg)]">// ASCII_PORTRAIT_STREAM</span>
+            <span class="text-[var(--signal)]">● DITHERED</span>
+          </div>
+
+          <!-- Pre-formatted ASCII Art Portrait (rendered dynamically from avatar or fallback) -->
+          <div class="bg-[var(--muted-bg)]/80 rounded-lg p-3 overflow-hidden flex items-center justify-center border border-[var(--border)]">
+            <pre
+              id="ascii-avatar-art"
+              class="font-mono text-[7px] sm:text-[8px] leading-[1.0] text-[var(--signal)] select-none text-center tracking-tighter"
+              data-src={identity.avatar || ''}
+            >
+              +--------------------------+
+              |   [ LOADING ASCII ART ]  |
+              |     .::*#@@@@@@#*::.     |
+              |   .+%@@@@@@@@@@@@@@%+.   |
+              |  .#@@@@@@@@@@@@@@@@@@#.  |
+              |  *@@@@@@@@@@@@@@@@@@@@*  |
+              |  %@@@@@@@@@@@@@@@@@@@@%  |
+              |  #@@@@@@@@@@@@@@@@@@@@#  |
+              |  *@@@@@@@@@@@@@@@@@@@@*  |
+              |  .#@@@@@@@@@@@@@@@@@@#.  |
+              |   .+%@@@@@@@@@@@@@@%+.   |
+              |     .::*#@@@@@@#*::.     |
+              |  DevOps Infrastructure   |
+              +--------------------------+
+            </pre>
+          </div>
+
+          <div class="flex items-center justify-between text-[10px] text-[var(--muted-fg)] pt-1">
+            <span>RES: 48x28 GLYPHS</span>
+            <span class="text-[var(--fg)] font-semibold">{identity.name}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Client-side ASCII Portrait Generator & Matrix background -->
+<script>
+  function generateAsciiPortrait() {
+    const el = document.getElementById('ascii-avatar-art');
+    if (!el) return;
+
+    const src = el.dataset.src;
+    if (!src) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const cols = 44;
+      const rows = 24;
+      const canvas = document.createElement('canvas');
+      canvas.width = cols;
+      canvas.height = rows;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+
+      ctx.drawImage(img, 0, 0, cols, rows);
+      const imgData = ctx.getImageData(0, 0, cols, rows).data;
+      const ramp = ' .:-=+*#%@';
+      let ascii = '';
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const idx = (y * cols + x) * 4;
+          const r = imgData[idx];
+          const g = imgData[idx + 1];
+          const b = imgData[idx + 2];
+          const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          const charIdx = Math.min(ramp.length - 1, Math.floor(brightness * ramp.length));
+          ascii += ramp[charIdx];
+        }
+        ascii += '\n';
+      }
+      el.textContent = ascii;
+    };
+    img.src = src;
+  }
+
+  function initMatrixBg() {
+    const bg = document.querySelector('.ascii-matrix-bg');
+    if (!bg) return;
+    const chars = '01#@$%&*+-=~.:;/\\|';
+    let lines = [];
+    for (let i = 0; i < 28; i++) {
+      let line = '';
+      for (let j = 0; j < 90; j++) {
+        line += chars[Math.floor(Math.random() * chars.length)];
+      }
+      lines.push(line);
+    }
+    bg.textContent = lines.join('\n');
+  }
+
+  generateAsciiPortrait();
+  initMatrixBg();
+
+  window.addEventListener('portfolio:data', (e) => {
+    const detail = (e as CustomEvent).detail;
+    if (detail?.identity?.avatar) {
+      const el = document.getElementById('ascii-avatar-art');
+      if (el) {
+        el.dataset.src = detail.identity.avatar;
+        generateAsciiPortrait();
+      }
+    }
+  });
+</script>

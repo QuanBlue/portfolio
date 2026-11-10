@@ -53,7 +53,7 @@ describe('Portfolio Central Data Model', () => {
     expect(portfolioData.telemetry.uptimeSLA).toBe('99.9%');
   });
 
-  it('supports themeVariant configuration with forkfolio as default', () => {
-    expect(portfolioData.identity.themeVariant).toBe('forkfolio');
+  it('supports themeVariant configuration (ascii | forkfolio | editorial)', () => {
+    expect(['ascii', 'forkfolio', 'editorial']).toContain(portfolioData.identity.themeVariant);
   });
 });

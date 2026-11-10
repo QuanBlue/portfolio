@@ -1,0 +1,103 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const { identity } = portfolioData;
+---
+
+<section id="about" class="scroll-mt-20 py-16 sm:py-20 border-b border-[var(--border)] font-mono">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-10">
+    <!-- ASCII Title Banner -->
+    <div class="space-y-2">
+      <span class="text-xs text-[var(--signal)] font-semibold tracking-wider">// 01. SECTION_ABOUT</span>
+      <div class="overflow-x-auto py-1">
+        <pre class="font-mono text-[9px] sm:text-[13px] md:text-[15px] font-bold text-[var(--fg)] tracking-tight leading-[1.1] select-all" aria-label="ABOUT">
+    _    ____   ___  _   _ _____ 
+   / \  | __ ) / _ \| | | |_   _|
+  / _ \ |  _ \| | | | | | | | |  
+ / ___ \| |_) | |_| | |_| | | |  
+/_/   \_\____/ \___/ \___/  |_|  
+        </pre>
+      </div>
+    </div>
+
+    <!-- 2 Column Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-7 space-y-5 text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-sans">
+        <p class="text-base text-[var(--fg)] font-medium font-mono">
+          &gt; Tốt nghiệp Kỹ sư CNTT chuyên ngành Mạng &amp; Hệ thống phân tán, mình đảm nhận vai trò <strong class="text-[var(--signal)]"><span data-bind="role">{identity.role}</span> tại Viettel</strong>.
+        </p>
+        <p>
+          Với kinh nghiệm xây dựng các hệ thống chịu tải cao từ cấp độ bare-metal kernel cho đến orchestration đám mây, mình luôn chú trọng vào độ ổn định 99.9% uptime, tự động hóa toàn diện và tính bảo mật của chuỗi cung ứng container.
+        </p>
+
+        <!-- 4 Architecture ASCII Boxes -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 font-mono text-xs">
+          <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
+            <span class="text-[var(--signal)] font-bold">[ 01. HA_PLATFORM ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]">Cụm K8s multi-master chịu lỗi cao, Keepalived/HAProxy không điểm nghẽn.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
+            <span class="text-[var(--signal)] font-bold">[ 02. AIRGAP_IAC ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]">Ansible Playbooks triển khai 100% tự động trong môi trường biệt lập.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
+            <span class="text-[var(--signal)] font-bold">[ 03. SUPPLY_CHAIN ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]">Quét Trivy, sinh SBOM tự động, ký số &amp; xác thực Image trước khi deploy.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
+            <span class="text-[var(--signal)] font-bold">[ 04. SRE_METRICS ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]">Prometheus, Grafana, Alertmanager &amp; ELK Stack giám sát toàn diện 24/7.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Infrastructure Fact Sheet Table -->
+      <div class="lg:col-span-5">
+        <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 space-y-4">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-2 text-xs">
+            <span class="font-bold text-[var(--fg)]">// SPECS_TABLE</span>
+            <span class="text-[var(--signal)]">[ VALIDATED ]</span>
+          </div>
+
+          <dl class="divide-y divide-[var(--border)] text-xs">
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">Role</dt>
+              <dd class="text-[var(--fg)] font-bold text-right" data-bind="role">{identity.role}</dd>
+            </div>
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">Company</dt>
+              <dd class="text-[var(--fg)] font-bold text-right">Viettel Group</dd>
+            </div>
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">Location</dt>
+              <dd class="text-[var(--fg)] font-bold text-right" data-bind="location">{identity.location}</dd>
+            </div>
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">Networking</dt>
+              <dd class="text-[var(--fg)] font-bold text-right">BGP / VRRP / Calico CNI</dd>
+            </div>
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">Supply Chain</dt>
+              <dd class="text-[var(--fg)] font-bold text-right">Trivy + SBOM + Cosign</dd>
+            </div>
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">IaC Engine</dt>
+              <dd class="text-[var(--fg)] font-bold text-right">Ansible Core Playbooks</dd>
+            </div>
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">Uptime SLA</dt>
+              <dd class="text-[var(--signal)] font-bold text-right">99.9% Zero-SPOF</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

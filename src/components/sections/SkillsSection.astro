@@ -2,108 +2,133 @@
 import { portfolioData } from '../../data/portfolio';
 import { renderSkills } from '../../lib/render';
 const { skills } = portfolioData;
+
+const layers = [
+  {
+    num: '01',
+    category: 'Orchestration & Mesh',
+    desc: 'Kubernetes HA clusters, container runtime & zero-trust service mesh.',
+    tools: [
+      { name: 'Kubernetes', tag: 'k8s-core', primary: true },
+      { name: 'Docker / Containerd', tag: 'runtime', primary: true },
+      { name: 'Istio', tag: 'svc-mesh', primary: false },
+    ],
+  },
+  {
+    num: '02',
+    category: 'IaC & Supply Chain',
+    desc: 'Air-gapped automation, vulnerability scanning & image signing.',
+    tools: [
+      { name: 'Ansible', tag: 'cfg-mgmt', primary: true },
+      { name: 'Jenkins CI/CD', tag: 'pipeline', primary: true },
+      { name: 'Trivy + SBOM + Cosign', tag: 'devsecops', primary: true },
+    ],
+  },
+  {
+    num: '03',
+    category: 'Observability & SRE',
+    desc: 'Full-stack metrics, distributed traces & proactive alerting.',
+    tools: [
+      { name: 'Prometheus', tag: 'metrics-tsdb', primary: true },
+      { name: 'Grafana', tag: 'dashboards', primary: true },
+      { name: 'Alertmanager + ELK', tag: 'logs-alert', primary: false },
+    ],
+  },
+  {
+    num: '04',
+    category: 'Linux & Networking',
+    desc: 'Kernel tuning, high-availability load balancing & networking.',
+    tools: [
+      { name: 'Linux / Ubuntu Kernel', tag: 'sys-kernel', primary: true },
+      { name: 'HAProxy', tag: 'l4-l7-proxy', primary: true },
+      { name: 'Keepalived (VRRP)', tag: 'vip-failover', primary: false },
+    ],
+  },
+];
 ---
 
 <section id="skills" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
-  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8">
-    <div class="max-w-[46rem]">
-      <p class="reveal text-label text-[var(--signal)] mb-2">04 · Architecture Stack</p>
-      <h2 class="reveal-wipe text-h2 text-[var(--fg)]">My stack, from OS kernel to cluster.</h2>
-      <p class="reveal text-lead mt-3 text-[var(--muted-fg)]" style="--d: 0.08s">
-        Các công cụ mình sử dụng hàng ngày, được sắp xếp theo từng lớp kiến trúc hạ tầng.
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-10">
+    <!-- Eyebrow & Headline matching user screenshot -->
+    <div class="space-y-2">
+      <p class="reveal font-mono text-xs text-[var(--signal)] tracking-wider uppercase font-semibold">
+        // 05. SKILLS &amp; ARCHITECTURE
       </p>
+      <h2 class="reveal-wipe font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+        SKILLS
+      </h2>
     </div>
 
-    <p class="reveal mt-7 flex items-center gap-2 text-xs font-mono text-[var(--muted-fg)]">
-      <span class="size-3 rounded-[3px] border-2 border-[var(--signal)]"></span>
-      <span>Viền xanh: Công nghệ chủ lực đang vận hành hàng ngày</span>
-    </p>
+    <!-- 4 Architectural Layer Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {layers.map((layer, idx) => (
+        <div
+          class="reveal ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4 hover:border-[var(--line-strong)] transition"
+          style={`--d: ${idx * 0.06}s`}
+        >
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
 
-    <ol class="mt-5 border-b border-[var(--border)]">
-      <!-- Layer 1 -->
-      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline">
-        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Orchestration &amp; Mesh</h3>
-        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="devicon-kubernetes-plain colored"></i> Kubernetes (HA)
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="devicon-docker-plain colored"></i> Docker / Containerd
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="fa-solid fa-dharmachakra"></i> Helm &amp; Kustomize
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="fa-solid fa-diagram-project text-sky-400"></i> Istio Service Mesh
-          </li>
-        </ul>
-      </li>
+          <!-- Card Header: // 01 ... LAYER -->
+          <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-2.5">
+            <span class="text-[var(--signal)] font-bold">// {layer.num}</span>
+            <span class="text-[var(--muted-fg)] uppercase tracking-wider text-[11px]">LAYER</span>
+          </div>
 
-      <!-- Layer 2 -->
-      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.06s">
-        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">IaC &amp; CI/CD Supply Chain</h3>
-        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="devicon-jenkins-line"></i> Jenkins Pipelines
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="devicon-ansible-plain"></i> Ansible Playbooks
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="fa-solid fa-shield-virus text-emerald-400"></i> Trivy + SBOM + Cosign
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="devicon-gitlab-plain colored"></i> GitLab CI / GitHub Actions
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="fa-solid fa-box"></i> Harbor Local Registry
-          </li>
-        </ul>
-      </li>
+          <!-- Layer Name & Description -->
+          <div class="space-y-1">
+            <h3 class="font-mono text-base font-bold text-[var(--fg)] tracking-tight">
+              {layer.category}
+            </h3>
+            <p class="text-xs text-[var(--muted-fg)] leading-relaxed font-sans">
+              {layer.desc}
+            </p>
+          </div>
 
-      <!-- Layer 3 -->
-      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.12s">
-        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Observability &amp; SRE</h3>
-        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="devicon-prometheus-original colored"></i> Prometheus
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="devicon-grafana-plain colored"></i> Grafana
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="fa-solid fa-bell"></i> Alertmanager
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="fa-solid fa-magnifying-glass-chart"></i> ELK Stack (Elasticsearch, Logstash, Kibana)
-          </li>
-        </ul>
-      </li>
+          <!-- Tools List with [tags] -->
+          <div class="space-y-2.5 pt-3 border-t border-[var(--border)] font-mono text-xs">
+            {layer.tools.map((t) => (
+              <div class="flex items-center justify-between gap-2">
+                <span class={t.primary ? 'font-semibold text-[var(--fg)]' : 'text-[var(--muted-fg)]'}>
+                  {t.name}
+                </span>
+                <span class="text-[10px] text-[var(--signal)] font-medium">
+                  [{t.tag}]
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
 
-      <!-- Layer 4 -->
-      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.18s">
-        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Linux &amp; Networking</h3>
-        <ul class="flex flex-wrap gap-2.5 md:col-span-9">
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="devicon-linux-plain"></i> Linux (Ubuntu / RHEL)
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--signal)] bg-[var(--card)] px-3 text-sm font-medium text-[var(--fg)]">
-            <i class="fa-solid fa-network-wired text-emerald-400"></i> HAProxy &amp; Keepalived
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="devicon-nginx-original colored"></i> Nginx
-          </li>
-          <li class="inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-[var(--muted-fg)]">
-            <i class="fa-solid fa-shield-halved"></i> Calico CNI / iptables
-          </li>
-        </ul>
-      </li>
+    <!-- Active Modules Register Box -->
+    <div class="reveal ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4">
+      <span class="ff-cross-tl">+</span>
+      <span class="ff-cross-tr">+</span>
+      <span class="ff-cross-bl">+</span>
+      <span class="ff-cross-br">+</span>
 
-      <!-- Layer 5: Active Runtime Modules (Dynamic from CMS / Admin) -->
-      <li class="reveal grid gap-4 border-t border-[var(--border)] py-6 md:grid-cols-12 md:items-baseline" style="--d: 0.24s">
-        <h3 class="text-h3 text-[var(--fg)] md:col-span-3">Active Modules</h3>
-        <ul id="bind-skills" class="flex flex-wrap gap-2.5 md:col-span-9" set:html={renderSkills(skills)}></ul>
-      </li>
-    </ol>
+      <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-3">
+        <span class="font-bold text-[var(--fg)] tracking-wider">[ ACTIVE_MODULES_REGISTER ]</span>
+        <span class="inline-flex items-center gap-1.5 text-[var(--signal)] font-semibold text-[11px]">
+          <span class="size-1.5 rounded-full bg-[var(--signal)] animate-pulse"></span>
+          ALL GREEN
+        </span>
+      </div>
+
+      <!-- Live Dynamic Skills from Store -->
+      <ul id="bind-skills" class="flex flex-wrap gap-2.5" set:html={renderSkills(skills)}>
+        {skills.map((s) => (
+          <li class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/60 text-xs font-mono text-[var(--fg)]">
+            <span class="size-1.5 rounded-full bg-[var(--signal)]"></span>
+            <span class="font-semibold">{s.name}</span>
+            <span class="text-[10px] text-[var(--muted-fg)]">{s.tag}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   </div>
 </section>

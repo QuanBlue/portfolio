@@ -1,0 +1,118 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { safeUrl } from '../../lib/render';
+const { identity } = portfolioData;
+---
+
+<section id="contact" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)] font-mono">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-10">
+    <!-- ASCII Title Banner -->
+    <div class="space-y-2">
+      <span class="text-xs text-[var(--signal)] font-semibold tracking-wider">// 07. SECTION_CONTACT</span>
+      <div class="overflow-x-auto py-1">
+        <pre class="font-mono text-[9px] sm:text-[13px] md:text-[15px] font-bold text-[var(--fg)] tracking-tight leading-[1.1] select-all" aria-label="CONTACT">
+  ____ ___  _   _ _____  _    ____ _____ 
+ / ___/ _ \| \ | |_   _|/ \  / ___|_   _|
+| |  | | | |  \| | | | / _ \| |     | |  
+| |__| |_| | |\  | | |/ ___ \ |___  | |  
+ \____\___/|_| \_| |_/_/   \_\____| |_|  
+        </pre>
+      </div>
+      <p class="text-xs sm:text-sm text-[var(--muted-fg)] max-w-xl font-sans">
+        Luôn sẵn sàng trao đổi về kiến trúc Kubernetes HA, hạ tầng mạng Linux vật lý hoặc cơ hội hợp tác mới.
+      </p>
+    </div>
+
+    <!-- Contact Actions in Monospace ASCII Style -->
+    <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-10 space-y-8">
+      <span class="ff-cross-tl">+</span>
+      <span class="ff-cross-tr">+</span>
+      <span class="ff-cross-bl">+</span>
+      <span class="ff-cross-br">+</span>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a
+          data-bind="email"
+          href={`mailto:${identity.email}`}
+          class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
+        >
+          <div>
+            <span class="text-xs text-[var(--signal)] block mb-1">[ DIRECT_EMAIL ]</span>
+            <span class="text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
+              {identity.email}
+            </span>
+          </div>
+          <span class="text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+
+        <a
+          data-bind="linkedin"
+          href={safeUrl(identity.linkedin.url)}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
+        >
+          <div>
+            <span class="text-xs text-[var(--signal)] block mb-1">[ PROFESSIONAL_NETWORK ]</span>
+            <span class="text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
+              LinkedIn ({identity.linkedin.handle})
+            </span>
+          </div>
+          <span class="text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">↗</span>
+        </a>
+      </div>
+
+      <!-- Action tags row -->
+      <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--border)] text-xs">
+        <button
+          type="button"
+          data-open-cv="1"
+          class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10"
+        >
+          <span>[ view_cv_document 📄 ]</span>
+        </button>
+
+        <a
+          data-bind="github"
+          href={safeUrl(identity.github.url)}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="ff-btn"
+        >
+          <span>[ github: @QuanBlue ↗ ]</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ASCII Monospace Footer -->
+<footer class="py-12 border-t border-[var(--border)] font-mono text-xs text-[var(--muted-fg)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        © {new Date().getFullYear()} <strong class="text-[var(--fg)]"><span data-bind="name">{identity.name}</span></strong> · thanhquan.dev
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">
+          [ github ]
+        </a>
+        <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">
+          [ linkedin ]
+        </a>
+        <a href="/blog" class="hover:text-[var(--fg)] transition">
+          [ blog ]
+        </a>
+        <a href="/admin" class="hover:text-[var(--signal)] transition">
+          [ admin_edit ]
+        </a>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border)] text-[11px] text-[var(--faint)]">
+      <span>THEME: FORKFOLIO_ASCII // AUTHENTIC CHARACTER ART &amp; DITHERING</span>
+      <span>CTRL_C / CTRL_V READY</span>
+    </div>
+  </div>
+</footer>

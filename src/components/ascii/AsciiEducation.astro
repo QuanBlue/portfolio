@@ -1,0 +1,54 @@
+---
+import { portfolioData } from '../../data/portfolio';
+const education = portfolioData.education ?? [];
+---
+
+<section id="education" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)] font-mono">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
+    <!-- ASCII Title Banner -->
+    <div class="space-y-2">
+      <span class="text-xs text-[var(--signal)] font-semibold tracking-wider">// 04. SECTION_EDUCATION</span>
+      <div class="overflow-x-auto py-1">
+        <pre class="font-mono text-[9px] sm:text-[13px] md:text-[15px] font-bold text-[var(--fg)] tracking-tight leading-[1.1] select-all" aria-label="EDUCATION">
+ _____ ____  _   _  ____    _  _____ ___ ___  _   _ 
+| ____|  _ \| | | |/ ___|  / \|_   _|_ _/ _ \| \ | |
+|  _| | | | | | | | |     / _ \ | |  | | | | |  \| |
+| |___| |_| | |_| | |___ / ___ \| |  | | |_| | |\  |
+|_____|____/ \___/ \____/_/   \_\_| |___\___/|_| \_|
+        </pre>
+      </div>
+    </div>
+
+    <!-- Education cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {education.map((ed, idx) => (
+        <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-4 hover:border-[var(--line-strong)] transition">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <div class="flex items-center justify-between text-xs border-b border-[var(--border)] pb-3">
+            <span class="px-2.5 py-0.5 rounded bg-[var(--muted-bg)] text-[var(--signal)] font-bold">
+              [{ed.badge || `DEGREE_0${idx + 1}`}]
+            </span>
+            <span class="text-[var(--muted-fg)]">{ed.period}</span>
+          </div>
+
+          <div>
+            <h3 class="text-lg sm:text-xl font-bold text-[var(--fg)]">
+              {ed.degree}
+            </h3>
+            <p class="text-xs text-[var(--signal)] font-medium mt-1">
+              &gt; {ed.school}
+            </p>
+          </div>
+
+          <p class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-sans">
+            {ed.description}
+          </p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

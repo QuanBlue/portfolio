@@ -62,14 +62,10 @@ export function renderSkills(skills: Skill[]): string {
   return skills
     .map((s) => {
       const active = s.status === 'ACTIVE';
-      return `<li class="inline-flex min-h-9 items-center gap-2 rounded-lg ${
-        active
-          ? 'border border-[var(--signal)] bg-[var(--card)] text-[var(--fg)]'
-          : 'border border-[var(--border)] bg-[var(--muted-bg)] text-[var(--muted-fg)]'
-      } px-3 text-sm font-medium" title="${esc(s.tag)} · ${esc(s.status)}">
-  <span class="size-2 rounded-full ${active ? 'bg-[var(--signal)]' : 'bg-amber-400'}"></span>
-  <span>${esc(s.name)}</span>
-  <span class="font-mono text-[11px] text-[var(--faint)]">${esc(s.tag)}</span>
+      return `<li class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs font-mono text-[var(--fg)] hover:border-[var(--line-strong)] transition" title="${esc(s.tag)} · ${esc(s.status)}">
+  <span class="size-1.5 rounded-full ${active ? 'bg-[var(--signal)]' : 'bg-amber-400'}"></span>
+  <span class="font-semibold">${esc(s.name)}</span>
+  <span class="text-[10px] text-[var(--muted-fg)]">${esc(s.tag)}</span>
 </li>`;
     })
     .join('');

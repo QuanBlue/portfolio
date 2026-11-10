@@ -1,0 +1,118 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { safeUrl } from '../../lib/render';
+const { projects } = portfolioData;
+---
+
+<section id="projects" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)] font-mono">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
+    <!-- ASCII Title Banner -->
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="space-y-2">
+        <span class="text-xs text-[var(--signal)] font-semibold tracking-wider">// 02. SECTION_PROJECTS</span>
+        <div class="overflow-x-auto py-1">
+          <pre class="font-mono text-[9px] sm:text-[13px] md:text-[15px] font-bold text-[var(--fg)] tracking-tight leading-[1.1] select-all" aria-label="PROJECTS">
+ ____  ____   ___      _ _____ ____ _____ ____  
+|  _ \|  _ \ / _ \    | | ____/ ___|_   _/ ___| 
+| |_) | |_) | | | |_  | |  _|| |     | | \___ \ 
+|  __/|  _ <| |_| | |_| | |__| |___  | |  ___) |
+|_|   |_| \_\\___/ \___/|_____\____| |_| |____/ 
+          </pre>
+        </div>
+      </div>
+      <div class="text-xs text-[var(--muted-fg)] border border-[var(--border)] px-3 py-1.5 rounded-lg bg-[var(--card)]">
+        <span>PROJECT_COUNT: [ 01 / {String(projects.length).padStart(2, '0')} ]</span>
+      </div>
+    </div>
+
+    <!-- ASCII Project Cards -->
+    <div class="space-y-8">
+      {projects.map((p, idx) => {
+        const initials = p.title.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || 'PR';
+        const num = String(idx + 1).padStart(2, '0');
+        const total = String(projects.length).padStart(2, '0');
+        return (
+          <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8 hover:border-[var(--line-strong)] transition shadow-sm">
+            <span class="ff-cross-tl">+</span>
+            <span class="ff-cross-tr">+</span>
+            <span class="ff-cross-bl">+</span>
+            <span class="ff-cross-br">+</span>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <!-- Left Project Details -->
+              <div class="lg:col-span-8 space-y-4">
+                <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--muted-fg)]">
+                  <span class="font-bold text-[var(--signal)]">[ {num} / {total} ]</span>
+                  <span>::</span>
+                  <span class="uppercase tracking-wider">
+                    {p.status === 'ONLINE' ? '● PRODUCTION ACTIVE' : 'MAINTENANCE'}
+                  </span>
+                </div>
+
+                <h3 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[var(--fg)]">
+                  {p.title}
+                </h3>
+
+                <p class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-sans">
+                  {p.description || p.shortDesc}
+                </p>
+
+                <!-- ASCII Tags -->
+                <div class="flex flex-wrap gap-2 pt-2">
+                  {p.tags.map((tag) => (
+                    <span class="ff-tag">
+                      <span class="text-[var(--signal)]">#</span>
+                      <span>{tag}</span>
+                    </span>
+                  ))}
+                </div>
+
+                <!-- Action links -->
+                <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--border)] text-xs">
+                  <a
+                    href={safeUrl(p.link)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="ff-btn ff-btn-primary"
+                  >
+                    <span>[ view_repo ↗ ]</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    data-project-trigger={p.id}
+                    class="ff-btn"
+                  >
+                    <span>[ inspect_details ]</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right Project ASCII Badge / Plate -->
+              <div class="lg:col-span-4 flex justify-center lg:justify-end">
+                <div class="w-full sm:w-64 aspect-video sm:aspect-square rounded-xl border border-dashed border-[var(--line-strong)] bg-[var(--muted-bg)]/60 flex flex-col items-center justify-center p-6 text-center group">
+                  <!-- ASCII Box Header inside Plate -->
+                  <div class="text-[10px] text-[var(--muted-fg)] uppercase tracking-wider mb-2">
+                    +--- NODE_TARGET ---+
+                  </div>
+                  <span class="text-4xl sm:text-6xl font-black text-[var(--fg)] tracking-tight group-hover:text-[var(--signal)] transition-colors">
+                    {initials}
+                  </span>
+                  <span class="text-xs text-[var(--muted-fg)] mt-2">
+                    {p.tags[0] || 'DevOps'} · {p.status}
+                  </span>
+                  <span class="text-[11px] text-[var(--signal)] mt-1 opacity-80">
+                    github.com/QuanBlue/{p.title}
+                  </span>
+                  <div class="text-[10px] text-[var(--muted-fg)] uppercase tracking-wider mt-2">
+                    +-------------------+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</section>
