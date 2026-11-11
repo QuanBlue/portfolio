@@ -9,6 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "vitest run",
+    "test:knight": "node scripts/knight-smoke-test.mjs",
     "test:watch": "vitest"
   },
   "keywords": [
@@ -29,11 +30,13 @@
     "@types/node": "^26.6.6",
     "astro": "^7.4.7",
     "html2pdf.js": "^0.14.0",
+    "lenis": "^1.3.27",
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   },
   "devDependencies": {
-    "@types/html2pdf.js": "^0.10.0"
+    "@types/html2pdf.js": "^0.10.0",
+    "playwright": "^1.65.0"
   }
 }

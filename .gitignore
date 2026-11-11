@@ -39,6 +39,14 @@ Desktop.ini
 *.sublime-project
 *.sublime-workspace
 
+# Temporary development and testing artifacts
+/tmp/
+
+# Generated browser/testing reports
+/playwright-report/
+/test-results/
+/coverage/
+
 # Temporary & scratch files
 *.tmp
 *.log

@@ -8,6 +8,11 @@ export default defineConfig({
   site: 'https://thanhquan.dev',
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      watch: {
+        ignored: ['**/tmp/**', '**/docs/**', '**/*.md', '**/*.png', '**/*.json'],
+      },
+    },
   },
   integrations: [mdx(), sitemap()],
 });
