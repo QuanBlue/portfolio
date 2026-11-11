@@ -1,0 +1,110 @@
+---
+/**
+ * Global Language Switcher Component (EN | VI)
+ * Supports standard theme layout and Knight monochrome monospace layout.
+ */
+interface Props {
+  variant?: 'standard' | 'knight' | 'mobile';
+  class?: string;
+}
+
+const { variant = 'standard', class: className = '' } = Astro.props;
+---
+
+{variant === 'knight' ? (
+  <span class={`kn-lang-switch ${className}`} role="group" aria-label="Language selection">
+    <button
+      type="button"
+      class="kn-lang-btn"
+      data-lang="en"
+      data-active="true"
+      aria-label="English"
+      aria-pressed="true"
+      title="Switch to English"
+    >
+      EN
+    </button>
+    <span class="kn-lang-sep" aria-hidden="true">|</span>
+    <button
+      type="button"
+      class="kn-lang-btn"
+      data-lang="vi"
+      data-active="false"
+      aria-label="Tiếng Việt"
+      aria-pressed="false"
+      title="Chuyển sang Tiếng Việt"
+    >
+      VI
+    </button>
+  </span>
+) : (
+  <div
+    class={`lang-switcher inline-flex h-8 items-center rounded-lg border border-[var(--border)] bg-[var(--card)] p-0.5 font-mono text-[11px] select-none ${className}`}
+    role="group"
+    aria-label="Language selection"
+  >
+    <button
+      type="button"
+      class="lang-btn px-2 py-0.5 rounded font-semibold text-[var(--muted-fg)] hover:text-[var(--fg)] data-[active=true]:bg-[var(--fg)] data-[active=true]:text-[var(--bg)] transition cursor-pointer"
+      data-lang="en"
+      data-active="true"
+      aria-label="English"
+      aria-pressed="true"
+      title="Switch to English"
+    >
+      EN
+    </button>
+    <span class="text-zinc-500 dark:text-zinc-400 px-0.5 text-[10px]" aria-hidden="true">|</span>
+    <button
+      type="button"
+      class="lang-btn px-2 py-0.5 rounded font-semibold text-[var(--muted-fg)] hover:text-[var(--fg)] data-[active=true]:bg-[var(--fg)] data-[active=true]:text-[var(--bg)] transition cursor-pointer"
+      data-lang="vi"
+      data-active="false"
+      aria-label="Tiếng Việt"
+      aria-pressed="false"
+      title="Chuyển sang Tiếng Việt"
+    >
+      VI
+    </button>
+  </div>
+)}
+
+<script>
+  import { getLocale, setLocale } from '../../i18n/locale-store';
+
+  function initLanguageSwitchers() {
+    const active = getLocale();
+
+    // Sync button states
+    document.querySelectorAll<HTMLElement>('[data-lang]').forEach((btn) => {
+      const isCurrent = btn.dataset.lang === active;
+      btn.dataset.active = isCurrent ? 'true' : 'false';
+      btn.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
+
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const targetLocale = btn.dataset.lang as 'en' | 'vi';
+        if (targetLocale) {
+          setLocale(targetLocale);
+        }
+      };
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLanguageSwitchers);
+  } else {
+    initLanguageSwitchers();
+  }
+
+  // Also sync when locale changes from anywhere
+  window.addEventListener('locale:changed', (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    const locale = detail?.locale || 'en';
+    document.querySelectorAll<HTMLElement>('[data-lang]').forEach((btn) => {
+      const isCurrent = btn.dataset.lang === locale;
+      btn.dataset.active = isCurrent ? 'true' : 'false';
+      btn.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
+    });
+  });
+</script>

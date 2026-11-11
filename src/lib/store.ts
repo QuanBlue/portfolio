@@ -61,8 +61,10 @@ export async function loadLiveData(): Promise<PortfolioData> {
       override = await loadStored();
     }
     data = mergePortfolioData(portfolioData, override);
+    (window as any).__PORTFOLIO_OVERRIDE__ = override;
   } catch {
     data = portfolioData;
+    (window as any).__PORTFOLIO_OVERRIDE__ = null;
   } finally {
     document.documentElement.classList.remove('cms-loading');
   }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { portfolioData } from '../src/data/portfolio';
+import { portfolioData, getCareerSettings } from '../src/data/portfolio';
 
 describe('Portfolio Central Data Model', () => {
   it('contains authentic identity matching the mockup', () => {
@@ -53,7 +53,48 @@ describe('Portfolio Central Data Model', () => {
     expect(portfolioData.telemetry.uptimeSLA).toBe('99.9%');
   });
 
-  it('supports themeVariant configuration (ascii | forkfolio | editorial)', () => {
-    expect(['ascii', 'forkfolio', 'editorial']).toContain(portfolioData.identity.themeVariant);
+  it('supports themeVariant configuration (ascii | knight | forkfolio | editorial)', () => {
+    expect(['ascii', 'knight', 'forkfolio', 'editorial']).toContain(portfolioData.identity.themeVariant);
+  });
+
+  describe('CareerSettings & CV Eligibility Matrix', () => {
+    it('resolves defaults from portfolioData', () => {
+      const career = getCareerSettings(portfolioData);
+      expect(career.openToWork).toBe(true);
+      expect(career.cvUrl).toBe('/cv.pdf');
+    });
+
+    it('Matrix 1: openToWork=false, no CV -> openToWork is false and cvUrl is undefined', () => {
+      const career = getCareerSettings({
+        careerSettings: { openToWork: false },
+        identity: { openToWork: false } as any,
+      });
+      expect(career.openToWork).toBe(false);
+      expect(career.cvUrl).toBeUndefined();
+    });
+
+    it('Matrix 2: openToWork=false, has CV -> openToWork is false', () => {
+      const career = getCareerSettings({
+        careerSettings: { openToWork: false, cvUrl: '/my-cv.pdf' },
+      });
+      expect(career.openToWork).toBe(false);
+      expect(career.cvUrl).toBe('/my-cv.pdf');
+    });
+
+    it('Matrix 3: openToWork=true, no CV -> cvUrl is undefined', () => {
+      const career = getCareerSettings({
+        careerSettings: { openToWork: true, cvUrl: '   ' },
+      });
+      expect(career.openToWork).toBe(true);
+      expect(career.cvUrl).toBeUndefined();
+    });
+
+    it('Matrix 4: openToWork=true, has CV -> openToWork is true and cvUrl is valid', () => {
+      const career = getCareerSettings({
+        careerSettings: { openToWork: true, cvUrl: 'https://storage.example.com/cv.pdf' },
+      });
+      expect(career.openToWork).toBe(true);
+      expect(career.cvUrl).toBe('https://storage.example.com/cv.pdf');
+    });
   });
 });
