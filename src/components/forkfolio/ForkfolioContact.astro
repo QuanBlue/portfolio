@@ -1,59 +1,162 @@
 ---
 import { portfolioData } from '../../data/portfolio';
 import { safeUrl } from '../../lib/render';
+import TerminalPrompt from './terminal/TerminalPrompt.astro';
 const { identity } = portfolioData;
 ---
 
-<section id="contact" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]">
-  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-10">
-    <!-- Header -->
+<section
+  id="contact"
+  class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]"
+  data-terminal-section="contact"
+>
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-8">
+    <!-- Command Introduction -->
     <div class="space-y-2">
-      <div class="font-mono text-xs text-[var(--signal)] tracking-wider">// 07. CONTACT</div>
-      <h2 class="font-mono text-3xl sm:text-6xl font-black uppercase tracking-tight text-[var(--fg)]">
-        LET'S TALK.
-      </h2>
-      <p class="text-sm sm:text-base text-[var(--muted-fg)] max-w-xl font-sans">
-        Luôn sẵn sàng trao đổi về kiến trúc Kubernetes HA, hạ tầng mạng Linux vật lý hoặc cơ hội hợp tác mới.
+      <TerminalPrompt
+        command="mail quanblue"
+        user="quan"
+        host="portfolio"
+        path="~"
+        typeSpeed={28}
+        typeDelay={100}
+        id="cmd-contact"
+      />
+      <div class="flex items-center justify-between pt-1">
+        <h2 class="ff-contact-heading font-mono text-3xl sm:text-6xl font-black uppercase tracking-tight text-[var(--fg)]">
+          LET'S TALK.
+        </h2>
+        <span class="font-mono text-xs text-[var(--muted-fg)]">
+          [07] ~/mail · <span class="text-[var(--signal)]">To: {identity.name}</span>
+        </span>
+      </div>
+      <p
+        class="text-sm sm:text-base text-[var(--muted-fg)] max-w-xl font-mono ff-contact-sub"
+        data-en="Open for high-impact DevOps, SRE, and Cloud Native Infrastructure engineering opportunities."
+        data-vi="Luôn sẵn sàng trao đổi về kiến trúc Kubernetes HA, hạ tầng mạng Linux vật lý hoặc cơ hội hợp tác mới."
+      >
+        Open for high-impact DevOps, SRE, and Cloud Native Infrastructure engineering opportunities.
       </p>
     </div>
 
-    <!-- Contact Actions in Forkfolio Monospace Style -->
-    <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-10 space-y-8">
+    <!-- Output: Contact Actions & Message Composer -->
+    <div class="ff-term-output ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-10 space-y-8 shadow-sm">
       <span class="ff-cross-tl">+</span>
       <span class="ff-cross-tr">+</span>
       <span class="ff-cross-bl">+</span>
       <span class="ff-cross-br">+</span>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <a
-          data-bind="email"
-          href={`mailto:${identity.email}`}
-          class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
-        >
-          <div>
-            <span class="font-mono text-xs text-[var(--signal)] block mb-1">[ DIRECT_EMAIL ]</span>
-            <span class="font-mono text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
-              {identity.email}
-            </span>
-          </div>
-          <span class="font-mono text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">→</span>
-        </a>
+      <!-- Secondary Command: cat ~/.links -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-2 font-mono text-xs text-[var(--muted-fg)] border-b border-[var(--border)] pb-2.5">
+          <span class="text-[var(--signal)]">›</span>
+          <span class="text-[var(--fg)] font-semibold">cat ~/.links</span>
+          <span class="text-[10px] text-[var(--faint)] ml-auto">[endpoints]</span>
+        </div>
 
-        <a
-          data-bind="linkedin"
-          href={safeUrl(identity.linkedin.url)}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <a
+            data-bind="email"
+            href={`mailto:${identity.email}`}
+            class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
+          >
+            <div>
+              <span class="font-mono text-xs text-[var(--signal)] block mb-1">[ DIRECT_EMAIL ]</span>
+              <span class="font-mono text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
+                {identity.email}
+              </span>
+            </div>
+            <span class="font-mono text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">→</span>
+          </a>
+
+          <a
+            data-bind="linkedin"
+            href={safeUrl(identity.linkedin.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
+          >
+            <div>
+              <span class="font-mono text-xs text-[var(--signal)] block mb-1">[ PROFESSIONAL_NETWORK ]</span>
+              <span class="font-mono text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
+                LinkedIn ({identity.linkedin.handle})
+              </span>
+            </div>
+            <span class="font-mono text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Message Composer -->
+      <div class="pt-4 border-t border-[var(--border)] space-y-4">
+        <div class="font-mono text-xs text-[var(--muted-fg)] flex items-center justify-between">
+          <span class="ff-form-note" data-en="// DISPATCH A DIRECT MESSAGE" data-vi="// GỬI TIN NHẮN TRỰC TIẾP">
+            // DISPATCH A DIRECT MESSAGE
+          </span>
+          <span class="text-[11px] text-[var(--signal)] font-mono">mail daemon ready</span>
+        </div>
+
+        <form
+          action={`mailto:${identity.email}`}
+          method="POST"
+          enctype="text/plain"
+          class="space-y-4 font-mono text-xs"
         >
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[var(--muted-fg)] mb-1 ff-lbl-name" data-en="Name" data-vi="Họ &amp; Tên">
+                Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                required
+                placeholder="Jane Recruiter"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/30 text-[var(--fg)] placeholder:text-[var(--faint)] outline-none focus:border-[var(--signal)] transition"
+              />
+            </div>
+            <div>
+              <label class="block text-[var(--muted-fg)] mb-1 ff-lbl-email" data-en="Email" data-vi="Email liên hệ">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="jane@company.com"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/30 text-[var(--fg)] placeholder:text-[var(--faint)] outline-none focus:border-[var(--signal)] transition"
+              />
+            </div>
+          </div>
+
           <div>
-            <span class="font-mono text-xs text-[var(--signal)] block mb-1">[ PROFESSIONAL_NETWORK ]</span>
-            <span class="font-mono text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
-              LinkedIn ({identity.linkedin.handle})
+            <label class="block text-[var(--muted-fg)] mb-1 ff-lbl-msg" data-en="Message" data-vi="Nội dung trao đổi">
+              Message
+            </label>
+            <textarea
+              name="message"
+              rows="4"
+              required
+              placeholder="Tell me about the role, project, or infrastructure needs…"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/30 text-[var(--fg)] placeholder:text-[var(--faint)] outline-none focus:border-[var(--signal)] transition resize-none font-mono text-sm"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <button
+              type="submit"
+              class="ff-btn ff-btn-primary"
+            >
+              <span class="ff-btn-send" data-en="[ send_message → ]" data-vi="[ gửi_tin_nhắn → ]">
+                [ send_message → ]
+              </span>
+            </button>
+
+            <span class="text-[11px] text-[var(--muted-fg)] font-mono">
+              Replies dispatched to your provided address.
             </span>
           </div>
-          <span class="font-mono text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">↗</span>
-        </a>
+        </form>
       </div>
 
       <!-- Action tags row -->
@@ -61,7 +164,7 @@ const { identity } = portfolioData;
         <button
           type="button"
           data-open-cv="1"
-          class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10"
+          class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 cursor-pointer"
         >
           <i class="fa-regular fa-file-lines text-xs"></i>
           <span>[ view_cv_document ]</span>
@@ -82,33 +185,45 @@ const { identity } = portfolioData;
   </div>
 </section>
 
-<!-- Clean Monospace Footer -->
-<footer class="py-12 border-t border-[var(--border)] font-mono text-xs text-[var(--muted-fg)]">
-  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-4">
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <div>
-        © {new Date().getFullYear()} <strong class="text-[var(--fg)]"><span data-bind="name">{identity.name}</span></strong> · thanhquan.dev
-      </div>
+<script is:inline>
+  (function () {
+    function updateContactLocale(locale) {
+      var isVi = locale === 'vi';
+      var heading = document.querySelector('.ff-contact-heading');
+      if (heading) heading.textContent = isVi ? 'KẾT NỐI NGAY.' : "LET'S TALK.";
 
-      <div class="flex items-center gap-4">
-        <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">
-          [ github ]
-        </a>
-        <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">
-          [ linkedin ]
-        </a>
-        <a href="/blog" class="hover:text-[var(--fg)] transition">
-          [ blog ]
-        </a>
-        <a href="/admin" class="hover:text-[var(--fg)] transition">
-          [ admin ]
-        </a>
-      </div>
-    </div>
+      var sub = document.querySelector('.ff-contact-sub');
+      if (sub) {
+        var text = isVi ? sub.getAttribute('data-vi') : sub.getAttribute('data-en');
+        if (text) sub.textContent = text;
+      }
 
-    <div class="flex items-center justify-between pt-3 border-t border-[var(--border)] text-[10px] text-[var(--faint)]">
-      <span>THEME: FORKFOLIO_MODERN_MONO</span>
-      <span class="tracking-widest select-none">+ + + +</span>
-    </div>
-  </div>
-</footer>
+      var note = document.querySelector('.ff-form-note');
+      if (note) {
+        var text = isVi ? note.getAttribute('data-vi') : note.getAttribute('data-en');
+        if (text) note.textContent = text;
+      }
+
+      var lblName = document.querySelector('.ff-lbl-name');
+      if (lblName) lblName.textContent = isVi ? 'Họ & Tên' : 'Name';
+      var lblEmail = document.querySelector('.ff-lbl-email');
+      if (lblEmail) lblEmail.textContent = isVi ? 'Email liên hệ' : 'Email';
+      var lblMsg = document.querySelector('.ff-lbl-msg');
+      if (lblMsg) lblMsg.textContent = isVi ? 'Nội dung trao đổi' : 'Message';
+
+      var btnSend = document.querySelector('.ff-btn-send');
+      if (btnSend) {
+        var text = isVi ? btnSend.getAttribute('data-vi') : btnSend.getAttribute('data-en');
+        if (text) btnSend.textContent = text;
+      }
+    }
+
+    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
+    updateContactLocale(initialLoc);
+
+    window.addEventListener('locale:changed', function (e) {
+      var loc = (e && e.detail && e.detail.locale) || 'en';
+      updateContactLocale(loc);
+    });
+  })();
+</script>

@@ -1,0 +1,10 @@
+---
+interface Props {
+  class?: string;
+  id?: string;
+}
+
+const { class: className = '', id } = Astro.props;
+---
+
+<span id={id} class={`ff-cursor ${className}`} aria-hidden="true"></span>

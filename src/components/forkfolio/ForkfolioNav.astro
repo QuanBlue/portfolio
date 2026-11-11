@@ -1,0 +1,416 @@
+---
+import LanguageSwitcher from '../common/LanguageSwitcher.astro';
+import { portfolioData } from '../../data/portfolio';
+
+const { identity, projects } = portfolioData;
+const hasMoreProjects = (projects ?? []).length > 4;
+
+const navItems = [
+  { id: 'top', href: '#top', label: 'about', labelVi: 'giới thiệu' },
+  { id: 'projects', href: '#projects', label: 'projects', labelVi: 'dự án' },
+  ...(hasMoreProjects ? [{ id: 'more-projects', href: '#more-projects', label: 'more projects', labelVi: 'thêm dự án' }] : []),
+  { id: 'experience', href: '#experience', label: 'experience', labelVi: 'kinh nghiệm' },
+  { id: 'education', href: '#education', label: 'education', labelVi: 'học vấn' },
+  { id: 'certifications', href: '#certifications', label: 'certifications', labelVi: 'chứng chỉ' },
+  { id: 'skills', href: '#skills', label: 'skills', labelVi: 'kỹ năng' },
+  { id: 'activity', href: '#activity', label: 'activity', labelVi: 'hoạt động' },
+  { id: 'contact', href: '#contact', label: 'contact', labelVi: 'liên hệ' },
+];
+---
+
+<header
+  id="forkfolio-header"
+  class="shrink-0 z-20 w-full bg-[var(--card)] transition-colors duration-200 border-b-2 border-[var(--border)] shadow-xs select-none"
+>
+  <!-- 1. Top Terminal Window Chrome (Elevated & Inset) -->
+  <div class="ff-terminal-chrome border-b border-[var(--border)] bg-[var(--muted-bg)]/80 dark:bg-[#121214] px-4 sm:px-8 lg:px-10 h-11 sm:h-12 flex items-center justify-between text-xs font-mono select-none transition-colors">
+    <!-- Left: Window Controls + Identity Pill -->
+    <div class="flex items-center gap-3 sm:gap-4">
+      <!-- Three Traffic Dots with tactile spacing -->
+      <div class="flex items-center gap-2" aria-hidden="true">
+        <span class="size-3 sm:size-3.5 rounded-full bg-[#ef4444] inline-block border border-red-600/50 shadow-sm"></span>
+        <span class="size-3 sm:size-3.5 rounded-full bg-[#f59e0b] inline-block border border-amber-600/50 shadow-sm"></span>
+        <span class="size-3 sm:size-3.5 rounded-full bg-[#10b981] inline-block border border-emerald-600/50 shadow-sm"></span>
+      </div>
+
+      <!-- Identity Breadcrumb Pill -->
+      <a
+        href="#top"
+        class="font-mono text-xs text-[var(--muted-fg)] hover:text-[var(--fg)] px-2.5 py-1 rounded-md bg-[var(--card)]/90 border border-[var(--border)] flex items-center gap-1.5 transition shadow-xs"
+        aria-label="Scroll to top of terminal session"
+      >
+        <span class="text-[var(--fg)] font-bold">quanblue</span><span class="text-[var(--signal)] font-semibold">@portfolio</span>:<span class="text-[var(--signal)] font-semibold">~</span>
+      </a>
+    </div>
+
+    <!-- Center: Window Session Title -->
+    <div class="hidden md:flex items-center gap-2 font-mono text-xs text-[var(--muted-fg)] px-3 py-1 rounded-md bg-[var(--card)]/60 border border-[var(--border)]/60">
+      <span class="text-[var(--signal)]">❖</span>
+      <span class="font-semibold text-[var(--fg)]">Modern Mono Shell</span>
+      <span class="text-[10px] text-[var(--faint)] font-medium">-- 80x24</span>
+    </div>
+
+    <!-- Right: Status / Shell indicator + Open to Work / CV -->
+    <div class="flex items-center gap-2.5 sm:gap-3 font-mono">
+      {identity.openToWork && (
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wide shadow-xs">
+          <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+          <span>OPEN TO WORK</span>
+        </span>
+      )}
+
+      {identity.openToWork && identity.cvUrl && (
+        <a
+          href={identity.cvUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-md border border-[var(--border)] bg-[var(--card)] text-[10px] font-semibold text-[var(--muted-fg)] hover:text-[var(--signal)] hover:border-[var(--signal)] transition shadow-xs"
+          title="Download CV"
+        >
+          [ cv.pdf ]
+        </a>
+      )}
+
+      <span class="px-2 py-1 rounded-md bg-[var(--signal)]/15 text-[var(--signal)] text-xs font-bold border border-[var(--signal)]/30">
+        zsh
+      </span>
+    </div>
+  </div>
+
+  <!-- 2. Primary Terminal Navigation Tabs Bar (Spacious & Elevated) -->
+  <div class="ff-terminal-subnav px-4 sm:px-8 lg:px-10 h-13 sm:h-14 flex items-center justify-between gap-3 overflow-hidden bg-[var(--card)]/98 backdrop-blur-xl">
+    <!-- Horizontal Terminal Navigation Tabs -->
+    <nav class="flex items-center gap-1.5 sm:gap-2 lg:gap-2.5 overflow-x-auto no-scrollbar font-mono text-xs sm:text-[13px] py-1.5" aria-label="Terminal Navigation Tabs">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          data-section={item.id}
+          data-label-en={item.label}
+          data-label-vi={item.labelVi}
+          class="ff-nav-link ff-nav-tab inline-flex items-center px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-md text-[var(--muted-fg)] hover:text-[var(--fg)] hover:bg-[var(--border)]/40 hover:border-[var(--border)] border border-transparent transition-all whitespace-nowrap font-medium"
+        >
+          <span class="ff-tab-prefix text-[var(--signal)]/60 mr-1 text-[11px] font-mono">#</span>
+          <span class="ff-tab-text">{item.label}</span>
+        </a>
+      ))}
+    </nav>
+
+    <!-- Right utility controls: EN/VI, Theme, Mode, Admin, Mobile Toggle -->
+    <div class="flex items-center gap-2 sm:gap-2.5 shrink-0 pl-3 sm:pl-4 border-l border-[var(--border)]">
+      <!-- Language Switcher (EN | VI) -->
+      <LanguageSwitcher variant="minimal" />
+
+      <!-- Theme Switcher Pill -->
+      <button
+        id="ff-theme-variant-toggle"
+        type="button"
+        class="inline-flex h-8 items-center gap-1.5 px-2.5 rounded-md border border-[var(--border)] bg-[var(--muted-bg)]/60 font-mono text-[11px] font-medium text-[var(--muted-fg)] hover:border-[var(--signal)] hover:text-[var(--fg)] cursor-pointer transition"
+        title="Switch theme"
+        aria-label="Toggle portfolio theme"
+      >
+        <span class="text-[var(--signal)]">❖</span>
+        <span class="hidden lg:inline">Theme</span>
+      </button>
+
+      <!-- Dark / Light Mode Toggle -->
+      <button
+        id="ff-color-mode-toggle"
+        type="button"
+        aria-label="Toggle dark/light mode"
+        class="inline-flex size-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--muted-bg)]/60 text-[var(--fg)] hover:border-[var(--signal)] cursor-pointer transition text-xs"
+        title="Toggle color mode"
+      >
+        <span id="ff-color-icon">🌙</span>
+      </button>
+
+      <!-- Admin Dashboard Link -->
+      <a
+        href="/admin"
+        id="ff-admin-link"
+        title="Admin Dashboard"
+        class="inline-flex h-8 items-center gap-1.5 px-2.5 rounded-md border border-[var(--border)] bg-[var(--muted-bg)]/60 font-mono text-[11px] font-semibold text-[var(--muted-fg)] hover:border-[var(--signal)] hover:text-[var(--fg)] transition"
+      >
+        <span>Admin</span>
+        <span id="ff-admin-dot" class="hidden size-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" aria-hidden="true"></span>
+      </a>
+
+      <!-- Mobile Menu Toggle Button (for narrow screens) -->
+      <button
+        id="ff-mobile-menu-btn"
+        type="button"
+        class="xl:hidden inline-flex h-8 items-center px-2.5 rounded-md border border-[var(--border)] bg-[var(--muted-bg)]/60 font-mono text-xs text-[var(--muted-fg)] hover:text-[var(--fg)] hover:border-[var(--line-strong)] cursor-pointer transition"
+        aria-expanded="false"
+        aria-controls="ff-mobile-menu"
+        aria-label="Toggle navigation menu"
+      >
+        <span id="ff-menu-text">[ menu ]</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Collapsible Menu (Terminal Commands Grid) -->
+  <div
+    id="ff-mobile-menu"
+    class="hidden xl:hidden border-t-2 border-[var(--border)] bg-[var(--card)] px-4 sm:px-6 py-4 font-mono text-xs transition-all shadow-xl"
+  >
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 py-1">
+      {navItems.map((item, index) => (
+        <a
+          href={item.href}
+          data-section={item.id}
+          data-label-en={item.label}
+          data-label-vi={item.labelVi}
+          class="ff-mobile-nav-link flex items-center justify-between p-2.5 rounded-md border border-[var(--border)] bg-[var(--muted-bg)]/40 text-[var(--muted-fg)] hover:text-[var(--fg)] hover:border-[var(--signal)] transition"
+        >
+          <span class="truncate">
+            <span class="text-[var(--signal)] mr-1.5 font-bold">[{index + 1}]</span>
+            <span class="ff-mobile-tab-text font-medium">{item.label}</span>
+          </span>
+          <span class="text-[var(--signal)] text-[10px]">→</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  (function () {
+    // 1. Mobile Menu Toggle
+    var menuBtn = document.getElementById('ff-mobile-menu-btn');
+    var mobileMenu = document.getElementById('ff-mobile-menu');
+    var menuText = document.getElementById('ff-menu-text');
+
+    if (menuBtn && mobileMenu) {
+      menuBtn.addEventListener('click', function () {
+        var isHidden = mobileMenu.classList.toggle('hidden');
+        menuBtn.setAttribute('aria-expanded', !isHidden);
+        if (menuText) {
+          menuText.textContent = isHidden ? '[ menu ]' : '[ close ]';
+        }
+      });
+
+      var mobileLinks = mobileMenu.querySelectorAll('.ff-mobile-nav-link');
+      mobileLinks.forEach(function (link) {
+        link.addEventListener('click', function () {
+          mobileMenu.classList.add('hidden');
+          menuBtn.setAttribute('aria-expanded', 'false');
+          if (menuText) menuText.textContent = '[ menu ]';
+        });
+      });
+    }
+
+    // 2. Color mode sync
+    var colorBtn = document.getElementById('ff-color-mode-toggle');
+    var colorIcon = document.getElementById('ff-color-icon');
+
+    function syncColorIcon() {
+      var isDark = document.documentElement.classList.contains('dark');
+      if (colorIcon) colorIcon.textContent = isDark ? '🌙' : '☀️';
+    }
+    syncColorIcon();
+
+    if (colorBtn) {
+      colorBtn.addEventListener('click', function () {
+        var nowDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('color-theme', nowDark ? 'dark' : 'light');
+        syncColorIcon();
+      });
+    }
+
+    // 3. Theme cycle trigger
+    var themeBtn = document.getElementById('ff-theme-variant-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function () {
+        var mainToggle = document.getElementById('theme-variant-toggle');
+        if (mainToggle) {
+          mainToggle.click();
+        }
+      });
+    }
+
+    // 4. Smooth Anchor Navigation with Offset
+    function setupSmoothScroll() {
+      var links = document.querySelectorAll('#forkfolio-header a[href^="#"]');
+      links.forEach(function (link) {
+        link.removeEventListener('click', handleAnchorClick);
+        link.addEventListener('click', handleAnchorClick);
+      });
+    }
+
+    function handleAnchorClick(e) {
+      var link = e.currentTarget;
+      var href = link.getAttribute('href');
+      if (!href || href === '#') return;
+      var targetId = href.substring(1);
+      var root = document.querySelector('[data-theme-wrapper="forkfolio"]');
+      var viewport = document.getElementById('ff-terminal-viewport') || (root && root.querySelector('.ff-terminal-viewport'));
+      var targetEl = (root && root.querySelector('#' + targetId)) || document.getElementById(targetId);
+
+      if (viewport && targetEl) {
+        e.preventDefault();
+        var targetTop = targetEl.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop;
+        var sectionKey = link.dataset.section || targetId;
+        setActiveNav(sectionKey);
+        viewport.scrollTo({
+          top: Math.max(0, targetTop - 8),
+          behavior: 'smooth',
+        });
+        if (history.pushState) {
+          history.pushState(null, '', href);
+        }
+      }
+    }
+
+    // 5. Active Section Indicator on Tabs
+    var sectionMap = [
+      { sectionId: 'top', tabId: 'top' },
+      { sectionId: 'about', tabId: 'top' },
+      { sectionId: 'projects', tabId: 'projects' },
+      { sectionId: 'more-projects', tabId: 'more-projects' },
+      { sectionId: 'experience', tabId: 'experience' },
+      { sectionId: 'education', tabId: 'education' },
+      { sectionId: 'certifications', tabId: 'certifications' },
+      { sectionId: 'skills', tabId: 'skills' },
+      { sectionId: 'activity', tabId: 'activity' },
+      { sectionId: 'contact', tabId: 'contact' },
+    ];
+
+    var currentActiveTab = '';
+
+    function setActiveNav(tabId) {
+      if (!tabId) tabId = 'top';
+      currentActiveTab = tabId;
+
+      var desktopLinks = document.querySelectorAll('.ff-nav-tab');
+      desktopLinks.forEach(function (link) {
+        var isCurrent = link.dataset.section === tabId;
+        link.classList.toggle('is-active', isCurrent);
+        link.classList.toggle('bg-[var(--signal)]/15', isCurrent);
+        link.classList.toggle('text-[var(--signal)]', isCurrent);
+        link.classList.toggle('font-bold', isCurrent);
+        link.classList.toggle('border-[var(--signal)]/40', isCurrent);
+        link.classList.toggle('shadow-xs', isCurrent);
+        link.classList.toggle('border-transparent', !isCurrent);
+        link.classList.toggle('text-[var(--muted-fg)]', !isCurrent);
+        link.classList.toggle('font-medium', !isCurrent);
+      });
+
+      var mobileLinks = document.querySelectorAll('.ff-mobile-nav-link');
+      mobileLinks.forEach(function (link) {
+        var isCurrent = link.dataset.section === tabId;
+        link.classList.toggle('border-[var(--signal)]', isCurrent);
+        link.classList.toggle('bg-[var(--signal)]/10', isCurrent);
+        link.classList.toggle('text-[var(--signal)]', isCurrent);
+        link.classList.toggle('font-bold', isCurrent);
+        link.classList.toggle('text-[var(--muted-fg)]', !isCurrent);
+        link.classList.toggle('font-medium', !isCurrent);
+      });
+    }
+
+    function onScrollNavActive() {
+      var root = document.querySelector('[data-theme-wrapper="forkfolio"]');
+      if (!root || root.classList.contains('hidden')) return;
+
+      var viewport = document.getElementById('ff-terminal-viewport') || (root && root.querySelector('.ff-terminal-viewport'));
+      var scrollY = viewport ? (viewport.scrollTop || 0) : (window.scrollY || 0);
+      var maxScroll = viewport ? (viewport.scrollHeight - viewport.clientHeight) : (document.documentElement.scrollHeight - window.innerHeight);
+
+      var activeTab = 'top';
+
+      if (scrollY < 80) {
+        activeTab = 'top';
+      } else if (maxScroll > 0 && maxScroll - scrollY < 60) {
+        activeTab = 'contact';
+      } else {
+        var containerTop = viewport ? viewport.getBoundingClientRect().top : 0;
+        var triggerY = viewport ? (viewport.clientHeight * 0.32) : (window.innerHeight * 0.32);
+
+        for (var i = 0; i < sectionMap.length; i++) {
+          var item = sectionMap[i];
+          var el = root.querySelector('#' + item.sectionId);
+          if (el) {
+            var rect = el.getBoundingClientRect();
+            var relTop = rect.top - containerTop;
+            var relBottom = rect.bottom - containerTop;
+            if (relTop <= triggerY && relBottom >= 40) {
+              activeTab = item.tabId;
+            }
+          }
+        }
+      }
+
+      if (activeTab !== currentActiveTab) {
+        setActiveNav(activeTab);
+      }
+    }
+
+    var ticking = false;
+    function onNavScrollThrottled() {
+      if (!ticking) {
+        window.requestAnimationFrame(function () {
+          onScrollNavActive();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    function attachScroll() {
+      var root = document.querySelector('[data-theme-wrapper="forkfolio"]');
+      var viewport = document.getElementById('ff-terminal-viewport') || (root && root.querySelector('.ff-terminal-viewport'));
+      if (viewport) {
+        viewport.removeEventListener('scroll', onNavScrollThrottled);
+        viewport.addEventListener('scroll', onNavScrollThrottled, { passive: true });
+      }
+      window.removeEventListener('scroll', onNavScrollThrottled);
+      window.addEventListener('scroll', onNavScrollThrottled, { passive: true });
+      window.removeEventListener('resize', onNavScrollThrottled);
+      window.addEventListener('resize', onNavScrollThrottled);
+    }
+
+    function initNav() {
+      setupSmoothScroll();
+      attachScroll();
+      currentActiveTab = '';
+      onScrollNavActive();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initNav);
+    } else {
+      initNav();
+    }
+
+    window.addEventListener('theme:changed', function (e) {
+      if (e && e.detail && e.detail.theme === 'forkfolio') {
+        initNav();
+      }
+    });
+
+    // 6. i18n Label Synchronization
+    function updateNavLocale(locale) {
+      var isVi = locale === 'vi';
+      var allTabTexts = document.querySelectorAll('.ff-nav-tab');
+      allTabTexts.forEach(function (link) {
+        var text = isVi ? link.dataset.labelVi : link.dataset.labelEn;
+        var span = link.querySelector('.ff-tab-text');
+        if (span && text) span.textContent = text;
+      });
+
+      var mobileLinks = document.querySelectorAll('.ff-mobile-nav-link');
+      mobileLinks.forEach(function (link) {
+        var text = isVi ? link.dataset.labelVi : link.dataset.labelEn;
+        var span = link.querySelector('.ff-mobile-tab-text');
+        if (span && text) span.textContent = text;
+      });
+    }
+
+    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
+    updateNavLocale(initialLoc);
+
+    window.addEventListener('locale:changed', function (e) {
+      var loc = (e && e.detail && e.detail.locale) || 'en';
+      updateNavLocale(loc);
+    });
+  })();
+</script>

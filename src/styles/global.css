@@ -786,3 +786,65 @@ body {
 .ff-heatmap-3 { background: color-mix(in srgb, var(--signal) 78%, var(--muted-bg)); }
 .ff-heatmap-4 { background: var(--signal); }
 
+/* Forkfolio Modern Mono Isolation & Viewport Geometry */
+html[data-portfolio-theme="forkfolio"] #site-header,
+html[data-portfolio-theme="forkfolio"] #scrollProgress {
+  display: none !important;
+}
+
+html[data-portfolio-theme="forkfolio"],
+html[data-portfolio-theme="forkfolio"] body {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+html[data-portfolio-theme="forkfolio"] #main-content,
+html[data-portfolio-theme="forkfolio"] #theme-forkfolio-wrapper {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.ff-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+}
+.ff-table th {
+  padding: 0.6rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-fg);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--muted-bg);
+}
+.ff-table td {
+  padding: 0.75rem 0.85rem;
+  font-size: 0.8125rem;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.18s ease;
+}
+.ff-table tr:hover td {
+  background-color: var(--muted-bg);
+}
+
+/* ==========================================================================
+   KNIGHT THEME ISOLATION RULES
+   Knight theme provides its own dedicated navigation header & dark viewport
+   ========================================================================== */
+html[data-portfolio-theme="knight"] #site-header {
+  display: none !important;
+}
+
+html[data-portfolio-theme="knight"] {
+  background-color: #0a0a0c !important;
+}
+
+

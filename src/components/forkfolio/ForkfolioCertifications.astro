@@ -1,0 +1,142 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { safeUrl } from '../../lib/render';
+import TerminalPrompt from './terminal/TerminalPrompt.astro';
+import type { Certification } from '../../data/portfolio';
+
+interface Props {
+  certifications?: Certification[];
+}
+
+const { certifications = portfolioData.certifications ?? [] } = Astro.props;
+---
+
+<section
+  id="certifications"
+  class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]"
+  data-terminal-section="certifications"
+>
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-8">
+    <!-- Command Introduction -->
+    <div class="space-y-2">
+      <TerminalPrompt
+        command="ls ~/certifications"
+        user="quan"
+        host="portfolio"
+        path="~"
+        typeSpeed={28}
+        typeDelay={100}
+        id="cmd-certifications"
+      />
+      <div class="flex items-center justify-between pt-1">
+        <h2 class="ff-cert-heading font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+          CERTIFICATIONS
+        </h2>
+        <span class="font-mono text-xs text-[var(--muted-fg)]">
+          [04] ~/<span class="text-[var(--signal)]">certifications</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Output: Certifications modules grid -->
+    <div class="ff-term-output grid grid-cols-1 md:grid-cols-2 gap-6">
+      {certifications.map((c, idx) => (
+        <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-4 hover:border-[var(--line-strong)] transition shadow-sm">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-3">
+            <span class="px-2.5 py-0.5 rounded bg-[var(--muted-bg)] text-[var(--signal)] font-bold">
+              [{c.badge || `CERT-${idx + 1}`}]
+            </span>
+            <span class="text-[var(--muted-fg)] font-mono">{c.issueDate || 'VERIFIED'}</span>
+          </div>
+
+          <div>
+            <h3
+              class="font-mono text-lg sm:text-xl font-bold text-[var(--fg)] ff-cert-name"
+              data-name-en={c.name}
+              data-name-vi={c.name_vi || c.name}
+            >
+              {c.name}
+            </h3>
+            <p
+              class="font-mono text-xs text-[var(--signal)] font-medium mt-1 ff-cert-issuer"
+              data-issuer-en={c.issuer}
+              data-issuer-vi={c.issuer_vi || c.issuer}
+            >
+              {c.issuer}
+            </p>
+          </div>
+
+          {c.description && (
+            <p
+              class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-mono ff-cert-desc"
+              data-desc-en={c.description}
+              data-desc-vi={c.description_vi || c.description}
+            >
+              {c.description}
+            </p>
+          )}
+
+          <div class="pt-3 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+            {c.credentialId ? (
+              <span class="text-[11px] text-[var(--muted-fg)]">
+                ID: <span class="text-[var(--fg)] font-semibold">{c.credentialId}</span>
+              </span>
+            ) : <span></span>}
+
+            {c.credentialUrl && (
+              <a
+                href={safeUrl(c.credentialUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="ff-btn text-xs !py-1 !px-2.5"
+              >
+                <span>[ verify ↗ ]</span>
+              </a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    function updateCertsLocale(locale) {
+      var isVi = locale === 'vi';
+      var heading = document.querySelector('.ff-cert-heading');
+      if (heading) heading.textContent = isVi ? 'CHỨNG CHỈ' : 'CERTIFICATIONS';
+
+      var names = document.querySelectorAll('.ff-cert-name');
+      names.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-name-vi') : el.getAttribute('data-name-en');
+        if (text) el.textContent = text;
+      });
+
+      var issuers = document.querySelectorAll('.ff-cert-issuer');
+      issuers.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-issuer-vi') : el.getAttribute('data-issuer-en');
+        if (text) el.textContent = text;
+      });
+
+      var descs = document.querySelectorAll('.ff-cert-desc');
+      descs.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-desc-vi') : el.getAttribute('data-desc-en');
+        if (text) el.textContent = text;
+      });
+    }
+
+    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
+    updateCertsLocale(initialLoc);
+
+    window.addEventListener('locale:changed', function (e) {
+      var loc = (e && e.detail && e.detail.locale) || 'en';
+      updateCertsLocale(loc);
+    });
+  })();
+</script>

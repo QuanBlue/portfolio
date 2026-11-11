@@ -1,0 +1,61 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { safeUrl } from '../../lib/render';
+import TerminalPrompt from './terminal/TerminalPrompt.astro';
+const { identity } = portfolioData;
+---
+
+<footer class="pt-12 pb-16 sm:pb-20 border-t border-[var(--border)] font-mono text-xs text-[var(--muted-fg)] bg-[var(--bg)]" data-terminal-section="footer">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-8">
+    <!-- Session Ending Sequence -->
+    <div class="p-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] space-y-3 shadow-sm">
+      <TerminalPrompt
+        command="exit"
+        user="quan"
+        host="portfolio"
+        path="~"
+        typeSpeed={25}
+        typeDelay={80}
+        id="cmd-exit"
+      />
+
+      <div class="ff-term-output font-mono text-xs space-y-1 text-[var(--muted-fg)] pl-4 border-l-2 border-[var(--border)]">
+        <div>logout</div>
+        <div>Saving session...</div>
+        <div>...saving history: 14 commands</div>
+        <div>...completed.</div>
+        <div class="text-[var(--signal)] font-bold pt-1">[Process completed]</div>
+      </div>
+    </div>
+
+    <!-- Navigation & Copyright Links -->
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        © {new Date().getFullYear()} <strong class="text-[var(--fg)]"><span data-bind="name">{identity.name}</span></strong> · thanhquan.dev
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">
+          [ github ]
+        </a>
+        <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="hover:text-[var(--fg)] transition">
+          [ linkedin ]
+        </a>
+        <a href="/blog" class="hover:text-[var(--fg)] transition">
+          [ blog ]
+        </a>
+        <a href="/admin" class="hover:text-[var(--fg)] transition">
+          [ admin ]
+        </a>
+        <a href="#top" class="hover:text-[var(--signal)] transition">
+          [ top ↑ ]
+        </a>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-3 border-t border-[var(--border)] text-[10px] text-[var(--faint)]">
+      <span>THEME: FORKFOLIO_MODERN_MONO</span>
+      <span class="tracking-widest select-none font-bold text-[var(--line-strong)]">+ + + +</span>
+    </div>
+  </div>
+</footer>

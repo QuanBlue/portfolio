@@ -1,0 +1,224 @@
+---
+// TerminalStatusBar.astro — Elevated Persistent Terminal Status & Segmented Progress Rail
+// Conforms to Forkfolio Modern Mono single-terminal application frame with prominent visual hierarchy
+const cellCount = 24;
+---
+
+<div
+  id="ff-terminal-status-bar"
+  class="shrink-0 z-20 w-full select-none"
+  aria-label="Terminal Session Status Rail"
+>
+  <div class="w-full px-4 sm:px-6 md:px-8 h-11 sm:h-12 flex items-center justify-between font-mono select-none transition-colors">
+    <!-- Left Region: Active Section Mode & Session Host (Elevated & Inset) -->
+    <div class="flex items-center gap-2.5 sm:gap-4 truncate">
+      <!-- Active Section Mode Badge -->
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[var(--signal)]/20 text-[var(--signal)] font-bold uppercase tracking-wider text-[11px] sm:text-xs border border-[var(--signal)]/40 shadow-xs">
+        <span class="size-1.5 sm:size-2 rounded-full bg-[var(--signal)] animate-pulse" aria-hidden="true"></span>
+        <span id="ff-sb-section">About</span>
+      </span>
+
+      <!-- Divider -->
+      <span class="text-[var(--border)] hidden sm:inline" aria-hidden="true">|</span>
+
+      <!-- Terminal Session Identity Pill -->
+      <span class="hidden md:inline-flex items-center gap-1 text-xs text-[var(--fg)] font-semibold px-2 py-0.5 rounded bg-[var(--card)]/90 border border-[var(--border)] shadow-xs">
+        <span class="text-[var(--signal)]">quanblue</span>@portfolio:<span class="text-[var(--signal)]">~</span>
+      </span>
+    </div>
+
+    <!-- Right Region: Segmented Scroll Progress Bar, Git Branch & Clock -->
+    <div class="flex items-center gap-2.5 sm:gap-4 lg:gap-5 shrink-0">
+      <!-- Segmented Terminal Progress Bar (Hardware Matrix Gauge) -->
+      <div class="ff-seg-progress" title="Terminal Session Scroll Progress">
+        <span class="text-[var(--muted-fg)] font-mono text-xs select-none font-bold" aria-hidden="true">[</span>
+        <div id="ff-seg-track" class="ff-seg-track" aria-hidden="true">
+          {Array.from({ length: cellCount }).map((_, idx) => (
+            <span class="ff-seg-cell" data-idx={idx}></span>
+          ))}
+        </div>
+        <span class="text-[var(--muted-fg)] font-mono text-xs select-none font-bold" aria-hidden="true">]</span>
+        <span id="ff-sb-pct" class="font-mono font-bold text-xs text-[var(--fg)] w-8 sm:w-9 text-right ml-0.5 select-none">0%</span>
+      </div>
+
+      <!-- Divider -->
+      <span class="text-[var(--border)]" aria-hidden="true">|</span>
+
+      <!-- Git Branch Status Pill -->
+      <div class="flex items-center gap-1 px-2 py-0.5 rounded bg-[var(--card)]/90 border border-[var(--border)] text-xs text-[var(--fg)] font-semibold shadow-xs">
+        <svg class="size-3.5 text-[var(--signal)] shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M11.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122V6A2.5 2.5 0 0110 8.5H6a1 1 0 00-1 1v1.128a2.251 2.251 0 11-1.5 0V5.372a2.25 2.25 0 111.5 0v1.836A2.492 2.492 0 016 7h4a1 1 0 001-1v-.628A2.25 2.25 0 019.5 3.25zM4.25 12a.75.75 0 100 1.5.75.75 0 000-1.5zM3.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0z" />
+        </svg>
+        <span class="font-mono text-xs font-bold text-[var(--fg)]">main</span>
+      </div>
+
+      <!-- Clock & Encoding Metadata (Desktop) -->
+      <div class="hidden lg:flex items-center gap-2 pl-2.5 border-l border-[var(--border)] text-xs font-mono text-[var(--muted-fg)]">
+        <span id="ff-sb-clock" class="text-[var(--fg)] font-medium">--:--</span>
+        <span class="text-[var(--border)]" aria-hidden="true">·</span>
+        <span>utf-8</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var sectionList = [
+      { id: 'top', en: 'About', vi: 'Giới thiệu' },
+      { id: 'about', en: 'About', vi: 'Giới thiệu' },
+      { id: 'projects', en: 'Projects', vi: 'Dự án' },
+      { id: 'more-projects', en: 'More projects', vi: 'Thêm dự án' },
+      { id: 'experience', en: 'Experience', vi: 'Kinh nghiệm' },
+      { id: 'education', en: 'Education', vi: 'Học vấn' },
+      { id: 'certifications', en: 'Certifications', vi: 'Chứng chỉ' },
+      { id: 'skills', en: 'Skills', vi: 'Kỹ năng' },
+      { id: 'activity', en: 'Activity', vi: 'Hoạt động' },
+      { id: 'contact', en: 'Contact', vi: 'Liên hệ' },
+      { id: 'cmd-exit', en: 'Exit', vi: 'Thoát' },
+    ];
+
+    var currentActiveId = 'top';
+
+    function getLocale() {
+      return localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
+    }
+
+    function updateSectionLabel(id) {
+      if (!id) id = currentActiveId;
+      var loc = getLocale();
+      var item = sectionList.find(function (s) { return s.id === id; });
+      var text = item ? (loc === 'vi' ? item.vi : item.en) : (loc === 'vi' ? 'Giới thiệu' : 'About');
+      var labelEl = document.getElementById('ff-sb-section');
+      if (labelEl && labelEl.textContent !== text) {
+        labelEl.textContent = text;
+      }
+    }
+
+    function updateScrollTelemetry() {
+      var root = document.querySelector('[data-theme-wrapper="forkfolio"]');
+      if (!root || root.classList.contains('hidden')) return;
+
+      var viewport = document.getElementById('ff-terminal-viewport') || (root && root.querySelector('.ff-terminal-viewport'));
+      var scrollY = viewport ? (viewport.scrollTop || 0) : (window.scrollY || 0);
+      var docHeight = viewport
+        ? (viewport.scrollHeight - viewport.clientHeight)
+        : (document.documentElement.scrollHeight - window.innerHeight);
+
+      var pct = docHeight > 0 ? Math.min(100, Math.max(0, Math.round((scrollY / docHeight) * 100))) : 0;
+
+      // 1. Percentage Text
+      var pctEl = document.getElementById('ff-sb-pct');
+      if (pctEl) pctEl.textContent = pct + '%';
+
+      // 2. Segmented Hardware Cells
+      var cells = document.querySelectorAll('.ff-seg-cell');
+      if (cells && cells.length > 0) {
+        var visibleCells = [];
+        for (var c = 0; c < cells.length; c++) {
+          if (cells[c].offsetWidth > 0 || window.getComputedStyle(cells[c]).display !== 'none') {
+            visibleCells.push(cells[c]);
+          }
+        }
+        var total = visibleCells.length;
+        var filledCount = total > 0 ? Math.min(total, Math.max(0, Math.round((pct / 100) * total))) : 0;
+        for (var i = 0; i < total; i++) {
+          var isFilled = i < filledCount;
+          var isLeading = isFilled && (i === filledCount - 1) && pct > 0 && pct < 100;
+          visibleCells[i].classList.toggle('is-filled', isFilled);
+          visibleCells[i].classList.toggle('is-leading', isLeading);
+        }
+      }
+
+      // 3. Active Section Detection
+      var maxScroll = viewport ? (viewport.scrollHeight - viewport.clientHeight) : (document.documentElement.scrollHeight - window.innerHeight);
+      var foundId = 'top';
+
+      if (scrollY < 80) {
+        foundId = 'top';
+      } else if (maxScroll > 0 && maxScroll - scrollY < 60) {
+        foundId = 'contact';
+      } else {
+        var containerTop = viewport ? viewport.getBoundingClientRect().top : 0;
+        var triggerY = viewport ? (viewport.clientHeight * 0.32) : (window.innerHeight * 0.32);
+
+        for (var k = 0; k < sectionList.length; k++) {
+          var s = sectionList[k];
+          var el = root.querySelector('#' + s.id);
+          if (el) {
+            var rect = el.getBoundingClientRect();
+            var relTop = rect.top - containerTop;
+            var relBottom = rect.bottom - containerTop;
+            if (relTop <= triggerY && relBottom >= 40) {
+              foundId = s.id;
+            }
+          }
+        }
+      }
+
+      if (foundId !== currentActiveId) {
+        currentActiveId = foundId;
+        updateSectionLabel(foundId);
+      }
+    }
+
+    var ticking = false;
+    function onScrollThrottled() {
+      if (!ticking) {
+        window.requestAnimationFrame(function () {
+          updateScrollTelemetry();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    function attachScroll() {
+      var root = document.querySelector('[data-theme-wrapper="forkfolio"]');
+      var viewport = document.getElementById('ff-terminal-viewport') || (root && root.querySelector('.ff-terminal-viewport'));
+      if (viewport) {
+        viewport.removeEventListener('scroll', onScrollThrottled);
+        viewport.addEventListener('scroll', onScrollThrottled, { passive: true });
+      }
+      window.removeEventListener('scroll', onScrollThrottled);
+      window.addEventListener('scroll', onScrollThrottled, { passive: true });
+      window.removeEventListener('resize', onScrollThrottled);
+      window.addEventListener('resize', onScrollThrottled);
+    }
+
+    function initStatusRail() {
+      attachScroll();
+      updateScrollTelemetry();
+      updateClock();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initStatusRail);
+    } else {
+      initStatusRail();
+    }
+
+    // Locale Changed Listener
+    window.addEventListener('locale:changed', function () {
+      updateSectionLabel(currentActiveId);
+    });
+
+    // Theme Changed Listener
+    window.addEventListener('theme:changed', function (e) {
+      if (e && e.detail && e.detail.theme === 'forkfolio') {
+        initStatusRail();
+      }
+    });
+
+    // Live Clock Updater
+    function updateClock() {
+      var clockEl = document.getElementById('ff-sb-clock');
+      if (!clockEl) return;
+      var now = new Date();
+      var h = String(now.getHours()).padStart(2, '0');
+      var m = String(now.getMinutes()).padStart(2, '0');
+      clockEl.textContent = h + ':' + m;
+    }
+    setInterval(updateClock, 10000);
+  })();
+</script>

@@ -1,0 +1,39 @@
+---
+interface Props {
+  command?: string;
+  stepText?: string;
+  completionText?: string;
+  percent?: number;
+  class?: string;
+}
+
+const {
+  command = 'npm install -g',
+  stepText = 'reify: extracting dependencies...',
+  completionText = 'added 1 package, audited 14 packages in 0.42s · 0 vulnerabilities',
+  percent = 100,
+  class: className = '',
+} = Astro.props;
+---
+
+<div class={`ff-term-progress space-y-2 font-mono text-xs ${className}`} data-terminal-progress="true">
+  {command && (
+    <div class="flex items-center gap-2 text-[var(--muted-fg)]">
+      <span class="text-[var(--signal)]">›</span>
+      <span class="text-[var(--fg)] font-semibold">{command}</span>
+    </div>
+  )}
+
+  <div class="ff-term-prog-track">
+    <div class="ff-term-prog-bar" data-target-percent={percent} style={`width: 0%;`}></div>
+  </div>
+
+  <div class="flex items-center justify-between text-[11px] text-[var(--muted-fg)]">
+    <span class="ff-prog-step text-[var(--muted-fg)]">{stepText}</span>
+    <span class="ff-prog-pct text-[var(--signal)] font-bold">0%</span>
+  </div>
+
+  <div class="ff-prog-complete hidden pt-1 text-[11px] text-[var(--signal)] font-medium">
+    ✓ {completionText}
+  </div>
+</div>

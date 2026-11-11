@@ -204,10 +204,27 @@ const { identity, telemetry } = portfolioData;
   let typewriterTimer: ReturnType<typeof setInterval> | null = null;
   let pauseTimer: ReturnType<typeof setTimeout> | null = null;
 
+  function stopNameCipherDecoder() {
+    if (typewriterTimer) {
+      clearInterval(typewriterTimer);
+      typewriterTimer = null;
+    }
+    if (pauseTimer) {
+      clearTimeout(pauseTimer);
+      pauseTimer = null;
+    }
+  }
+
   function runNameCipherDecoder() {
     if (!nameEl) return;
-    if (typewriterTimer) clearInterval(typewriterTimer);
-    if (pauseTimer) clearTimeout(pauseTimer);
+    stopNameCipherDecoder();
+
+    // Guard: only run decoder when ASCII theme is active
+    if (document.documentElement.dataset.portfolioTheme !== 'ascii') {
+      const targetName = nameEl.dataset.target || nameEl.textContent?.trim() || 'Nguyễn Thanh Quân';
+      nameEl.textContent = targetName;
+      return;
+    }
 
     const target = nameEl.dataset.target || nameEl.textContent?.trim() || 'Nguyễn Thanh Quân';
     const cipherChars = '01#@$%&*+=~_/?\\<>[];:!XABCDEF';
@@ -378,6 +395,7 @@ const { identity, telemetry } = portfolioData;
   }
 
   function initMatrixBg() {
+    if (document.documentElement.dataset.portfolioTheme !== 'ascii') return;
     const bg = document.querySelector('.ascii-matrix-bg');
     if (!bg) return;
     const chars = '01#@$%&*+-=~.:;/\\|';
@@ -392,7 +410,11 @@ const { identity, telemetry } = portfolioData;
     bg.textContent = lines.join('\n');
   }
 
-  initMatrixBg();
+  // Guard initial triggers: only run when ASCII theme is active
+  if (document.documentElement.dataset.portfolioTheme === 'ascii') {
+    initMatrixBg();
+    runNameCipherDecoder();
+  }
 
   // --- Banner Font Switcher (Slant / ANSI Cyber Shadow) ---
   const bannerPre = document.getElementById('ascii-banner-pre');
@@ -433,14 +455,14 @@ const { identity, telemetry } = portfolioData;
   btnFontSlant?.addEventListener('click', () => setBannerFont('slant'));
   btnFontAnsi?.addEventListener('click', () => setBannerFont('ansi'));
 
-  // Initial animation trigger
-  runNameCipherDecoder();
-
   // Listen to theme variant switches
   window.addEventListener('theme:changed', (e: Event) => {
     const theme = (e as CustomEvent).detail?.theme;
     if (theme === 'ascii') {
+      initMatrixBg();
       runNameCipherDecoder();
+    } else {
+      stopNameCipherDecoder();
     }
   });
 

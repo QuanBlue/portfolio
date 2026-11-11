@@ -1,21 +1,126 @@
 ---
+import ForkfolioNav from '../forkfolio/ForkfolioNav.astro';
 import ForkfolioHero from '../forkfolio/ForkfolioHero.astro';
 import ForkfolioAbout from '../forkfolio/ForkfolioAbout.astro';
 import ForkfolioProjects from '../forkfolio/ForkfolioProjects.astro';
 import ForkfolioExperience from '../forkfolio/ForkfolioExperience.astro';
 import ForkfolioEducation from '../forkfolio/ForkfolioEducation.astro';
+import ForkfolioCertifications from '../forkfolio/ForkfolioCertifications.astro';
 import ForkfolioSkills from '../forkfolio/ForkfolioSkills.astro';
+import ForkfolioAdditionalProjects from '../forkfolio/ForkfolioAdditionalProjects.astro';
 import ForkfolioActivity from '../forkfolio/ForkfolioActivity.astro';
 import ForkfolioContact from '../forkfolio/ForkfolioContact.astro';
+import ForkfolioFooter from '../forkfolio/ForkfolioFooter.astro';
+import TerminalStatusBar from '../forkfolio/terminal/TerminalStatusBar.astro';
+
+import '../forkfolio/terminal/terminal.css';
+import { portfolioData } from '../../data/portfolio';
+
+const allProjects = portfolioData.projects ?? [];
+const featuredProjects = allProjects.length > 4 ? allProjects.slice(0, 4) : allProjects;
+const moreProjects = allProjects.length > 4 ? allProjects.slice(4) : [];
 ---
 
-<div class="theme-forkfolio-container min-h-screen">
-  <ForkfolioHero />
-  <ForkfolioAbout />
-  <ForkfolioProjects />
-  <ForkfolioExperience />
-  <ForkfolioEducation />
-  <ForkfolioSkills />
-  <ForkfolioActivity />
-  <ForkfolioContact />
+<!-- Single Master Terminal Application Container with Viewport Margins -->
+<div class="theme-forkfolio-container ff-master-terminal-wrapper" data-ff-root="true">
+  <!-- Master Terminal Application Window Frame -->
+  <div class="ff-terminal-shell">
+    <!-- 1. Top Terminal Window Chrome & Integrated Subnavigation (Fixed at top of shell) -->
+    <ForkfolioNav />
+
+    <!-- 2. Continuous Terminal Content Session Viewport (Internal Scroll Container) -->
+    <main id="ff-terminal-viewport" class="ff-terminal-viewport">
+      <!-- 2.1 Hero Section with Session Init & whoami -->
+      <ForkfolioHero />
+
+      <!-- 2.2 About Section with cat ~/about.md -->
+      <ForkfolioAbout />
+
+      <!-- 2.3 Featured Projects with ls ~/projects & progress simulation -->
+      <ForkfolioProjects projects={featuredProjects} />
+
+      <!-- 2.4 Optional Additional Repositories Table with ls -la ~/src -->
+      {moreProjects.length > 0 && <ForkfolioAdditionalProjects projects={moreProjects} />}
+
+      <!-- 2.5 Experience Timeline with cat ~/career.log -->
+      <ForkfolioExperience experience={portfolioData.experience} />
+
+      <!-- 2.6 Education Section with cat ~/education.md -->
+      <ForkfolioEducation education={portfolioData.education} />
+
+      <!-- 2.7 Independent Certifications Section with ls ~/certifications -->
+      <ForkfolioCertifications certifications={portfolioData.certifications} />
+
+      <!-- 2.8 Minimal Grouped Skill Modules with brew bundle -->
+      <ForkfolioSkills skills={portfolioData.skills} />
+
+      <!-- 2.9 Activity & Telemetry Heatmap with git log -->
+      <ForkfolioActivity />
+
+      <!-- 2.10 Contact Section with mail quanblue & cat ~/.links -->
+      <ForkfolioContact />
+
+      <!-- 2.11 Minimal Monospace Footer with exit & logout sequence -->
+      <ForkfolioFooter />
+    </main>
+
+    <!-- 3. Attached Persistent Bottom Terminal Status Rail (Fixed at bottom of shell) -->
+    <TerminalStatusBar />
+  </div>
 </div>
+
+<script>
+  import { initTerminalSequences } from '../forkfolio/terminal/terminal-sequence';
+  import { getSession, isOwnerSession } from '../../lib/supabase';
+
+  let cleanupTerminal: (() => void) | null = null;
+
+  // 1. Initialize Terminal Presentation Sequences with internal scroll viewport
+  function setupTheme() {
+    if (document.documentElement.dataset.portfolioTheme !== 'forkfolio') return;
+    const root = document.querySelector<HTMLElement>('[data-theme-wrapper="forkfolio"]');
+    if (!root) return;
+    const viewport = root.querySelector<HTMLElement>('#ff-terminal-viewport') || root.querySelector<HTMLElement>('.ff-terminal-viewport');
+    teardownTheme();
+    cleanupTerminal = initTerminalSequences({ root, scrollRoot: viewport }) || null;
+  }
+
+  function teardownTheme() {
+    if (cleanupTerminal) {
+      cleanupTerminal();
+      cleanupTerminal = null;
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.documentElement.dataset.portfolioTheme === 'forkfolio') {
+        setupTheme();
+      }
+    });
+  } else {
+    if (document.documentElement.dataset.portfolioTheme === 'forkfolio') {
+      setupTheme();
+    }
+  }
+
+  // Handle dynamic theme change event
+  window.addEventListener('theme:changed', (e: Event) => {
+    const theme = (e as CustomEvent).detail?.theme;
+    if (theme === 'forkfolio') {
+      setupTheme();
+    } else {
+      teardownTheme();
+    }
+  });
+
+  // 2. Sync admin dot when owner session is detected
+  getSession().then((session) => {
+    if (isOwnerSession(session)) {
+      const dot = document.getElementById('ff-admin-dot');
+      if (dot) {
+        dot.classList.remove('hidden');
+      }
+    }
+  });
+</script>

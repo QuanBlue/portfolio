@@ -1,22 +1,46 @@
 ---
 import { portfolioData } from '../../data/portfolio';
-const education = portfolioData.education ?? [];
+import TerminalPrompt from './terminal/TerminalPrompt.astro';
+import type { EducationItem } from '../../data/portfolio';
+
+interface Props {
+  education?: EducationItem[];
+}
+
+const { education = portfolioData.education ?? [] } = Astro.props;
 ---
 
-<section id="education" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]">
-  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
-    <!-- Header -->
+<section
+  id="education"
+  class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]"
+  data-terminal-section="education"
+>
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-8">
+    <!-- Command Introduction -->
     <div class="space-y-2">
-      <div class="font-mono text-xs text-[var(--signal)] tracking-wider">// 04. EDUCATION &amp; RESEARCH</div>
-      <h2 class="font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
-        EDUCATION
-      </h2>
+      <TerminalPrompt
+        command="cat ~/education.md"
+        user="quan"
+        host="portfolio"
+        path="~"
+        typeSpeed={28}
+        typeDelay={100}
+        id="cmd-education"
+      />
+      <div class="flex items-center justify-between pt-1">
+        <h2 class="ff-edu-heading font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+          EDUCATION
+        </h2>
+        <span class="font-mono text-xs text-[var(--muted-fg)]">
+          [03] ~/<span class="text-[var(--signal)]">education.md</span>
+        </span>
+      </div>
     </div>
 
-    <!-- Education cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Output: Education editorial cards grid -->
+    <div class="ff-term-output grid grid-cols-1 md:grid-cols-2 gap-6">
       {education.map((ed, idx) => (
-        <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-4 hover:border-[var(--line-strong)] transition">
+        <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-4 hover:border-[var(--line-strong)] transition shadow-sm">
           <span class="ff-cross-tl">+</span>
           <span class="ff-cross-tr">+</span>
           <span class="ff-cross-bl">+</span>
@@ -26,19 +50,37 @@ const education = portfolioData.education ?? [];
             <span class="px-2.5 py-0.5 rounded bg-[var(--muted-bg)] text-[var(--signal)] font-bold">
               [{ed.badge || `0${idx + 1}`}]
             </span>
-            <span class="text-[var(--muted-fg)]">{ed.period}</span>
+            <span
+              class="text-[var(--muted-fg)] ff-edu-period"
+              data-period-en={ed.period}
+              data-period-vi={ed.period_vi || ed.period}
+            >
+              {ed.period}
+            </span>
           </div>
 
           <div>
-            <h3 class="font-mono text-lg sm:text-xl font-bold text-[var(--fg)]">
+            <h3
+              class="font-mono text-lg sm:text-xl font-bold text-[var(--fg)] ff-edu-degree"
+              data-degree-en={ed.degree}
+              data-degree-vi={ed.degree_vi || ed.degree}
+            >
               {ed.degree}
             </h3>
-            <p class="font-mono text-xs text-[var(--signal)] font-medium mt-1">
+            <p
+              class="font-mono text-xs text-[var(--signal)] font-medium mt-1 ff-edu-school"
+              data-school-en={ed.school}
+              data-school-vi={ed.school_vi || ed.school}
+            >
               {ed.school}
             </p>
           </div>
 
-          <p class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-sans">
+          <p
+            class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-mono ff-edu-desc"
+            data-desc-en={ed.description}
+            data-desc-vi={ed.description_vi || ed.description}
+          >
             {ed.description}
           </p>
         </article>
@@ -46,3 +88,45 @@ const education = portfolioData.education ?? [];
     </div>
   </div>
 </section>
+
+<script is:inline>
+  (function () {
+    function updateEducationLocale(locale) {
+      var isVi = locale === 'vi';
+      var heading = document.querySelector('.ff-edu-heading');
+      if (heading) heading.textContent = isVi ? 'HỌC VẤN' : 'EDUCATION';
+
+      var periods = document.querySelectorAll('.ff-edu-period');
+      periods.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-period-vi') : el.getAttribute('data-period-en');
+        if (text) el.textContent = text;
+      });
+
+      var degrees = document.querySelectorAll('.ff-edu-degree');
+      degrees.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-degree-vi') : el.getAttribute('data-degree-en');
+        if (text) el.textContent = text;
+      });
+
+      var schools = document.querySelectorAll('.ff-edu-school');
+      schools.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-school-vi') : el.getAttribute('data-school-en');
+        if (text) el.textContent = text;
+      });
+
+      var descs = document.querySelectorAll('.ff-edu-desc');
+      descs.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-desc-vi') : el.getAttribute('data-desc-en');
+        if (text) el.textContent = text;
+      });
+    }
+
+    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
+    updateEducationLocale(initialLoc);
+
+    window.addEventListener('locale:changed', function (e) {
+      var loc = (e && e.detail && e.detail.locale) || 'en';
+      updateEducationLocale(loc);
+    });
+  })();
+</script>

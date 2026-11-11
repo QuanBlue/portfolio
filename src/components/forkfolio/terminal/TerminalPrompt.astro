@@ -1,0 +1,56 @@
+---
+import TerminalCursor from './TerminalCursor.astro';
+
+interface Props {
+  user?: string;
+  host?: string;
+  path?: string;
+  command: string;
+  promptSymbol?: string;
+  autoType?: boolean;
+  typeSpeed?: number;
+  typeDelay?: number;
+  class?: string;
+  id?: string;
+}
+
+const {
+  user = 'quan',
+  host = 'portfolio',
+  path = '~',
+  command,
+  promptSymbol = '$',
+  autoType = true,
+  typeSpeed = 32,
+  typeDelay = 120,
+  class: className = '',
+  id,
+} = Astro.props;
+---
+
+<div
+  class={`ff-term-prompt flex flex-wrap items-center gap-1.5 font-mono text-xs sm:text-sm ${className}`}
+  data-terminal-prompt="true"
+  data-command={command}
+  data-type-speed={typeSpeed}
+  data-type-delay={typeDelay}
+  data-auto-type={autoType ? 'true' : 'false'}
+  id={id}
+>
+  <!-- Prompt Prefix -->
+  <span class="inline-flex items-center gap-1 text-[var(--signal)] font-bold select-none shrink-0">
+    <svg class="size-2.5 inline-block text-[var(--signal)] fill-current" viewBox="0 0 6 10" aria-hidden="true">
+      <path d="M1.3 2.2 4.6 5 1.3 7.8"></path>
+    </svg>
+    <span>{user}@{host}</span>
+    <span class="text-[var(--muted-fg)] font-normal">:</span>
+    <span class="text-[var(--primary)] font-semibold">{path}</span>
+    <span class="text-[var(--muted-fg)] font-normal">{promptSymbol}</span>
+  </span>
+
+  <!-- Command Line Content -->
+  <span class="ff-term-cmd font-semibold text-[var(--fg)] inline-flex items-center whitespace-pre">
+    <span class="ff-type-text" data-text={command}>{command}</span>
+    <TerminalCursor class="ff-prompt-cursor" />
+  </span>
+</div>

@@ -1,97 +1,193 @@
 ---
 import { portfolioData } from '../../data/portfolio';
 import { safeUrl } from '../../lib/render';
-const { projects } = portfolioData;
+import TerminalPrompt from './terminal/TerminalPrompt.astro';
+import TerminalProgress from './terminal/TerminalProgress.astro';
+import type { Project } from '../../data/portfolio';
+
+interface Props {
+  projects?: Project[];
+}
+
+const { projects = portfolioData.projects ?? [] } = Astro.props;
+const featuredProjects = projects.length > 4 ? projects.slice(0, 4) : projects;
+
+function getSimulatedCommand(project: Project): { cmd: string; step: string; completion: string } {
+  const tagsStr = (project.tags || []).join(' ').toLowerCase();
+  if (tagsStr.includes('ansible')) {
+    return {
+      cmd: `ansible-playbook -i inventory cluster.yml`,
+      step: 'TASK [k8s-node : Verify HA quorum & etcd health] ...',
+      completion: 'PLAY RECAP: ok=24 changed=3 unreachable=0 failed=0',
+    };
+  }
+  if (tagsStr.includes('python')) {
+    return {
+      cmd: `pip install -e . && pytest -v`,
+      step: 'collected 18 items · running test_s3_crud.py ...',
+      completion: '18 passed, 0 failed in 0.82s',
+    };
+  }
+  return {
+    cmd: `npm install -g github:QuanBlue/${project.title}`,
+    step: `reify:${project.title} extracting dependency tree...`,
+    completion: 'added 1 package, verified 0 vulnerabilities in 0.38s',
+  };
+}
 ---
 
-<section id="projects" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]">
-  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
-    <!-- Header with 01 / 02 counter -->
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div class="space-y-2">
-        <div class="font-mono text-xs text-[var(--signal)] tracking-wider">// 02. PROJECTS</div>
-        <h2 class="font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+<section
+  id="projects"
+  class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]"
+  data-terminal-section="projects"
+>
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-10">
+    <!-- Terminal Command Introduction -->
+    <div class="space-y-2">
+      <TerminalPrompt
+        command="ls ~/projects"
+        user="quan"
+        host="portfolio"
+        path="~"
+        typeSpeed={30}
+        typeDelay={100}
+        id="cmd-projects"
+      />
+      <div class="flex flex-wrap items-end justify-between gap-4 pt-1">
+        <h2 class="ff-proj-heading font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
           PROJECTS
         </h2>
-      </div>
-      <div class="font-mono text-sm text-[var(--muted-fg)]">
-        <span>01</span> / <span>{String(projects.length).padStart(2, '0')}</span>
+        <div class="font-mono text-xs text-[var(--muted-fg)]">
+          <span class="text-[var(--signal)] font-bold">[1]</span> {featuredProjects.length} featured repositories
+        </div>
       </div>
     </div>
 
-    <!-- Project List (Forkfolio Project Plates) -->
-    <div class="space-y-8">
-      {projects.map((p, idx) => {
+    <!-- Project List with Terminal Storytelling Output -->
+    <div class="ff-term-output space-y-10">
+      {featuredProjects.map((p, idx) => {
         const initials = p.title.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || 'PR';
         const num = String(idx + 1).padStart(2, '0');
-        const total = String(projects.length).padStart(2, '0');
+        const total = String(featuredProjects.length).padStart(2, '0');
+        const primaryTag = p.tags?.[0] || 'DevOps';
+        const isOnline = p.status === 'ONLINE';
+        const sim = getSimulatedCommand(p);
+
         return (
-          <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8 hover:border-[var(--line-strong)] transition shadow-sm">
+          <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-sm hover:border-[var(--line-strong)] transition-all">
+            <!-- 4 Corner Crosshairs (+) -->
             <span class="ff-cross-tl">+</span>
             <span class="ff-cross-tr">+</span>
             <span class="ff-cross-bl">+</span>
             <span class="ff-cross-br">+</span>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <!-- Left Project Details (lg:col-span-8) -->
-              <div class="lg:col-span-8 space-y-4">
-                <div class="flex flex-wrap items-center gap-3 font-mono text-xs text-[var(--muted-fg)]">
-                  <span class="font-bold text-[var(--signal)]">{num} / {total}</span>
-                  <span>·</span>
-                  <span class="uppercase tracking-wider">{p.status === 'ONLINE' ? '● PRODUCTION ACTIVE' : 'MAINTENANCE'}</span>
-                </div>
+            <!-- Terminal Structured Repository Header (Native Console Record) -->
+            <div class="border-b border-[var(--border)] bg-[var(--muted-bg)]/50 px-4 sm:px-6 py-2.5 flex items-center justify-between font-mono text-xs select-none">
+              <div class="flex items-center gap-2 truncate">
+                <span class="text-[var(--signal)] font-bold">[{num}/{total}]</span>
+                <span class="text-[var(--fg)] font-bold truncate">repo:{p.title}</span>
+                <span class="text-[10px] text-[var(--muted-fg)] hidden md:inline">~/projects/{p.title}</span>
+              </div>
+              <div class="hidden sm:flex items-center gap-2.5 font-mono text-[11px] text-[var(--muted-fg)] shrink-0">
+                <span>branch: <strong class="text-[var(--fg)]">main</strong></span>
+                <span class="text-[var(--border)]">·</span>
+                <span class="uppercase font-semibold text-[var(--signal)]">● {p.status}</span>
+              </div>
+            </div>
 
-                <h3 class="font-mono text-2xl sm:text-3xl font-black uppercase tracking-tight text-[var(--fg)]">
-                  {p.title}
-                </h3>
-
-                <p class="text-sm sm:text-base text-[var(--muted-fg)] leading-relaxed font-sans">
-                  {p.description || p.shortDesc}
-                </p>
-
-                <!-- Tags -->
-                <div class="flex flex-wrap gap-2 pt-2">
-                  {p.tags.map((tag) => (
-                    <span class="ff-tag">
-                      <span class="text-[var(--signal)]">#</span>
-                      <span>{tag}</span>
-                    </span>
-                  ))}
-                </div>
-
-                <!-- Action links -->
-                <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-[var(--border)]">
-                  <a
-                    href={safeUrl(p.link)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="ff-btn ff-btn-primary"
-                  >
-                    <span>[ view_repository ↗ ]</span>
-                  </a>
-
-                  <button
-                    type="button"
-                    data-project-trigger={p.id}
-                    class="ff-btn"
-                  >
-                    <span>[ view_details_modal ]</span>
-                  </button>
-                </div>
+            <!-- Card Body -->
+            <div class="p-6 sm:p-8 space-y-6">
+              <!-- Sub-Command: cat Project/README.md -->
+              <div class="flex items-center gap-2 font-mono text-xs text-[var(--muted-fg)] border-b border-[var(--border)]/70 pb-3">
+                <span class="text-[var(--signal)]">›</span>
+                <span class="text-[var(--fg)] font-semibold">cat {p.title}/README.md</span>
+                <span class="text-[10px] text-[var(--faint)] ml-auto">[markdown]</span>
               </div>
 
-              <!-- Right Project Monospace Plate / Initials (lg:col-span-4) -->
-              <div class="lg:col-span-4 flex justify-center lg:justify-end">
-                <div class="w-full sm:w-64 aspect-video sm:aspect-square rounded-xl border border-dashed border-[var(--line-strong)] bg-[var(--muted-bg)]/60 flex flex-col items-center justify-center p-6 text-center group">
-                  <span class="font-mono text-4xl sm:text-6xl font-black text-[var(--fg)] tracking-tight group-hover:text-[var(--signal)] transition-colors">
-                    {initials}
-                  </span>
-                  <span class="font-mono text-xs text-[var(--muted-fg)] mt-2">
-                    {p.tags[0] || 'DevOps'} · {p.status}
-                  </span>
-                  <span class="font-mono text-[11px] text-[var(--signal)] mt-1 opacity-80">
-                    github.com/QuanBlue/{p.title}
-                  </span>
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Left Project Details (lg:col-span-8) -->
+                <div class="lg:col-span-8 space-y-4">
+                  <h3 class="font-mono text-2xl sm:text-3xl font-black uppercase tracking-tight text-[var(--fg)]">
+                    {p.title}
+                  </h3>
+
+                  <p
+                    class="text-sm sm:text-base text-[var(--muted-fg)] leading-relaxed font-mono ff-proj-desc"
+                    data-desc-en={p.description || p.shortDesc}
+                    data-desc-vi={p.description_vi || p.shortDesc_vi || p.description || p.shortDesc}
+                  >
+                    {p.description || p.shortDesc}
+                  </p>
+
+                  <!-- Tech Tags -->
+                  <div class="flex flex-wrap gap-2 pt-1">
+                    {p.tags.map((tag) => (
+                      <span class="ff-tag">
+                        <span class="text-[var(--signal)]">#</span>
+                        <span>{tag}</span>
+                      </span>
+                    ))}
+                  </div>
+
+                  <!-- Terminal Installation / Execution Simulation -->
+                  <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 space-y-2">
+                    <TerminalProgress
+                      command={sim.cmd}
+                      stepText={sim.step}
+                      completionText={sim.completion}
+                      percent={100}
+                    />
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="flex flex-wrap items-center gap-3 pt-3 border-t border-[var(--border)]">
+                    <a
+                      href={safeUrl(p.link)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="ff-btn ff-btn-primary"
+                    >
+                      <span>[ view_repository ↗ ]</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      data-project-trigger={p.id}
+                      class="ff-btn cursor-pointer"
+                    >
+                      <span>[ view_details_modal ]</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Right Repository Specs / Monogram Plate (lg:col-span-4) -->
+                <div class="lg:col-span-4 space-y-4">
+                  <div class="w-full aspect-video sm:aspect-square rounded-xl border border-dashed border-[var(--border)] bg-[var(--muted-bg)]/60 flex flex-col items-center justify-center p-6 text-center group hover:border-[var(--signal)]/50 transition-colors">
+                    <span class="font-mono text-4xl sm:text-6xl font-black text-[var(--fg)] tracking-tight group-hover:text-[var(--signal)] transition-colors">
+                      {initials}
+                    </span>
+                    <span class="font-mono text-xs text-[var(--muted-fg)] mt-2">
+                      {primaryTag} · {p.status}
+                    </span>
+                    <span class="font-mono text-[11px] text-[var(--signal)] mt-1 opacity-80 truncate max-w-full px-2">
+                      github.com/QuanBlue/{p.title}
+                    </span>
+                  </div>
+
+                  <div class="p-3 rounded-lg border border-[var(--border)] bg-[var(--card)] font-mono text-[11px] space-y-1.5 text-[var(--muted-fg)]">
+                    <div class="flex justify-between">
+                      <span>Visibility</span>
+                      <strong class="text-[var(--fg)]">Public OSS</strong>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Stack Engine</span>
+                      <strong class="text-[var(--signal)]">{primaryTag}</strong>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Deploy Target</span>
+                      <strong class="text-[var(--fg)]">Production Cluster</strong>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -101,3 +197,27 @@ const { projects } = portfolioData;
     </div>
   </div>
 </section>
+
+<script is:inline>
+  (function () {
+    function updateProjectsLocale(locale) {
+      var isVi = locale === 'vi';
+      var heading = document.querySelector('.ff-proj-heading');
+      if (heading) heading.textContent = isVi ? 'DỰ ÁN NỔI BẬT' : 'PROJECTS';
+
+      var descs = document.querySelectorAll('.ff-proj-desc');
+      descs.forEach(function (d) {
+        var text = isVi ? d.getAttribute('data-desc-vi') : d.getAttribute('data-desc-en');
+        if (text) d.textContent = text;
+      });
+    }
+
+    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
+    updateProjectsLocale(initialLoc);
+
+    window.addEventListener('locale:changed', function (e) {
+      var loc = (e && e.detail && e.detail.locale) || 'en';
+      updateProjectsLocale(loc);
+    });
+  })();
+</script>

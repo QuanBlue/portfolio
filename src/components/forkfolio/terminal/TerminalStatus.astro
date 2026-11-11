@@ -1,0 +1,24 @@
+---
+interface Props {
+  lines: Array<{
+    status?: string;
+    text: string;
+    target?: string;
+  }>;
+  class?: string;
+}
+
+const { lines, class: className = '' } = Astro.props;
+---
+
+<div class={`space-y-1 font-mono text-xs ${className}`}>
+  {lines.map((line) => (
+    <div class="ff-term-status flex items-center gap-2">
+      <span class="ff-term-ok">[{line.status || 'OK'}]</span>
+      <span class="text-[var(--muted-fg)]">
+        {line.text}
+        {line.target && <span class="text-[var(--signal)] font-semibold"> {line.target}</span>}
+      </span>
+    </div>
+  ))}
+</div>

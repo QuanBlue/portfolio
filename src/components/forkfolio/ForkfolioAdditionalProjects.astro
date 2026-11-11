@@ -1,0 +1,167 @@
+---
+import { safeUrl } from '../../lib/render';
+import TerminalPrompt from './terminal/TerminalPrompt.astro';
+import type { Project } from '../../data/portfolio';
+
+interface Props {
+  projects?: Project[];
+}
+
+const { projects = [] } = Astro.props;
+const hasAdditional = projects.length > 0;
+---
+
+{hasAdditional && (
+  <section
+    id="more-projects"
+    class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)]"
+    data-terminal-section="more-projects"
+  >
+    <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-8">
+      <!-- Terminal Command Introduction -->
+      <div class="space-y-2">
+        <TerminalPrompt
+          command="ls -la ~/src"
+          user="quan"
+          host="portfolio"
+          path="~"
+          typeSpeed={28}
+          typeDelay={100}
+          id="cmd-more-projects"
+        />
+        <div class="flex flex-wrap items-end justify-between gap-4 pt-1">
+          <h2 class="ff-more-heading font-mono text-2xl sm:text-4xl font-black uppercase tracking-tight text-[var(--fg)]">
+            MORE PROJECTS
+          </h2>
+          <div class="font-mono text-xs text-[var(--muted-fg)]">
+            <span>total {projects.length}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output: Desktop Compact Table & Mobile Stacked Rows -->
+      <div class="ff-term-output space-y-4">
+        <!-- Desktop Compact Table -->
+        <div class="hidden md:block ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-sm">
+          <span class="ff-cross-tl">+</span>
+          <span class="ff-cross-tr">+</span>
+          <span class="ff-cross-bl">+</span>
+          <span class="ff-cross-br">+</span>
+
+          <table class="ff-table">
+            <thead>
+              <tr>
+                <th class="w-1/4">Project</th>
+                <th class="w-2/5">Description</th>
+                <th class="w-1/5">Technology</th>
+                <th class="w-1/6 text-right">Links</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--border)] font-mono text-xs">
+              {projects.map((p) => (
+                <tr class="hover:bg-[var(--muted-bg)]/50 transition-colors">
+                  <td class="font-bold text-[var(--fg)]">
+                    <span class="text-[var(--signal)] mr-1.5">›</span>
+                    {p.title}
+                  </td>
+                  <td
+                    class="text-[var(--muted-fg)] font-mono text-xs max-w-xs truncate ff-more-desc"
+                    data-desc-en={p.shortDesc || p.description}
+                    data-desc-vi={p.shortDesc_vi || p.description_vi || p.shortDesc || p.description}
+                  >
+                    {p.shortDesc || p.description}
+                  </td>
+                  <td>
+                    <div class="flex flex-wrap gap-1">
+                      {p.tags.slice(0, 2).map((t) => (
+                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-[var(--muted-bg)] text-[var(--muted-fg)]">
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <div class="inline-flex items-center gap-2">
+                      <a
+                        href={safeUrl(p.link)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-[var(--signal)] hover:underline"
+                      >
+                        [repo ↗]
+                      </a>
+                      <button
+                        type="button"
+                        data-project-trigger={p.id}
+                        class="text-[var(--muted-fg)] hover:text-[var(--fg)] cursor-pointer"
+                      >
+                        [details]
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Stacked Rows -->
+        <div class="md:hidden space-y-3">
+          {projects.map((p) => (
+            <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-2 font-mono text-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-[var(--fg)] text-sm">{p.title}</span>
+                <a
+                  href={safeUrl(p.link)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-[var(--signal)]"
+                >
+                  [repo ↗]
+                </a>
+              </div>
+              <p
+                class="text-[var(--muted-fg)] font-mono text-xs ff-more-desc"
+                data-desc-en={p.shortDesc || p.description}
+                data-desc-vi={p.shortDesc_vi || p.description_vi || p.shortDesc || p.description}
+              >
+                {p.shortDesc || p.description}
+              </p>
+              <div class="flex flex-wrap gap-1 pt-1">
+                {p.tags.map((t) => (
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--muted-bg)] text-[var(--muted-fg)]">
+                    #{t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script is:inline>
+  (function () {
+    function updateMoreProjectsLocale(locale) {
+      var isVi = locale === 'vi';
+      var heading = document.querySelector('.ff-more-heading');
+      if (heading) heading.textContent = isVi ? 'DỰ ÁN KHÁC' : 'MORE PROJECTS';
+
+      var descs = document.querySelectorAll('.ff-more-desc');
+      descs.forEach(function (el) {
+        var text = isVi ? el.getAttribute('data-desc-vi') : el.getAttribute('data-desc-en');
+        if (text) el.textContent = text;
+      });
+    }
+
+    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
+    updateMoreProjectsLocale(initialLoc);
+
+    window.addEventListener('locale:changed', function (e) {
+      var loc = (e && e.detail && e.detail.locale) || 'en';
+      updateMoreProjectsLocale(loc);
+    });
+  })();
+</script>
