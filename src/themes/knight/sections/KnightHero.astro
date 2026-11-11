@@ -1,0 +1,36 @@
+---
+import type { KnightProfileData } from '../../core/data-adapter';
+
+interface Props {
+  profile: KnightProfileData;
+}
+
+const { profile } = Astro.props;
+---
+
+<section class="kn-hero" id="top" aria-label="Home" data-hero="true" data-kn-s="hero">
+  <div class="kn-hero-txt">
+    <h1
+      class="kn-asc kn-name"
+      data-kn-t="name"
+      data-ld={"NGUYEN\nTHANH\nQUAN"}
+      data-lm={"NGUYEN\nTHANH\nQUAN"}
+      style="--kd:4.020;--ld:3;--km:4.020;--lm:3"
+    >
+      {profile.name}
+    </h1>
+    <p class="kn-role kn-veil" data-kn-occ="true">{profile.headline}</p>
+  </div>
+  <div class="kn-fig" data-kn-fig="true" data-av={profile.avatarUrl} data-ini="NQ" aria-hidden="true">
+    <img
+      class="kn-fig-img"
+      src={profile.avatarUrl}
+      alt={profile.name}
+      width="400"
+      height="400"
+      loading="lazy"
+      decoding="async"
+      crossorigin="anonymous"
+    />
+  </div>
+</section>

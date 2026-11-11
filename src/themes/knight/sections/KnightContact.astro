@@ -1,0 +1,87 @@
+---
+import KnightFooter from '../components/KnightFooter.astro';
+import type { KnightProfileData } from '../../core/data-adapter';
+
+interface Props {
+  profile: KnightProfileData;
+}
+
+const { profile } = Astro.props;
+---
+
+<section class="kn-sec kn-end" id="contact" data-kn-s="contact" aria-labelledby="kn-h-contact">
+  <div class="kn-end-box">
+    <p class="kn-k">Write to Nguyen</p>
+    <h2
+      id="kn-h-contact"
+      class="kn-asc kn-talk"
+      data-kn-t="settle"
+      data-ld={"LET'S\nTALK."}
+      data-lm={"LET'S\nTALK."}
+      style="--kd:3.360;--ld:2;--km:3.360;--lm:2"
+    >
+      Let's talk.
+    </h2>
+
+    <p class="kn-links" data-kn-r="links" data-kn-occ="true">
+      <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer">github</a>
+      <span> · </span>
+      <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer">linkedin</a>
+      <span> · </span>
+      <a href={`mailto:${profile.email}`}>email</a>
+    </p>
+
+    <div class="kn-form" data-kn-occ="box">
+      <p class="kn-form-k">or leave Nguyen a note here</p>
+      <form class="space-y-3" id="knight-contact-form" action={`mailto:${profile.email}`} method="POST" enctype="text/plain">
+        <input type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" name="company" />
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="block">
+            <span class="[font-family:var(--kn-plex)] text-[16px] lowercase text-[#8b877e]">Name</span>
+            <input
+              required
+              maxlength="80"
+              placeholder="Jane Recruiter"
+              class="mt-1 w-full rounded-none border border-dashed border-[#5d5a53] bg-[#0a0a0c] px-[14px] py-[11px] [font-family:var(--kn-plex)] text-[17px] leading-[1.45] text-[#e9e6df] outline-none transition placeholder:text-[#5d5a53] focus:border-[#e9e6df]"
+              name="name"
+            />
+          </label>
+          <label class="block">
+            <span class="[font-family:var(--kn-plex)] text-[16px] lowercase text-[#8b877e]">Email</span>
+            <input
+              type="email"
+              required
+              maxlength="120"
+              placeholder="jane@company.com"
+              class="mt-1 w-full rounded-none border border-dashed border-[#5d5a53] bg-[#0a0a0c] px-[14px] py-[11px] [font-family:var(--kn-plex)] text-[17px] leading-[1.45] text-[#e9e6df] outline-none transition placeholder:text-[#5d5a53] focus:border-[#e9e6df]"
+              name="email"
+            />
+          </label>
+        </div>
+        <label class="block">
+          <span class="[font-family:var(--kn-plex)] text-[16px] lowercase text-[#8b877e]">Message</span>
+          <textarea
+            name="message"
+            required
+            maxlength="2000"
+            rows="4"
+            placeholder="Tell me about the role / project…"
+            class="mt-1 w-full rounded-none border border-dashed border-[#5d5a53] bg-[#0a0a0c] px-[14px] py-[11px] [font-family:var(--kn-plex)] text-[17px] leading-[1.45] text-[#e9e6df] outline-none transition placeholder:text-[#5d5a53] focus:border-[#e9e6df]"
+          ></textarea>
+        </label>
+        <div class="flex items-center gap-3">
+          <button
+            type="submit"
+            data-magnetic="10"
+            class="inline-flex min-h-[48px] items-center rounded-none border border-[#e9e6df] bg-transparent px-[22px] [font-family:var(--kn-plex)] text-[17px] font-medium lowercase text-[#e9e6df] transition hover:bg-[#e9e6df] hover:text-[#0a0a0c] disabled:opacity-50 cursor-pointer"
+          >
+            Send message
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="kn-fig is-end" data-kn-fig-end="true" aria-hidden="true"></div>
+  <KnightFooter name={profile.name} />
+</section>

@@ -1,0 +1,48 @@
+---
+interface Props {
+  date?: string;
+  badge?: string;
+  title: string;
+  subtitle?: string;
+  isLast?: boolean;
+  class?: string;
+  itemId?: string;
+}
+
+const {
+  date,
+  badge,
+  title,
+  subtitle,
+  isLast = false,
+  class: className = '',
+  itemId,
+} = Astro.props;
+---
+
+<article
+  class={`kn-tl-item ${className}`.trim()}
+  data-last={isLast ? 'true' : 'false'}
+  data-kn-item-id={itemId}
+>
+  {(date || badge) && (
+    <div class="kn-tl-head">
+      {date && <span class="kn-tl-date">{date}</span>}
+      {badge && <span class="kn-tl-badge">[{badge}]</span>}
+    </div>
+  )}
+  <div class="kn-tl-body">
+    <div class="kn-tl-gutter" aria-hidden="true">
+      <span class="sr-only">{isLast ? '└──' : '├──'}</span>
+    </div>
+    <div class="kn-tl-content">
+      <div class="kn-tl-title-wrap">
+        <h3 class="kn-tl-title">{title}</h3>
+        {subtitle && <div class="kn-tl-subtitle">{subtitle}</div>}
+      </div>
+      <div class="kn-tl-details">
+        <slot />
+      </div>
+    </div>
+  </div>
+</article>

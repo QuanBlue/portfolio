@@ -1,0 +1,35 @@
+---
+import KnightProjectCard from '../components/KnightProjectCard.astro';
+import type { KnightProjectItem } from '../../core/data-adapter';
+
+interface Props {
+  projects: KnightProjectItem[];
+}
+
+const { projects = [] } = Astro.props;
+---
+
+<section class="kn-sec kn-pj" id="projects" data-kn-s="projects" aria-labelledby="kn-h-projects">
+  <h2
+    id="kn-h-projects"
+    class="kn-asc"
+    data-kn-t="diag"
+    data-ld="PROJECTS"
+    data-lm="PROJECTS"
+    style="--kd:5.340;--ld:1;--km:5.340;--lm:1"
+  >
+    Projects
+  </h2>
+
+  <div class="kn-pj-list" data-kn-pj-list="true">
+    {projects.length > 0 ? (
+      projects.map((project, idx) => (
+        <KnightProjectCard project={project} index={idx} />
+      ))
+    ) : (
+      <div class="kn-empty-projects" style="padding: 48px 0; color: var(--dim);">
+        <p>No published projects configured in Admin.</p>
+      </div>
+    )}
+  </div>
+</section>

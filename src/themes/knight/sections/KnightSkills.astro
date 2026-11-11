@@ -1,0 +1,31 @@
+---
+import type { Skill } from '../../../data/portfolio';
+import { renderKnightSkills } from '../../core/render-knight';
+
+interface Props {
+  skills?: Skill[];
+  locale?: 'en' | 'vi';
+}
+
+const { skills = [], locale = 'en' } = Astro.props;
+---
+
+<section
+  class="kn-sec kn-sk"
+  id="skills"
+  data-kn-s="skills"
+  aria-labelledby="kn-h-skills"
+>
+  <h2
+    id="kn-h-skills"
+    class="kn-asc"
+    data-kn-t="rise"
+    data-ld="SKILLS"
+    data-lm="SKILLS"
+    style="--kd:4.020;--ld:1;--km:4.020;--lm:1"
+  >
+    Skills
+  </h2>
+  <div class="kn-sk-wrap" data-kn-skills="true" set:html={renderKnightSkills(skills, locale)} />
+</section>
+

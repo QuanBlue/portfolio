@@ -1,0 +1,28 @@
+---
+interface Props {
+  title: string;
+  mark: string;
+  subtitle: string;
+  move?: string;
+  coverData: string;
+}
+
+const { title, mark, subtitle, move = 'sweep', coverData } = Astro.props;
+---
+
+<div
+  class="kn-plate is-cover"
+  data-kn-pic={move}
+  data-src=""
+  data-kind="cover"
+  data-pw=""
+  data-ph=""
+  data-cover={coverData}
+  role="img"
+  aria-label={`${title}: a cover drawn in characters`}
+>
+  <span class="kn-plate-cv" aria-hidden="true">
+    <b>{mark}</b>
+    <i>{subtitle}</i>
+  </span>
+</div>

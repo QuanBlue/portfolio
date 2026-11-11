@@ -1,0 +1,59 @@
+---
+import LanguageSwitcher from '../../../components/common/LanguageSwitcher.astro';
+import { portfolioData, getCareerSettings } from '../../../data/portfolio';
+
+interface Props {
+  name?: string;
+}
+const { name = 'Nguyen Thanh Quan' } = Astro.props;
+
+const career = getCareerSettings(portfolioData);
+const showCv = career.openToWork === true && Boolean(career.cvUrl);
+---
+
+<nav class="kn-nav kn-veil" aria-label="Sections" data-kn-nav="true">
+  <a href="#top" class="kn-nav-n" aria-label={name}>nguyen.thanh.quan</a>
+  <div class="kn-nav-r">
+    <ol class="kn-nav-l">
+      <li><a href="#about" data-kn-nk="about">about</a></li>
+      <li><a href="#experience" data-kn-nk="experience">experience</a></li>
+      <li><a href="#education" data-kn-nk="education">education</a></li>
+      <li><a href="#certifications" data-kn-nk="certifications">certifications</a></li>
+      <li><a href="#skills" data-kn-nk="skills">skills</a></li>
+      <li><a href="#projects" data-kn-nk="projects">projects</a></li>
+      <li><a href="#contact" data-kn-nk="contact">contact</a></li>
+      <li class={`kn-nav-cv-item ${showCv ? '' : 'hidden'}`} data-kn-cv-item="true">
+        <button
+          type="button"
+          class="kn-nav-cv"
+          data-open-cv="pdf"
+          title="View and download published CV"
+          aria-label="View and download Curriculum Vitae"
+        >
+          CV ↗
+        </button>
+      </li>
+      <li class="kn-nav-lang-item"><LanguageSwitcher variant="knight" /></li>
+      <li>
+        <a href="/admin" class="kn-nav-admin" title="Admin dashboard" data-kn-nk="admin">
+          admin ⚙<span class="kn-admin-dot" aria-hidden="true"></span>
+        </a>
+      </li>
+    </ol>
+    <span class="kn-nav-here" data-kn-here="true" aria-hidden="true"></span>
+    <button
+      type="button"
+      class={`kn-nav-cv-mob ${showCv ? '' : 'hidden'}`}
+      data-open-cv="pdf"
+      title="View and download published CV"
+      aria-label="View and download Curriculum Vitae"
+      data-kn-cv-mob="true"
+    >
+      CV ↗
+    </button>
+    <LanguageSwitcher variant="knight" class="kn-lang-switch-mob" />
+    <a href="/admin" class="kn-nav-admin-mob" title="Admin dashboard" aria-label="Admin settings">
+      ⚙<span class="kn-admin-dot" aria-hidden="true"></span>
+    </a>
+  </div>
+</nav>

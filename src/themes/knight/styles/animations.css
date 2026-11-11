@@ -1,0 +1,249 @@
+/* ==========================================================================
+   KNIGHT THEME INTERACTIVE ANIMATIONS
+   Hardware-accelerated CSS transitions & keyframe effects
+   Matching https://quanblue.forkfolio.dev/
+   ========================================================================== */
+
+/* 1. Initial Load & Veil Fade-In */
+@keyframes kn-veil-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kn-veil {
+  animation: kn-veil-enter 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 2. Monospace Scalable Headings Base Stability */
+.kn-asc {
+  opacity: 1;
+  transform: none;
+}
+
+/* 3. Featured Project Cards & Monogram Plates */
+.kn-p {
+  transition: opacity 0.3s ease;
+}
+
+.kn-plate {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              box-shadow 0.35s ease;
+  will-change: transform;
+}
+
+.kn-p:hover .kn-plate {
+  transform: translateY(-4px);
+}
+
+.kn-p:hover .kn-plate-cv {
+  border-color: #5d5a53;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.7);
+}
+
+.kn-plate-cv b {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
+  will-change: transform;
+}
+
+.kn-p:hover .kn-plate-cv b {
+  transform: scale(1.04);
+  color: #ffffff;
+}
+
+.kn-plate-cv i {
+  transition: color 0.25s ease;
+}
+
+.kn-p:hover .kn-plate-cv i {
+  color: var(--ink);
+}
+
+/* 4. Bracket Links (.kn-br) High-Fidelity Glow */
+.kn-br {
+  display: inline-block;
+  color: var(--dim);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.kn-br:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.kn-br:before,
+.kn-br:after {
+  color: var(--mute);
+  transition: color 0.2s ease;
+}
+
+.kn-br:hover:before,
+.kn-br:hover:after {
+  color: var(--ink);
+}
+
+/* 5. More Projects Hairline Rows */
+.kn-row {
+  transition: background-color 0.2s ease;
+}
+
+.kn-row:hover {
+  background-color: rgba(233, 230, 223, 0.02);
+}
+
+.kn-row:hover:after {
+  color: #5d5a53;
+}
+
+.kn-row-a {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.kn-row:hover .kn-row-a {
+  color: #ffffff;
+}
+
+/* 6. Skills Monospace Tags Glimmer */
+.kn-sk-i {
+  transition: color 0.22s ease, transform 0.22s ease;
+  cursor: default;
+}
+
+.kn-sk-i:hover {
+  color: #ffffff !important;
+  transform: translateX(2px);
+}
+
+/* 7. GitHub Activity Heatmap Cells */
+.kn-cal-cell {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), outline 0.15s ease;
+  cursor: pointer;
+}
+
+.kn-cal-cell:hover {
+  transform: scale(1.4);
+  outline: 1px solid var(--ink);
+  z-index: 10;
+  position: relative;
+}
+
+/* Monospace Heatmap Tooltip */
+.kn-tooltip {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  padding: 5px 10px;
+  background: #141417;
+  border: 1px solid #3d3b37;
+  color: #e9e6df;
+  font-family: var(--kn-plex), monospace;
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -100%) translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.kn-tooltip.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) translateY(-10px);
+}
+
+/* 8. Magnetic Button Base & Form Transitions */
+.kn-form input,
+.kn-form textarea {
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.kn-form input:focus,
+.kn-form textarea:focus {
+  border-color: #e9e6df !important;
+  background-color: #0e0e12;
+}
+
+button[data-magnetic] {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  will-change: transform;
+}
+
+/* 9. Interactive Monospace Crosshair Cursor */
+.kn-cur-floating {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 9999;
+  font-family: var(--kn-plex), monospace;
+  font-size: 18px;
+  line-height: 24px;
+  text-align: center;
+  color: #e9e6df;
+  text-shadow: 0 0 2px #0a0a0c;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease;
+}
+
+.kn-cur-floating:before {
+  content: "+";
+}
+
+.kn-cur-floating:after {
+  content: "[ ]";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 44px;
+  margin-left: -22px;
+  letter-spacing: 0.5em;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: pre;
+}
+
+.kn-cur-floating[data-hit="1"]:after {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .kn-cur-floating {
+    display: none !important;
+  }
+}
+
+/* 10. Navigation Link Active States */
+.kn-nav-l a {
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.kn-nav-l a[data-on="true"] {
+  color: var(--ink) !important;
+  font-weight: 500;
+}
+
+/* 11. Accessibility Constraints (Reduced Motion) */
+@media (prefers-reduced-motion: reduce) {
+  .kn-veil,
+  .kn-asc,
+  .kn-plate,
+  .kn-cal-cell,
+  button[data-magnetic] {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

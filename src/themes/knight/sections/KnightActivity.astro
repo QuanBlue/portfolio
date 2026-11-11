@@ -1,0 +1,69 @@
+---
+import { KNIGHT_ACTIVITY } from '../../core/data-adapter';
+
+const { weeks, heatmapString, totalContributions, activeDays, longestStreak, busiestDay, months } = KNIGHT_ACTIVITY;
+
+// Split 53 weeks x 7 days
+const weekCols: string[] = [];
+for (let w = 0; w < weeks; w++) {
+  weekCols.push(heatmapString.slice(w * 7, (w + 1) * 7));
+}
+---
+
+<section class="kn-sec kn-act" id="activity" data-kn-s="activity" aria-labelledby="kn-h-act">
+  <h2
+    id="kn-h-act"
+    class="kn-asc"
+    data-kn-t="columns"
+    data-ld="ACTIVITY"
+    data-lm="ACTIVITY"
+    style="--kd:5.340;--ld:1;--km:5.340;--lm:1"
+  >
+    Activity
+  </h2>
+
+  <div class="kn-cal" style={`--w:${weeks}`} data-kn-occ="box">
+    <div class="kn-cal-m" aria-hidden="true">
+      {months.map((m) => (
+        <span data-i={m.index} style={`--i:${m.index};--j:${m.offset}`} data-old={m.isOld ? '' : undefined}>
+          {m.name}
+        </span>
+      ))}
+    </div>
+
+    <div
+      class="kn-cal-g"
+      data-kn-cal={heatmapString}
+      data-weeks={weeks}
+      role="img"
+      aria-label={`${totalContributions} contributions in the last year`}
+    >
+      {weekCols.map((colStr) => (
+        <div class="kn-cal-col">
+          {colStr.split('').map((ch) => (
+            <span class="kn-cal-cell" data-level={ch} />
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <dl class="kn-figs" data-kn-r="figs" data-kn-occ="true">
+    <div>
+      <dt>contributions</dt>
+      <dd>{totalContributions}</dd>
+    </div>
+    <div>
+      <dt>active days</dt>
+      <dd>{activeDays}</dd>
+    </div>
+    <div>
+      <dt>longest streak</dt>
+      <dd>{longestStreak}</dd>
+    </div>
+    <div>
+      <dt>busiest day</dt>
+      <dd>{busiestDay}</dd>
+    </div>
+  </dl>
+</section>

@@ -1,0 +1,46 @@
+---
+import type { KnightProfileData } from '../../core/data-adapter';
+
+interface Props {
+  profile: KnightProfileData;
+}
+
+const { profile } = Astro.props;
+---
+
+<section class="kn-sec kn-about" id="about" data-kn-s="about" aria-labelledby="kn-h-about">
+  <h2
+    id="kn-h-about"
+    class="kn-asc"
+    data-kn-t="drift"
+    data-ld="ABOUT"
+    data-lm="ABOUT"
+    style="--kd:3.360;--ld:1;--km:3.360;--lm:1"
+  >
+    About
+  </h2>
+  <div class="kn-bio">
+    <p class="kn-lead" data-kn-r="bio" data-kn-occ="true">
+      {profile.leadBio}
+    </p>
+    {profile.detailedBio && (
+      <p class="kn-more-bio" data-bind="bio">
+        {profile.detailedBio}
+      </p>
+    )}
+    <div class="kn-facts">
+      <div>
+        <dt>location</dt>
+        <dd data-bind="location">{profile.location}</dd>
+      </div>
+      <div>
+        <dt>github</dt>
+        <dd><a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" class="kn-br">@{profile.githubHandle}</a></dd>
+      </div>
+      <div>
+        <dt>contact</dt>
+        <dd><a href={`mailto:${profile.email}`} class="kn-br">{profile.email}</a></dd>
+      </div>
+    </div>
+  </div>
+</section>

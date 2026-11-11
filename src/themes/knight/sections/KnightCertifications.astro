@@ -1,0 +1,34 @@
+---
+import type { Certification } from '../../../data/portfolio';
+import { renderKnightCertifications } from '../../core/render-knight';
+
+interface Props {
+  certifications?: Certification[];
+}
+
+const { certifications = [] } = Astro.props;
+---
+
+<section
+  class="kn-sec kn-cert"
+  id="certifications"
+  data-kn-s="certifications"
+  aria-labelledby="kn-h-certifications"
+>
+  <h2
+    id="kn-h-certifications"
+    class="kn-asc"
+    data-kn-t="rise"
+    data-ld="CERTIFICATIONS"
+    data-lm="CERTIFICATIONS"
+    style="--kd:9.300;--ld:1;--km:9.300;--lm:1"
+  >
+    Certifications
+  </h2>
+
+  <div
+    class="kn-cert-wrap"
+    data-kn-cert-list="true"
+    set:html={renderKnightCertifications(certifications)}
+  />
+</section>

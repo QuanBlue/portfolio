@@ -1,0 +1,12 @@
+---
+interface Props {
+  name?: string;
+}
+const { name = 'Nguyen Thanh Quan' } = Astro.props;
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="kn-foot">
+  <span>© {currentYear} {name}</span>
+  <span class="kn-cur" aria-hidden="true"></span>
+</footer>

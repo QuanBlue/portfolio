@@ -1,0 +1,59 @@
+---
+import KnightPlateCover from './KnightPlateCover.astro';
+import type { KnightProjectItem } from '../../core/data-adapter';
+import { formatKnightAsciiTitle } from '../../core/ascii-title';
+
+interface Props {
+  project: KnightProjectItem;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const moveList = ['sweep', 'eddy', 'rise', 'rain', 'slats', 'dust'];
+const move = moveList[index % moveList.length];
+const formattedLink = project.link ? project.link.replace(/^https?:\/\//, '') : '';
+const titleInfo = formatKnightAsciiTitle(project.title);
+const subtitle = project.language
+  ? project.stars > 0
+    ? `${project.language} · ${project.stars} stars`
+    : project.language
+  : project.stars > 0
+  ? `${project.stars} stars`
+  : '';
+---
+
+<article class={`kn-p ${project.isFlip ? 'is-flip' : ''}`} data-kn-p={index} aria-labelledby={`kn-p-${index}`}>
+  <div class="kn-p-txt">
+    <p class="kn-idx" data-kn-r="idx" data-kn-rm={move} data-kn-rg={`${index + 1}6/`}>{project.index}</p>
+    <h3
+      id={`kn-p-${index}`}
+      class="kn-asc kn-pn"
+      data-kn-t={move}
+      data-ld={titleInfo.desktopLines.join('\n')}
+      data-lm={titleInfo.mobileLines.join('\n')}
+      style={`--kd:${titleInfo.kd};--ld:${titleInfo.ld};--km:${titleInfo.km};--lm:${titleInfo.lm}`}
+    >
+      {project.title}
+    </h3>
+    <p class="kn-desc" data-kn-r="desc" data-kn-rm={move} data-kn-rg={project.glyphs} data-kn-occ="true">
+      {project.description}
+    </p>
+    <p class="kn-meta" data-kn-r="meta" data-kn-rm={move} data-kn-rg={project.glyphs} data-kn-occ="true">
+      {project.language ? `${project.language} ` : ''}
+      {project.stars > 0 ? `· ${project.stars} stars ` : ''}
+      {formattedLink && (
+        <>
+          · <a href={project.link} target="_blank" rel="noopener noreferrer" class="kn-br">{formattedLink}</a>
+        </>
+      )}
+    </p>
+  </div>
+
+  <KnightPlateCover
+    title={project.title}
+    mark={project.mark}
+    subtitle={subtitle}
+    move={move}
+    coverData={project.coverData}
+  />
+</article>
