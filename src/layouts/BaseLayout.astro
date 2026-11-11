@@ -1,6 +1,7 @@
 ---
 import Header from '../components/layout/Header.astro';
 import LiveData from '../components/common/LiveData.astro';
+import { portfolioData } from '../data/portfolio';
 import '../styles/global.css';
 
 interface Props {
@@ -17,10 +18,11 @@ const {
   isDashboard = false,
 } = Astro.props;
 const hasCms = Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY);
+const initialThemeVariant = portfolioData.identity?.themeVariant || 'ascii';
 ---
 
 <!DOCTYPE html>
-<html lang="vi" class="dark scroll-smooth">
+<html lang="en" class="dark scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -41,34 +43,86 @@ const hasCms = Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
 
-    <!-- Mặc định luôn là Dark theme trừ khi người dùng chủ động chọn Light -->
+    <!-- Critical Theme Pre-Paint Visibility Styles (Zero Wrong-Theme Flash) -->
+    <style is:inline>
+      [data-theme-wrapper] {
+        display: none !important;
+      }
+      html[data-portfolio-theme="ascii"] [data-theme-wrapper="ascii"],
+      html[data-portfolio-theme="knight"] [data-theme-wrapper="knight"],
+      html[data-portfolio-theme="forkfolio"] [data-theme-wrapper="forkfolio"],
+      html[data-portfolio-theme="editorial"] [data-theme-wrapper="editorial"] {
+        display: block !important;
+      }
+
+      /* Neutral resolving surface: displayed only for first-time visitors while settings resolve */
+      #theme-resolving-surface {
+        display: none;
+      }
+      html[data-portfolio-theme="resolving"] #theme-resolving-surface {
+        display: flex;
+      }
+    </style>
+    <noscript>
+      <style>
+        [data-theme-wrapper="ascii"] {
+          display: block !important;
+        }
+      </style>
+    </noscript>
+
+    <!-- Color Mode & Early Theme Pre-activation (Zero-CLS & Synchronous First-Paint Resolution) -->
     <script is:inline>
       if (localStorage.getItem('color-theme') === 'light') {
         document.documentElement.classList.remove('dark');
       } else {
         document.documentElement.classList.add('dark');
       }
-    </script>
 
-    <!-- Hide placeholder content until Supabase data arrives (max 4s) -->
-    {hasCms && (
-      <>
-        <style is:inline>
-          html.cms-loading body > main { opacity: 0; }
-          body > main { transition: opacity .35s ease; }
-        </style>
-        <script is:inline>
-          document.documentElement.classList.add('cms-loading');
-          setTimeout(function () { document.documentElement.classList.remove('cms-loading'); }, 4000);
-        </script>
-      </>
-    )}
+      // Early locale detection (Zero-CLS & prevent flash of incorrect language)
+      try {
+        var sLoc = localStorage.getItem('portfolio-locale');
+        var activeLoc = (sLoc === 'vi' || sLoc === 'en') ? sLoc : 'en';
+        document.documentElement.lang = activeLoc;
+        document.documentElement.dataset.portfolioLocale = activeLoc;
+      } catch (e) {}
+
+      // Synchronous theme resolution prior to DOM parsing/rendering:
+      // Priority 1: Explicit URL preview (?preview=... or ?theme=...)
+      // Priority 3: Valid cached copy of published theme ('portfolio-published-theme' / 'user-theme-variant')
+      // Fallback: Neutral 'resolving' state with safety timeout to prevent permanent blank screen
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var qTheme = p.get('preview') || p.get('theme');
+        var valid = ['ascii', 'knight', 'editorial', 'forkfolio'];
+        var isPreview = qTheme && valid.indexOf(qTheme) !== -1;
+        var sTheme = localStorage.getItem('portfolio-published-theme') || localStorage.getItem('user-theme-variant');
+        var hasValidCache = sTheme && valid.indexOf(sTheme) !== -1;
+
+        if (isPreview) {
+          document.documentElement.dataset.portfolioTheme = qTheme;
+          document.documentElement.dataset.portfolioPreview = 'true';
+        } else if (hasValidCache) {
+          document.documentElement.dataset.portfolioTheme = sTheme;
+        } else {
+          // First-time visitor: neutral resolving state so wrong theme never flashes
+          document.documentElement.dataset.portfolioTheme = 'resolving';
+          window.__themeFallbackTimer = setTimeout(function () {
+            if (document.documentElement.dataset.portfolioTheme === 'resolving') {
+              document.documentElement.dataset.portfolioTheme = 'ascii';
+            }
+          }, 1500);
+        }
+      } catch (e) {
+        document.documentElement.dataset.portfolioTheme = 'ascii';
+      }
+    </script>
   </head>
   <body class="flex flex-col min-h-screen relative antialiased selection:bg-emerald-500/20 selection:text-emerald-400">
     <div class="scroll-progress" id="scrollProgress"></div>

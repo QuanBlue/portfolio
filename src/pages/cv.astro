@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { portfolioData, getCareerSettings } from '../data/portfolio';
+import { renderCvSheetHtml } from '../lib/render';
+
+const career = getCareerSettings(portfolioData);
+const isAllowed = career.openToWork === true && Boolean(career.cvUrl);
+const cvHtml = isAllowed ? renderCvSheetHtml(portfolioData) : '';
+---
+
+<BaseLayout
+  title={isAllowed ? `Curriculum Vitae — ${portfolioData.identity.name}` : 'CV Access Restricted'}
+  description="Curriculum Vitae Document Viewer"
+>
+  <main class="min-h-screen py-8 sm:py-12 px-3 sm:px-6 flex flex-col items-center justify-center bg-zinc-950 text-zinc-100 font-mono">
+    {isAllowed ? (
+      <div class="w-full max-w-4xl space-y-4">
+        <!-- Top Sticky Action Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border border-zinc-800 bg-zinc-900/90 backdrop-blur-md px-4 sm:px-6 py-3 rounded-xl shadow-lg">
+          <div class="min-w-0">
+            <h1 class="text-sm sm:text-base font-bold text-zinc-100 truncate">
+              Curriculum Vitae — {portfolioData.identity.name}
+            </h1>
+            <p class="text-xs text-zinc-400 truncate">
+              {portfolioData.identity.role} · {portfolioData.identity.location}
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              href={career.cvUrl}
+              download={`${portfolioData.identity.name.replace(/\s+/g, '-')}-CV.pdf`}
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 text-xs font-bold hover:bg-emerald-400 transition cursor-pointer"
+              title="Download published CV file"
+            >
+              <i class="fa-solid fa-download text-xs"></i>
+              <span>Download CV</span>
+            </a>
+            <a
+              href="/"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 text-xs hover:border-zinc-500 hover:text-white transition"
+            >
+              <span>← Back</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Authentic Printable CV Sheet Body -->
+        <article class="mx-auto bg-white text-zinc-900 rounded-xl shadow-2xl p-6 sm:p-10 font-sans border border-zinc-200 select-text leading-normal">
+          <Fragment set:html={cvHtml} />
+        </article>
+      </div>
+    ) : (
+      <div class="text-center space-y-4 p-8 border border-zinc-800 rounded-2xl bg-zinc-900/60 max-w-md shadow-2xl">
+        <div class="inline-grid size-12 place-items-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 text-lg">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-zinc-100">403 · Access Restricted</h2>
+          <p class="text-xs text-zinc-400 mt-1.5 leading-relaxed">
+            Curriculum Vitae viewing is currently unavailable. The candidate is not actively seeking opportunities or has restricted public access.
+          </p>
+        </div>
+        <div class="pt-2">
+          <a
+            href="/"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:text-white hover:border-zinc-500 transition"
+          >
+            ← Return to Portfolio
+          </a>
+        </div>
+      </div>
+    )}
+  </main>
+</BaseLayout>

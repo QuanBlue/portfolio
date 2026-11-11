@@ -15,11 +15,24 @@
     renderEducation,
     renderProjects,
   } from '../../lib/render';
+  import { getLocale } from '../../i18n/locale-store';
+  import { localizePortfolioData } from '../../i18n/translate';
+  import type { PortfolioData } from '../../data/portfolio';
 
   getSession().then((session) => {
+    const isOwner = isOwnerSession(session);
     const lbl = document.getElementById('hdr-admin-label');
-    if (lbl && isOwnerSession(session)) {
-      lbl.textContent = 'Edit';
+    if (lbl && isOwner) {
+      lbl.textContent = 'Admin';
+    }
+    const adminDot = document.getElementById('hdr-admin-dot');
+    if (adminDot && isOwner) {
+      adminDot.classList.remove('hidden');
+    }
+    if (isOwner) {
+      document.querySelectorAll('.kn-admin-dot').forEach((dot) => {
+        dot.classList.add('is-active');
+      });
     }
   });
 
@@ -31,7 +44,10 @@
     document.querySelectorAll(sel).forEach((el) => (el.textContent = value));
   };
 
-  loadLiveData().then((d) => {
+  let rawData: PortfolioData | null = null;
+
+  function applyPortfolioData(data: PortfolioData, locale: 'en' | 'vi') {
+    const d = localizePortfolioData(data, locale);
     const i = d.identity;
 
     text('[data-bind="name"]', i.name);
@@ -70,7 +86,28 @@
     text('#count-skills', String(d.skills.length));
     text('#count-gallery', String((d.gallery ?? []).filter((g) => Boolean(g.image && g.image.trim())).length));
 
-    window.dispatchEvent(new CustomEvent('portfolio:data', { detail: d }));
+    window.dispatchEvent(new CustomEvent('portfolio:data', { detail: { ...d, _locale: locale } }));
     window.dispatchEvent(new Event('scroll'));
+  }
+
+  loadLiveData().then((d) => {
+    rawData = d;
+    const override = (window as any).__PORTFOLIO_OVERRIDE__ as Partial<PortfolioData> | null;
+    const remotePublishedTheme = override?.appearance?.activeTheme || override?.identity?.themeVariant;
+    if (remotePublishedTheme) {
+      try {
+        localStorage.setItem('portfolio-published-theme', remotePublishedTheme);
+        localStorage.setItem('user-theme-variant', remotePublishedTheme);
+      } catch (e) {}
+    }
+    const currentLocale = getLocale();
+    applyPortfolioData(rawData, currentLocale);
+  });
+
+  window.addEventListener('locale:changed', (e: Event) => {
+    const loc = ((e as CustomEvent).detail?.locale as 'en' | 'vi') || 'en';
+    if (rawData) {
+      applyPortfolioData(rawData, loc);
+    }
   });
 </script>

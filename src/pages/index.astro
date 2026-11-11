@@ -1,29 +1,49 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AsciiTheme from '../components/themes/AsciiTheme.astro';
+import KnightTheme from '../themes/knight/KnightTheme.astro';
 import ForkfolioTheme from '../components/themes/ForkfolioTheme.astro';
 import EditorialTheme from '../components/themes/EditorialTheme.astro';
 import ProjectModal from '../components/dashboard/ProjectModal.astro';
 import CvModal from '../components/dashboard/CvModal.astro';
 import { portfolioData } from '../data/portfolio';
+import { resolveTheme } from '../themes/core';
 
-const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
+const resolved = resolveTheme(portfolioData.identity?.themeVariant);
+const initialTheme = resolved.theme.id;
 ---
 
 <BaseLayout title="Nguyễn Thanh Quân — DevOps & Infrastructure Engineer" currentPath="/">
   <main class="flex-grow" id="main-content">
+    <!-- Neutral Resolving Surface (Visible only when theme is resolving for first-time visitors) -->
+    <div
+      id="theme-resolving-surface"
+      class="min-h-[70vh] flex flex-col items-center justify-center gap-4 text-zinc-500 font-mono text-xs select-none"
+      aria-label="Loading portfolio"
+    >
+      <div class="flex items-center gap-2.5 px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900/60">
+        <span class="inline-block size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="tracking-widest uppercase text-[11px] text-zinc-400">Loading Portfolio...</span>
+      </div>
+    </div>
+
     <!-- Theme 0: Forkfolio Authentic ASCII Character Art Theme -->
-    <div id="theme-ascii-wrapper" class={initialTheme === 'ascii' ? 'block' : 'hidden'}>
+    <div id="theme-ascii-wrapper" data-theme-wrapper="ascii">
       <AsciiTheme />
     </div>
 
-    <!-- Theme 1: Forkfolio Modern Clean Mono (Bright, minimalist developer theme) -->
-    <div id="theme-forkfolio-wrapper" class={initialTheme === 'forkfolio' ? 'block' : 'hidden'}>
+    <!-- Theme 1: Knight (High-Fidelity Minimalist Developer Portfolio matching forkfolio.dev) -->
+    <div id="theme-knight-wrapper" data-theme-wrapper="knight">
+      <KnightTheme />
+    </div>
+
+    <!-- Theme 2: Forkfolio Modern Clean Mono (Bright, minimalist developer theme) -->
+    <div id="theme-forkfolio-wrapper" data-theme-wrapper="forkfolio">
       <ForkfolioTheme />
     </div>
 
-    <!-- Theme 2: DevOps Editorial (3D Book-open timeline, Jenkins pipeline & interactive terminal) -->
-    <div id="theme-editorial-wrapper" class={initialTheme === 'editorial' ? 'block' : 'hidden'}>
+    <!-- Theme 3: DevOps Editorial (3D Book-open timeline, Jenkins pipeline & interactive terminal) -->
+    <div id="theme-editorial-wrapper" data-theme-wrapper="editorial">
       <EditorialTheme />
     </div>
   </main>
@@ -55,6 +75,9 @@ const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
   const journeyProgressBar = document.getElementById('journey-progress-bar');
 
   function onExperienceScroll() {
+    // Only execute book calculations when Editorial theme is active
+    if (document.documentElement.dataset.portfolioTheme !== 'editorial') return;
+
     const vh = window.innerHeight || document.documentElement.clientHeight;
 
     // Center spine green progress fill
@@ -109,33 +132,50 @@ const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
   window.addEventListener('scroll', onExperienceScroll, { passive: true });
   window.addEventListener('resize', onExperienceScroll, { passive: true });
 
-  // 3. Dynamic Theme Variant Switcher (ASCII ⇄ Forkfolio ⇄ Editorial)
-  const asciiWrapper = document.getElementById('theme-ascii-wrapper');
-  const ffWrapper = document.getElementById('theme-forkfolio-wrapper');
-  const edWrapper = document.getElementById('theme-editorial-wrapper');
+  // 3. Centralized Dynamic Theme Controller (Registry-Driven)
+  import { resolveTheme, resolveClientTheme, getAllThemes, persistLocalTheme } from '../themes/core';
+  import type { ThemeId } from '../themes/core/types';
+
+  const themeWrappers = document.querySelectorAll<HTMLElement>('[data-theme-wrapper]');
   const variantBtn = document.getElementById('theme-variant-toggle');
   const variantLabel = document.getElementById('theme-variant-label');
   const brandName = document.getElementById('hdr-brand-name');
   const brandSub = document.getElementById('hdr-brand-sub');
 
-  type ThemeVariant = 'ascii' | 'forkfolio' | 'editorial';
-  let activeThemeVariant: ThemeVariant = 'ascii';
+  const registeredThemes = getAllThemes();
+  const cycleOrder: ThemeId[] = registeredThemes.map((t) => t.id);
+  let activeThemeVariant: ThemeId = 'ascii';
 
-  function applyThemeVariant(variant: ThemeVariant, persist = false) {
+  function applyThemeVariant(themeId: string, persist = false) {
+    const resolved = resolveTheme(themeId);
+    const variant = resolved.theme.id;
+    const oldVariant = activeThemeVariant;
     activeThemeVariant = variant;
 
-    if (asciiWrapper) asciiWrapper.classList.toggle('hidden', variant !== 'ascii');
-    if (ffWrapper) ffWrapper.classList.toggle('hidden', variant !== 'forkfolio');
-    if (edWrapper) edWrapper.classList.toggle('hidden', variant !== 'editorial');
+    // Clear any pending resolving fallback timer
+    if ((window as any).__themeFallbackTimer) {
+      clearTimeout((window as any).__themeFallbackTimer);
+      (window as any).__themeFallbackTimer = null;
+    }
+
+    // Toggle theme root wrappers
+    themeWrappers.forEach((el) => {
+      const match = el.getAttribute('data-theme-wrapper') === variant;
+      el.classList.toggle('hidden', !match);
+      el.classList.toggle('block', match);
+    });
 
     if (variantLabel) {
-      variantLabel.textContent = variant === 'ascii' ? 'ASCII' : variant === 'forkfolio' ? 'Forkfolio' : 'Editorial';
+      variantLabel.textContent = resolved.theme.name;
     }
 
     if (brandName && brandSub) {
       if (variant === 'ascii') {
         brandName.textContent = 'quan@infra-node:~$';
         brandSub.textContent = 'devops · sre';
+      } else if (variant === 'knight') {
+        brandName.textContent = 'nguyen.thanh.quan';
+        brandSub.textContent = 'developer · forkfolio';
       } else if (variant === 'forkfolio') {
         brandName.textContent = 'nguyen.thanh.quan';
         brandSub.textContent = 'devops · sre';
@@ -146,10 +186,10 @@ const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
     }
 
     document.documentElement.dataset.portfolioTheme = variant;
-    window.dispatchEvent(new CustomEvent('theme:changed', { detail: { theme: variant } }));
+    window.dispatchEvent(new CustomEvent('theme:changed', { detail: { theme: variant, previousTheme: oldVariant } }));
 
     if (persist) {
-      localStorage.setItem('user-theme-variant', variant);
+      persistLocalTheme(variant);
     }
 
     if (variant === 'editorial') {
@@ -160,25 +200,31 @@ const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
     }
   }
 
-  // Check URL query param first: ?theme=ascii or ?theme=forkfolio or ?theme=editorial
-  const urlParams = new URLSearchParams(window.location.search);
-  const qTheme = urlParams.get('theme') as ThemeVariant;
-  if (qTheme === 'ascii' || qTheme === 'forkfolio' || qTheme === 'editorial') {
-    applyThemeVariant(qTheme);
+  // Initial client resolution following strict priority:
+  // 1. Explicit ?preview= param
+  // 2. Canonical remote theme if already available
+  // 3. Current synchronous DOM theme (from <head> cached published theme bootstrap)
+  // 4. Default fallback
+  const remoteTheme = (window as any).__PORTFOLIO__?.appearance?.activeTheme || (window as any).__PORTFOLIO__?.identity?.themeVariant;
+  const currentDomTheme = document.documentElement.dataset.portfolioTheme;
+  const isPreview = document.documentElement.dataset.portfolioPreview === 'true' || Boolean(new URLSearchParams(window.location.search).get('preview'));
+
+  if (isPreview) {
+    const previewId = new URLSearchParams(window.location.search).get('preview') || new URLSearchParams(window.location.search).get('theme');
+    if (previewId) applyThemeVariant(previewId, false);
+  } else if (remoteTheme) {
+    applyThemeVariant(remoteTheme, true);
+  } else if (currentDomTheme && currentDomTheme !== 'resolving') {
+    applyThemeVariant(currentDomTheme, false);
   } else {
-    // Check saved user preference or window portfolio data
-    const saved = localStorage.getItem('user-theme-variant') as ThemeVariant;
-    const storeTheme = (window as any).__PORTFOLIO__?.identity?.themeVariant as ThemeVariant;
-    if (saved === 'ascii' || saved === 'forkfolio' || saved === 'editorial') {
-      applyThemeVariant(saved);
-    } else if (storeTheme === 'ascii' || storeTheme === 'forkfolio' || storeTheme === 'editorial') {
-      applyThemeVariant(storeTheme);
-    } else {
-      applyThemeVariant('ascii');
-    }
+    const resolvedClient = resolveClientTheme({
+      allowUrlParam: true,
+      allowLocalStorage: true,
+      remoteTheme: remoteTheme,
+    });
+    applyThemeVariant(resolvedClient.theme.id, false);
   }
 
-  const cycleOrder: ThemeVariant[] = ['ascii', 'forkfolio', 'editorial'];
   variantBtn?.addEventListener('click', () => {
     const currentIndex = cycleOrder.indexOf(activeThemeVariant);
     const nextIndex = (currentIndex + 1) % cycleOrder.length;
@@ -188,10 +234,13 @@ const initialTheme = portfolioData.identity?.themeVariant || 'ascii';
   // Listen to remote changes or Admin Saves
   window.addEventListener('portfolio:data', (e: Event) => {
     const detail = (e as CustomEvent).detail;
-    if (detail?.identity?.themeVariant) {
-      // If admin changed the site theme, respect it
-      if (!localStorage.getItem('user-theme-variant')) {
-        applyThemeVariant(detail.identity.themeVariant);
+    const override = (window as any).__PORTFOLIO_OVERRIDE__ as Partial<PortfolioData> | null;
+    const incomingTheme = override?.appearance?.activeTheme || override?.identity?.themeVariant;
+    if (incomingTheme) {
+      // If admin changed the site theme, respect it unless there's an explicit URL preview param
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.get('preview')) {
+        applyThemeVariant(incomingTheme, true);
       }
     }
     observeReveals();

@@ -5,10 +5,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="Admin | Quan's DevOps Dashboard" currentPath="/admin">
   <main class="flex-grow px-5 py-12 max-w-6xl w-full mx-auto">
     <div id="admin-header" class="hidden flex-wrap items-center justify-between gap-3 mb-4">
-      <h1 class="font-display text-3xl font-bold text-[var(--heading)]">
-        Edit content
-      </h1>
+      <div class="flex items-center gap-3">
+        <a href="/" class="adm-btn inline-flex items-center gap-1.5 text-xs text-[var(--muted-fg)] hover:text-[var(--fg)]" title="Quay lại trang Portfolio">
+          ← Back to Portfolio
+        </a>
+        <h1 class="font-display text-3xl font-bold text-[var(--heading)]">
+          Edit content
+        </h1>
+      </div>
       <div class="flex flex-wrap items-center gap-2 text-xs">
+        <!-- Admin Bilingual Content Switcher (EN | VI) -->
+        <div id="admin-locale-toggle" class="inline-flex items-center rounded-lg border border-[var(--border)] bg-[var(--card)] p-0.5 font-mono text-[11px] select-none mr-2">
+          <button type="button" class="admin-lang-btn px-2.5 py-1 rounded font-semibold text-[var(--muted-fg)] hover:text-[var(--fg)] data-[active=true]:bg-[var(--fg)] data-[active=true]:text-[var(--bg)] cursor-pointer transition" data-admin-lang="en" data-active="true" title="Edit English Content (Default)">
+            🇬🇧 EN
+          </button>
+          <span class="text-zinc-500 px-1 text-[10px]" aria-hidden="true">|</span>
+          <button type="button" class="admin-lang-btn px-2.5 py-1 rounded font-semibold text-[var(--muted-fg)] hover:text-[var(--fg)] data-[active=true]:bg-[var(--fg)] data-[active=true]:text-[var(--bg)] cursor-pointer transition" data-admin-lang="vi" data-active="false" title="Biên tập Tiếng Việt">
+            🇻🇳 VI
+          </button>
+        </div>
+
         <span id="admin-status" class="text-zinc-500 mr-2 font-mono"></span>
         <button id="btn-save" type="button" class="adm-btn bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 font-semibold px-4">Save changes</button>
         <button id="btn-export" type="button" class="adm-btn">Export content.json</button>
@@ -17,13 +33,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <input id="input-import" type="file" accept="application/json,.json" class="hidden" />
         </label>
         <button id="btn-reset" type="button" class="adm-btn text-red-600 dark:text-red-400">Reset</button>
-        <button id="btn-signout" type="button" class="adm-btn">Sign out</button>
+
+        <span class="h-4 w-px bg-[var(--border)] mx-1" aria-hidden="true"></span>
+
+        <!-- Authenticated via Supabase: [ Account / Email ] [ Sign Out ] -->
+        <div id="admin-auth-group" class="hidden items-center gap-2">
+          <div id="admin-account-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--card)] font-mono text-[11px] text-[var(--fg)] shadow-xs" title="Signed-in Account">
+            <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="admin-account-label">account</span>
+          </div>
+          <button id="btn-signout" type="button" class="adm-btn hover:text-red-600 dark:hover:text-red-400 hover:border-red-500/40 cursor-pointer" title="Sign out of Admin session">
+            Sign out
+          </button>
+        </div>
+
+        <!-- Local Mode: [ Local Mode ] -->
+        <div id="admin-local-badge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-500 font-mono text-[11px] font-medium" title="Running in Local Mode (Supabase not configured)">
+          <span class="size-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span>Local Mode</span>
+        </div>
       </div>
     </div>
 
     <p id="admin-note" class="hidden text-[11px] text-zinc-500 mb-4 leading-relaxed"></p>
 
     <form id="admin-login" class="card p-6 max-w-sm mx-auto space-y-3 my-10">
+      <div class="flex items-center justify-between pb-1">
+        <a href="/" class="text-xs text-[var(--muted)] hover:text-[var(--fg)] inline-flex items-center gap-1 font-mono transition">
+          ← Back to Portfolio
+        </a>
+      </div>
       <h2 class="font-display text-xl font-bold text-[var(--heading)]">Sign in</h2>
       <p class="text-xs text-[var(--muted)]">Sign in with GitHub, Google, or email to continue.</p>
 
@@ -124,8 +163,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   import { mergePortfolioData } from '../data/portfolio';
   import type { PortfolioData } from '../data/portfolio';
   import { esc } from '../lib/render';
+  import { getAllThemes } from '../themes/core';
+  import type { ThemeDefinition } from '../themes/core/types';
 
-  type FieldType = 'text' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media' | 'pdf';
+  type FieldType = 'text' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media' | 'pdf' | 'themeSelector';
   type SelectOption = string | { value: string; label: string };
   interface Field {
     key: string;
@@ -134,6 +175,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     options?: SelectOption[];
     maxDim?: number;
     wide?: boolean;
+    translatable?: boolean;
   }
   interface ListSection {
     kind: 'list';
@@ -149,10 +191,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     title: string;
     fields: Field[];
   }
+  interface AppearanceSection {
+    kind: 'appearance';
+    id: 'appearance';
+    title: string;
+  }
+
+  type AdminSection = ObjectSection | ListSection | AppearanceSection;
 
   const uid = () => Math.random().toString(36).slice(2, 10);
 
-  const SECTIONS: (ObjectSection | ListSection)[] = [
+  const SECTIONS: AdminSection[] = [
+    {
+      kind: 'appearance',
+      id: 'appearance',
+      title: 'Appearance (Themes)',
+    },
     {
       kind: 'object',
       id: 'identity',
@@ -160,28 +214,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       fields: [
         { key: 'avatar', label: 'Avatar', type: 'image', maxDim: 480 },
         { key: 'cvUrl', label: 'CV / Resume (PDF)', type: 'pdf', wide: true },
+        { key: 'openToWork', label: 'Open to Work (Cho phép xem & tải CV công khai)', type: 'boolean', wide: true },
         {
           key: 'themeVariant',
           label: 'Theme hiển thị (Giao diện)',
-          type: 'select',
-          options: [
-            { value: 'ascii', label: 'Forkfolio ASCII Art (Chữ & Chân dung ASCII đặc trưng của forkfolio.dev)' },
-            { value: 'forkfolio', label: 'Forkfolio Modern Mono (Tươi sáng, tinh gọn, phong cách developer)' },
-            { value: 'editorial', label: 'DevOps Editorial (Tạp chí 3D mở sách, Jenkins Pipeline & Terminal)' },
-          ],
+          type: 'themeSelector',
           wide: true,
         },
         { key: 'name', label: 'Name', type: 'text' },
-        { key: 'role', label: 'Role', type: 'text' },
+        { key: 'role', label: 'Role', type: 'text', translatable: true },
         { key: 'node', label: 'Node (header)', type: 'text' },
         { key: 'ip', label: 'IP (header)', type: 'text' },
-        { key: 'location', label: 'Location', type: 'text' },
+        { key: 'location', label: 'Location', type: 'text', translatable: true },
         { key: 'email', label: 'Email', type: 'text' },
         { key: 'linkedin.handle', label: 'LinkedIn handle', type: 'text' },
         { key: 'linkedin.url', label: 'LinkedIn URL', type: 'text' },
         { key: 'github.handle', label: 'GitHub handle', type: 'text' },
         { key: 'github.url', label: 'GitHub URL', type: 'text' },
-        { key: 'bio', label: 'Bio', type: 'textarea', wide: true },
+        { key: 'bio', label: 'Bio', type: 'textarea', wide: true, translatable: true },
       ],
     },
     {
@@ -191,11 +241,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       titleKey: 'title',
       fields: [
         { key: 'image', label: 'Image', type: 'image', maxDim: 1600 },
-        { key: 'title', label: 'Title', type: 'text' },
+        { key: 'title', label: 'Title', type: 'text', translatable: true },
         { key: 'date', label: 'Date', type: 'text' },
         { key: 'location', label: 'Location', type: 'text' },
         { key: 'tags', label: 'Tags (comma separated)', type: 'csv' },
-        { key: 'description', label: 'Description', type: 'textarea', wide: true },
+        { key: 'description', label: 'Description', type: 'textarea', wide: true, translatable: true },
         { key: 'details', label: 'Extra info nodes (one per line, "label: value")', type: 'kv', wide: true },
       ],
       create: () => ({ id: uid(), title: 'New image', description: '', image: '', date: '', location: '', tags: [], details: [] }),
@@ -206,9 +256,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       title: 'Projects',
       titleKey: 'title',
       fields: [
-        { key: 'title', label: 'Title', type: 'text' },
-        { key: 'shortDesc', label: 'Short description', type: 'text', wide: true },
-        { key: 'description', label: 'Description', type: 'textarea', wide: true },
+        { key: 'title', label: 'Title', type: 'text', translatable: true },
+        { key: 'shortDesc', label: 'Short description', type: 'text', wide: true, translatable: true },
+        { key: 'description', label: 'Description', type: 'textarea', wide: true, translatable: true },
         { key: 'media', label: 'Images / GIFs (shown in the project details)', type: 'media', wide: true },
         { key: 'tags', label: 'Tags (comma separated)', type: 'csv' },
         { key: 'link', label: 'Link (https://…)', type: 'text' },
@@ -223,12 +273,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       title: 'Experience',
       titleKey: 'role',
       fields: [
-        { key: 'role', label: 'Role', type: 'text' },
+        { key: 'role', label: 'Role', type: 'text', translatable: true },
         { key: 'company', label: 'Company', type: 'text' },
-        { key: 'period', label: 'Period', type: 'text' },
+        { key: 'period', label: 'Period', type: 'text', translatable: true },
         { key: 'isCurrent', label: 'Current job', type: 'bool' },
         { key: 'tags', label: 'Tags (comma separated)', type: 'csv', wide: true },
-        { key: 'bullets', label: 'Bullets (one per line)', type: 'lines', wide: true },
+        { key: 'bullets', label: 'Bullets (one per line)', type: 'lines', wide: true, translatable: true },
       ],
       create: () => ({ id: uid(), role: 'Role', company: '', period: '', isCurrent: false, bullets: [], tags: [] }),
     },
@@ -239,10 +289,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       titleKey: 'degree',
       fields: [
         { key: 'badge', label: 'Badge (e.g. B.Eng, LAB)', type: 'text' },
-        { key: 'period', label: 'Period (e.g. 2019 — 2023)', type: 'text' },
-        { key: 'degree', label: 'Degree / Title', type: 'text', wide: true },
-        { key: 'school', label: 'School / Subtitle', type: 'text', wide: true },
-        { key: 'description', label: 'Description', type: 'textarea', wide: true },
+        { key: 'period', label: 'Period (e.g. 2019 — 2023)', type: 'text', translatable: true },
+        { key: 'degree', label: 'Degree / Title', type: 'text', wide: true, translatable: true },
+        { key: 'school', label: 'School / Subtitle', type: 'text', wide: true, translatable: true },
+        { key: 'description', label: 'Description', type: 'textarea', wide: true, translatable: true },
       ],
       create: () => ({ id: uid(), badge: 'B.Eng', period: '2019 — 2023', degree: 'Degree', school: 'University', description: '' }),
     },
@@ -253,10 +303,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       titleKey: 'name',
       fields: [
         { key: 'name', label: 'Name', type: 'text' },
+        { key: 'category', label: 'Category (e.g. Cloud & Infrastructure)', type: 'text', translatable: true },
         { key: 'tag', label: 'Tag, e.g. [k8s-core]', type: 'text' },
         { key: 'status', label: 'Status', type: 'select', options: ['ACTIVE', 'SYNCING'] },
       ],
-      create: () => ({ id: uid(), tag: '[tag]', name: 'New skill', status: 'ACTIVE', delay: '0s' }),
+      create: () => ({ id: uid(), tag: '[tag]', category: 'General', name: 'New skill', status: 'ACTIVE', delay: '0s' }),
     },
     {
       kind: 'list',
@@ -264,16 +315,31 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       title: 'Certifications',
       titleKey: 'name',
       fields: [
-        { key: 'name', label: 'Name', type: 'text' },
-        { key: 'issuer', label: 'Issuer', type: 'text' },
-        { key: 'color', label: 'Color', type: 'select', options: ['yellow', 'blue'] },
+        { key: 'name', label: 'Certification Name', type: 'text', wide: true, translatable: true },
+        { key: 'issuer', label: 'Issuing Organization', type: 'text', wide: true },
+        { key: 'issueDate', label: 'Issue Date (e.g. 2024)', type: 'text' },
+        { key: 'expiryDate', label: 'Expiry Date (optional)', type: 'text' },
+        { key: 'credentialId', label: 'Credential ID (optional)', type: 'text' },
+        { key: 'credentialUrl', label: 'Verification URL (optional)', type: 'text', wide: true },
+        { key: 'badge', label: 'Badge / Code (e.g. CKA, AWS-SAA)', type: 'text' },
+        { key: 'description', label: 'Description (optional)', type: 'textarea', wide: true, translatable: true },
+        { key: 'color', label: 'Theme Color', type: 'select', options: ['yellow', 'blue'] },
       ],
-      create: () => ({ id: uid(), name: 'New certificate', issuer: '', color: 'blue', delay: '0s' }),
+      create: () => ({
+        id: uid(),
+        name: 'New Certificate',
+        issuer: 'Issuing Organization',
+        issueDate: '',
+        credentialUrl: '',
+        badge: '',
+        color: 'blue',
+        delay: '0s',
+      }),
     },
   ];
 
   let data: PortfolioData = structuredClone(portfolioData);
-  let active = 'identity';
+  let active = new URLSearchParams(window.location.search).get('tab') || 'appearance';
   const tabs = document.getElementById('admin-tabs')!;
   const panel = document.getElementById('admin-panel')!;
   const status = document.getElementById('admin-status')!;
@@ -330,39 +396,57 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }, 350);
   };
 
+  let adminLocale: 'en' | 'vi' = 'en';
+
   // ---- rendering ----
-  const fieldHtml = (f: Field, base: string, value: any): string => {
-    const path = `${base}${f.key}`;
+  const fieldHtml = (f: Field, base: string, value: any, item?: any): string => {
+    const isTranslatable = Boolean(f.translatable && adminLocale === 'vi');
+    const fieldKey = isTranslatable ? `${f.key}_vi` : f.key;
+    const path = `${base}${fieldKey}`;
     const attrs = `data-path="${esc(path)}" data-type="${f.type}"`;
+
+    let displayValue = value;
+    let fallbackVal: any = '';
+    if (item) {
+      if (isTranslatable) {
+        displayValue = item[fieldKey] ?? '';
+        fallbackVal = item[f.key] ?? '';
+      } else {
+        displayValue = item[f.key] ?? value;
+      }
+    }
+    const fallbackText = Array.isArray(fallbackVal) ? fallbackVal.join(', ') : String(fallbackVal ?? '');
+    const phAttr = isTranslatable && fallbackText ? `placeholder="Fallback (EN): ${esc(fallbackText)}"` : '';
+
     let control = '';
     switch (f.type) {
       case 'text':
-        control = `<input class="adm-input" ${attrs} value="${esc(value ?? '')}" />`;
+        control = `<input class="adm-input" ${attrs} ${phAttr} value="${esc(displayValue ?? '')}" />`;
         break;
       case 'textarea':
-        control = `<textarea class="adm-input" rows="4" ${attrs}>${esc(value ?? '')}</textarea>`;
+        control = `<textarea class="adm-input" rows="4" ${attrs} ${phAttr}>${esc(displayValue ?? '')}</textarea>`;
         break;
       case 'select':
         control = `<select class="adm-input" ${attrs}>${f.options!
           .map((o) => {
             const val = typeof o === 'string' ? o : o.value;
             const text = typeof o === 'string' ? o : o.label;
-            return `<option value="${esc(val)}" ${val === value ? 'selected' : ''}>${esc(text)}</option>`;
+            return `<option value="${esc(val)}" ${val === displayValue ? 'selected' : ''}>${esc(text)}</option>`;
           })
           .join('')}</select>`;
         break;
       case 'bool':
-        control = `<label class="flex items-center gap-2 text-xs"><input type="checkbox" ${attrs} ${value ? 'checked' : ''} /> yes</label>`;
+        control = `<label class="flex items-center gap-2 text-xs"><input type="checkbox" ${attrs} ${displayValue ? 'checked' : ''} /> yes</label>`;
         break;
       case 'csv':
-        control = `<input class="adm-input" ${attrs} value="${esc((value ?? []).join(', '))}" />`;
+        control = `<input class="adm-input" ${attrs} ${phAttr} value="${esc((displayValue ?? []).join(', '))}" />`;
         break;
       case 'lines':
-        control = `<textarea class="adm-input" rows="4" ${attrs}>${esc((value ?? []).join('\n'))}</textarea>`;
+        control = `<textarea class="adm-input" rows="4" ${attrs} ${phAttr}>${esc((displayValue ?? []).join('\n'))}</textarea>`;
         break;
       case 'kv':
         control = `<textarea class="adm-input" rows="4" ${attrs} placeholder="Camera: Sony A7\nLens: 35mm">${esc(
-          (value ?? []).map((d: any) => `${d.label}: ${d.value}`).join('\n'),
+          (displayValue ?? []).map((d: any) => `${d.label}: ${d.value}`).join('\n'),
         )}</textarea>`;
         break;
       case 'media': {
@@ -425,8 +509,49 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>`;
         break;
       }
+      case 'themeSelector': {
+        const allThemes = getAllThemes();
+        const currentId = value || 'ascii';
+        control = `<div class="space-y-3">
+          <input type="hidden" ${attrs} id="input-theme-selector" value="${esc(currentId)}" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="theme-selector-grid">
+            ${allThemes
+              .map((t) => {
+                const isSelected = t.id === currentId;
+                return `<div class="theme-card relative rounded-xl border p-4 transition-all duration-200 flex flex-col justify-between gap-3 ${
+                  isSelected
+                    ? 'border-emerald-500 bg-emerald-500/5 shadow-sm ring-1 ring-emerald-500'
+                    : 'border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 hover:border-zinc-400 dark:hover:border-zinc-600'
+                }" data-theme-card="${esc(t.id)}">
+                  <div>
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--heading)]">${esc(t.name)}</span>
+                      <span class="theme-card-badge px-2 py-0.5 rounded-full text-[10px] font-mono font-medium ${
+                        isSelected ? 'bg-emerald-500/20 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'
+                      }">${isSelected ? '● Active' : 'Available'}</span>
+                    </div>
+                    <p class="text-xs text-[var(--muted)] mt-1.5 leading-relaxed">${esc(t.description)}</p>
+                  </div>
+                  <div class="flex items-center gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800 text-xs">
+                    <button type="button" class="adm-btn flex-1 text-center font-medium cursor-pointer ${isSelected ? 'bg-emerald-600 text-white border-emerald-600' : ''}" data-select-theme="${esc(t.id)}">
+                      ${isSelected ? 'Đang chọn' : 'Chọn theme này'}
+                    </button>
+                    <a href="/?preview=${esc(t.id)}" target="_blank" rel="noopener noreferrer" class="adm-btn text-center hover:text-emerald-500" title="Mở tab mới xem trước dữ liệu thật">
+                      Preview ↗
+                    </a>
+                  </div>
+                </div>`;
+              })
+              .join('')}
+          </div>
+        </div>`;
+        break;
+      }
     }
-    return `<div class="${f.wide || f.type === 'image' || f.type === 'pdf' ? 'md:col-span-2' : ''}"><span class="adm-label">${esc(f.label)}</span>${control}</div>`;
+    const labelBadge = isTranslatable
+      ? ` <span class="text-[10px] font-mono text-emerald-500 font-semibold">(Tiếng Việt 🇻🇳)</span>`
+      : '';
+    return `<div class="${f.wide || f.type === 'image' || f.type === 'pdf' || f.type === 'themeSelector' ? 'md:col-span-2' : ''}"><span class="adm-label">${esc(f.label)}${labelBadge}</span>${control}</div>`;
   };
 
   const render = () => {
@@ -441,9 +566,94 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }).join('');
 
     const section = SECTIONS.find((s) => s.id === active)!;
+    if (section.kind === 'appearance') {
+      const allThemes = getAllThemes();
+      const currentThemeId = (data.appearance?.activeTheme || data.identity?.themeVariant || 'ascii') as string;
+      const activeDef = allThemes.find((t) => t.id === currentThemeId) || allThemes[0];
+
+      panel.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[var(--border)]">
+            <div>
+              <h2 class="font-display text-xl font-bold text-[var(--heading)]">Appearance &amp; Theme System</h2>
+              <p class="text-xs text-[var(--muted-fg)] mt-1">
+                Select and publish the default theme for your portfolio. All themes share your portfolio data and content seamlessly.
+              </p>
+            </div>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-xs font-mono shrink-0">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Live Default: <b>${esc(activeDef.name)}</b></span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            ${allThemes
+              .map((t) => {
+                const isSelected = t.id === currentThemeId;
+                return `
+                <div class="theme-card relative rounded-2xl border p-5 transition-all duration-200 flex flex-col justify-between gap-4 ${
+                  isSelected
+                    ? 'border-emerald-500 bg-emerald-500/5 shadow-md ring-1 ring-emerald-500'
+                    : 'border-[var(--border)] bg-[var(--card)] hover:border-[var(--line-strong)]'
+                }" data-theme-card="${esc(t.id)}">
+                  <div>
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                      <div class="flex items-center gap-2">
+                        <span class="font-mono text-sm font-bold tracking-wider text-[var(--heading)]">${esc(t.name)}</span>
+                        ${t.id === 'knight' ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-500 border border-amber-500/30">Forkfolio Minimalist</span>' : ''}
+                      </div>
+                      <span class="theme-card-badge px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium ${
+                        isSelected ? 'bg-emerald-500/20 text-emerald-500' : 'bg-zinc-500/10 text-zinc-500'
+                      }">${isSelected ? '● Active Default' : 'Available'}</span>
+                    </div>
+                    <p class="text-xs text-[var(--muted-fg)] leading-relaxed mb-3">${esc(t.description)}</p>
+                    <div class="flex flex-wrap gap-1.5">
+                      ${(t.id === 'knight'
+                        ? ['Martian Mono', 'Glyph Scramble', 'Magnetic Pull', 'Interactive Cursor']
+                        : t.id === 'ascii'
+                        ? ['ASCII Art', 'CLI Monospace', 'Compact Terminal']
+                        : t.id === 'editorial'
+                        ? ['3D Book Unfold', 'CI/CD Pipeline', 'Observability']
+                        : ['Modern Clean', 'Minimalist', 'Light/Dark']
+                      ).map((f) => `<span class="px-2 py-0.5 rounded-md bg-[var(--muted-bg)] text-[10px] font-mono text-[var(--muted-fg)]">${esc(f)}</span>`).join('')}
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 pt-3 border-t border-[var(--border)] text-xs">
+                    <button type="button" class="adm-btn flex-1 text-center font-medium cursor-pointer ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'hover:border-emerald-500 hover:text-emerald-500'
+                    }" data-select-theme="${esc(t.id)}">
+                      ${isSelected ? '✓ Đang chọn làm mặc định' : 'Đặt làm Theme mặc định'}
+                    </button>
+                    <a href="/?preview=${esc(t.id)}" target="_blank" rel="noopener noreferrer" class="adm-btn inline-flex items-center gap-1 text-center hover:text-emerald-500" title="Mở tab mới xem trước giao diện với dữ liệu thật">
+                      <span>Preview</span>
+                      <span>↗</span>
+                    </a>
+                  </div>
+                </div>
+              `;
+              })
+              .join('')}
+          </div>
+
+          <div class="rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 p-4 text-xs text-[var(--muted-fg)] space-y-2">
+            <p class="font-semibold text-[var(--heading)] flex items-center gap-1.5">
+              <span>💡 Hướng dẫn chuyển đổi giao diện:</span>
+            </p>
+            <ul class="list-disc list-inside space-y-1 pl-1">
+              <li><b>Preview ↗:</b> Mở tab mới xem trước giao diện với dữ liệu thật của bạn mà <i>không</i> làm thay đổi trang đang hiển thị với người dùng khác.</li>
+              <li><b>Đặt làm Theme mặc định:</b> Đánh dấu theme này làm mặc định. Nhấn <b>Save changes</b> ở góc trên để lưu lên Supabase/IndexedDB và áp dụng toàn cầu cho khách truy cập.</li>
+            </ul>
+          </div>
+        </div>
+      `;
+      return;
+    }
     if (section.kind === 'object') {
       panel.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${section.fields
-        .map((f) => fieldHtml(f, `${section.id}.`, getPath(data[section.id], f.key)))
+        .map((f) => fieldHtml(f, `${section.id}.`, getPath(data[section.id], f.key), data[section.id]))
         .join('')}</div>`;
       return;
     }
@@ -476,7 +686,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </span>
         </summary>
         <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--border)] bg-[var(--card)]">
-          ${section.fields.map((f) => fieldHtml(f, `${section.id}.${i}.`, item[f.key])).join('')}
+          ${section.fields.map((f) => fieldHtml(f, `${section.id}.${i}.`, item[f.key], item)).join('')}
         </div></details>`,
         )
         .join('')}
@@ -534,7 +744,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     queueSave();
     // keep tab counts / summary titles fresh without re-rendering inputs
     const summaryTitle = el.closest('details')?.querySelector('summary span.truncate');
-    if (summaryTitle && /\.(title|role|name)$/.test(el.dataset.path)) summaryTitle.textContent = el.value || '(untitled)';
+    if (summaryTitle && /\.(title|role|name)(_vi)?$/.test(el.dataset.path)) summaryTitle.textContent = el.value || '(untitled)';
   };
   panel.addEventListener('input', onEdit);
   panel.addEventListener('change', async (e) => {
@@ -623,6 +833,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   panel.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
     if (t.closest('[data-stop]')) e.preventDefault(); // don't toggle <details>
+
+    const themeBtn = t.closest<HTMLElement>('[data-select-theme]');
+    if (themeBtn) {
+      const chosenTheme = themeBtn.dataset.selectTheme;
+      if (chosenTheme) {
+        setPath(data, 'identity.themeVariant', chosenTheme);
+        setPath(data, 'appearance.activeTheme', chosenTheme);
+        try {
+          localStorage.setItem('portfolio-published-theme', chosenTheme);
+          localStorage.setItem('user-theme-variant', chosenTheme);
+        } catch (e) {}
+        queueSave();
+        render();
+      }
+      return;
+    }
+
     const btn = t.closest<HTMLElement>('[data-add],[data-del],[data-move],[data-clear],[data-media-remove],[data-media-move]');
     if (!btn) return;
     if (btn.dataset.mediaRemove || btn.dataset.mediaMove) {
@@ -661,6 +888,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     if (!b) return;
     active = b.dataset.tab!;
     render();
+  });
+
+  // Admin Language Switcher (EN | VI)
+  document.querySelectorAll<HTMLElement>('[data-admin-lang]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetLang = btn.dataset.adminLang as 'en' | 'vi';
+      if (!targetLang || targetLang === adminLocale) return;
+      adminLocale = targetLang;
+      document.querySelectorAll<HTMLElement>('[data-admin-lang]').forEach((b) => {
+        b.dataset.active = b.dataset.adminLang === adminLocale ? 'true' : 'false';
+      });
+      const note = document.getElementById('admin-note');
+      if (note) {
+        note.classList.remove('hidden');
+        note.textContent =
+          adminLocale === 'vi'
+            ? '🇻🇳 Chế độ biên tập Tiếng Việt: Nhập bản dịch tiếng Việt cho các trường nội dung. Nếu bỏ trống trường nào, hệ thống sẽ tự động hiển thị theo tiếng Anh mặc định.'
+            : '🇬🇧 Chế độ biên tập Tiếng Anh (Mặc định toàn cầu cho khách truy cập lần đầu).';
+      }
+      render();
+    });
   });
 
   document.getElementById('btn-export')!.addEventListener('click', () => {
@@ -730,6 +978,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       } else {
         await saveStored(data);
       }
+      const activeTheme = (data.appearance?.activeTheme || data.identity?.themeVariant) as string;
+      if (activeTheme) {
+        try {
+          localStorage.setItem('portfolio-published-theme', activeTheme);
+          localStorage.setItem('user-theme-variant', activeTheme);
+        } catch (e) {}
+      }
       isDirty = false;
       syncDirtyUi();
       setStatus('Saved ✓ — Live on site', 'ok');
@@ -781,28 +1036,59 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     unsavedModal.classList.remove('hidden');
   });
 
+  let pendingSignOut = false;
+
+  async function performSignOut() {
+    try {
+      setStatus('Signing out…', 'muted');
+      await signOut();
+      signedIn = false;
+      isDirty = false;
+      pendingSignOut = false;
+      syncDirtyUi();
+      await boot();
+      setStatus('Signed out', 'muted');
+    } catch (err) {
+      console.error('Sign-out error:', err);
+      setStatus(`Sign-out failed: ${(err as Error).message}`, 'warn');
+    }
+  }
+
   modalStayBtn.addEventListener('click', () => {
     unsavedModal.classList.add('hidden');
     pendingHref = null;
+    pendingSignOut = false;
   });
 
   modalDiscardBtn.addEventListener('click', async () => {
     const dest = pendingHref;
+    const shouldSignOut = pendingSignOut;
     unsavedModal.classList.add('hidden');
     pendingHref = null;
+    pendingSignOut = false;
     await clearStored();
     isDirty = false;
     syncDirtyUi();
-    if (dest) window.location.href = dest;
+    if (shouldSignOut) {
+      await performSignOut();
+    } else if (dest) {
+      window.location.href = dest;
+    }
   });
 
   modalSaveBtn.addEventListener('click', async () => {
     const dest = pendingHref;
+    const shouldSignOut = pendingSignOut;
     const ok = await saveAll();
     if (ok) {
       unsavedModal.classList.add('hidden');
       pendingHref = null;
-      if (dest) window.location.href = dest;
+      pendingSignOut = false;
+      if (shouldSignOut) {
+        await performSignOut();
+      } else if (dest) {
+        window.location.href = dest;
+      }
     }
   });
 
@@ -813,9 +1099,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
   });
 
-  signoutBtn.addEventListener('click', async () => {
-    await signOut();
-    boot();
+  signoutBtn?.addEventListener('click', async () => {
+    if (isDirty) {
+      pendingSignOut = true;
+      unsavedModal.classList.remove('hidden');
+      return;
+    }
+    await performSignOut();
   });
 
   $('btn-github-login').addEventListener('click', async () => {
@@ -881,6 +1171,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     data = structuredClone(d);
     if (!Array.isArray(data.gallery)) data.gallery = [];
     if (!Array.isArray(data.education)) data.education = structuredClone(defaultPortfolioData.education ?? []);
+    if (!Array.isArray(data.certifications)) data.certifications = structuredClone(defaultPortfolioData.certifications ?? []);
     render();
     if (fromDraft) {
       markDirty('Loaded unsaved draft · Click Save to apply');
@@ -893,7 +1184,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   async function boot() {
     const session = await getSession();
-    if (session && !isOwnerSession(session)) {
+    if (!isSupabaseConfigured) {
+      // In local development or static mode without Supabase, enable offline draft editor
+      signedIn = true;
+    } else if (session && !isOwnerSession(session)) {
       const err = $('login-error');
       err.className = 'text-xs text-red-500 min-h-4';
       err.textContent = 'Account is not authorized as portfolio owner.';
@@ -904,15 +1198,51 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     const hdrLabel = document.getElementById('hdr-admin-label');
-    if (hdrLabel) hdrLabel.textContent = signedIn ? 'Edit' : 'Login';
+    if (hdrLabel) hdrLabel.textContent = (signedIn && session) ? 'Admin' : (signedIn && !isSupabaseConfigured) ? 'Admin' : 'Login';
+
+    const authGroup = document.getElementById('admin-auth-group');
+    const localBadge = document.getElementById('admin-local-badge');
+    const accountLabel = document.getElementById('admin-account-label');
 
     if (signedIn && session) {
-      const role = getSessionRole(session);
-      signoutBtn.textContent = `Sign out (${getSessionLabel(session)})`;
+      if (authGroup) {
+        authGroup.classList.remove('hidden');
+        authGroup.classList.add('flex');
+      }
+      if (localBadge) {
+        localBadge.classList.add('hidden');
+        localBadge.classList.remove('inline-flex');
+      }
+      if (accountLabel) {
+        const email = session.user?.email || '';
+        const role = getSessionRole(session);
+        const label = getSessionLabel(session);
+        accountLabel.textContent = label || email || 'Owner';
+        accountLabel.title = email ? `Signed in as ${email}` : '';
+      }
       note.innerHTML =
-        role === 'root'
+        getSessionRole(session) === 'root'
           ? 'Signed in as <b>Repo Owner (ROOT)</b> via GitHub. Press <b>Save changes</b> (or <code>Ctrl+S</code>) to save your edits live.'
           : 'Press <b>Save changes</b> (or <code>Ctrl+S</code>) to save your edits and uploaded images to your live site.';
+    } else if (signedIn && !isSupabaseConfigured) {
+      if (authGroup) {
+        authGroup.classList.add('hidden');
+        authGroup.classList.remove('flex');
+      }
+      if (localBadge) {
+        localBadge.classList.remove('hidden');
+        localBadge.classList.add('inline-flex');
+      }
+      note.innerHTML = 'Running in <b>Local Mode</b> (Supabase not configured). Edits are saved to local IndexedDB drafts. Use <b>Export content.json</b> to commit changes.';
+    } else {
+      if (authGroup) {
+        authGroup.classList.add('hidden');
+        authGroup.classList.remove('flex');
+      }
+      if (localBadge) {
+        localBadge.classList.add('hidden');
+        localBadge.classList.remove('inline-flex');
+      }
     }
 
     adminHeader.classList.toggle('hidden', !signedIn);

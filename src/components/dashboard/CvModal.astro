@@ -360,8 +360,20 @@ const initialCvHtml = renderCvSheetHtml(portfolioData);
       }
     }
 
-    function openCvModal() {
-      syncCvData((window as any).__PORTFOLIO__ ?? portfolioData);
+    function isCvEligible(d: PortfolioData): boolean {
+      const open = d.careerSettings?.openToWork ?? d.identity?.openToWork ?? true;
+      const cv = (d.careerSettings?.cvUrl ?? d.identity?.cvUrl ?? '').trim();
+      return Boolean(open) && Boolean(cv);
+    }
+
+    function openCvModal(mode: 'web' | 'pdf' = 'web') {
+      const liveData = (window as any).__PORTFOLIO__ ?? portfolioData;
+      if (!isCvEligible(liveData)) {
+        console.warn('[CV] Public CV access is currently restricted.');
+        return;
+      }
+      syncCvData(liveData);
+      switchCvTab(mode);
       modal.classList.remove('hidden');
       void modal.offsetWidth;
       modal.classList.remove('opacity-0');
@@ -398,13 +410,16 @@ const initialCvHtml = renderCvSheetHtml(portfolioData);
       const openTrigger = target.closest?.('[data-open-cv]');
       if (openTrigger) {
         e.preventDefault();
-        openCvModal();
+        const mode = openTrigger.getAttribute('data-open-cv') === 'pdf' ? 'pdf' : 'web';
+        openCvModal(mode);
         return;
       }
       const dlTrigger = target.closest?.('[data-download-cv]');
       if (dlTrigger) {
         e.preventDefault();
-        syncCvData((window as any).__PORTFOLIO__ ?? portfolioData);
+        const liveData = (window as any).__PORTFOLIO__ ?? portfolioData;
+        if (!isCvEligible(liveData)) return;
+        syncCvData(liveData);
         downloadCvPdf();
       }
     });
