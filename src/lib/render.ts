@@ -2,15 +2,16 @@
  * Pure HTML renderers shared by Astro (build time) and the browser (live edits).
  * Every user-provided string goes through `esc` / `safeUrl`.
  */
-import type {
-  Certification,
-  EducationItem,
-  ExperienceItem,
-  GalleryItem,
-  Identity,
-  Project,
-  Skill,
-  PortfolioData,
+import {
+  resolveAvatarUrl,
+  type Certification,
+  type EducationItem,
+  type ExperienceItem,
+  type GalleryItem,
+  type Identity,
+  type Project,
+  type Skill,
+  type PortfolioData,
 } from '../data/portfolio';
 
 export function esc(value: unknown): string {
@@ -53,13 +54,41 @@ export function renderNameWords(name: string): string {
 }
 
 export function renderAvatar(identity: Identity): string {
-  if (identity.avatar) {
-    return `<img src="${esc(safeUrl(identity.avatar))}" alt="${esc(identity.name)}" class="aspect-[4/5] w-full rounded-xl object-cover squircle transition-transform duration-500 hover:scale-[1.02]" />`;
+  const url = resolveAvatarUrl({ identity });
+  if (url) {
+    return `<img src="${esc(url)}" alt="${esc(identity.name)}" class="aspect-[4/5] w-full rounded-xl object-cover squircle transition-transform duration-500 hover:scale-[1.02]" onerror="this.style.display='none';const n=this.nextElementSibling;if(n)n.style.display='flex';" /><div style="display:none" class="aspect-[4/5] w-full rounded-xl squircle items-center justify-center bg-[var(--muted-bg)]"><span class="font-display text-5xl font-bold gradient-text">${esc(initials(identity.name))}</span></div>`;
   }
   return `<div class="aspect-[4/5] w-full rounded-xl squircle flex items-center justify-center bg-[var(--muted-bg)]"><span class="font-display text-5xl font-bold gradient-text">${esc(initials(identity.name))}</span></div>`;
 }
 
-export function renderSkills(skills: Skill[]): string {
+export interface SkillGroup {
+  category: string;
+  items: Skill[];
+}
+
+/**
+ * Groups skills by their configured `category` (or `category_vi` in Vietnamese),
+ * falling back cleanly to `tag` label or "General". Shared across themes.
+ */
+export function groupSkillsByCategory(skills: Skill[] = [], locale: 'en' | 'vi' = 'en'): SkillGroup[] {
+  const groups = new Map<string, Skill[]>();
+  skills.forEach((s) => {
+    let cat = (locale === 'vi' && s.category_vi ? s.category_vi : s.category || '').trim();
+    if (!cat && s.tag) {
+      const cleanTag = s.tag.replace(/^\[|\]$/g, '').trim();
+      cat = cleanTag || (locale === 'vi' ? 'Chung' : 'General');
+    }
+    if (!cat) cat = locale === 'vi' ? 'Chung' : 'General';
+    if (!groups.has(cat)) groups.set(cat, []);
+    groups.get(cat)!.push(s);
+  });
+  return Array.from(groups.entries()).map(([category, items]) => ({ category, items }));
+}
+
+export function renderSkills(skills: Skill[], emptyLabel = 'No published skills configured.'): string {
+  if (!skills || skills.length === 0) {
+    return `<li class="text-xs font-mono text-[var(--muted-fg)]">${esc(emptyLabel)}</li>`;
+  }
   return skills
     .map((s) => {
       const active = s.status === 'ACTIVE';
@@ -72,23 +101,35 @@ export function renderSkills(skills: Skill[]): string {
     .join('');
 }
 
-export function renderCerts(certs: Certification[]): string {
+export function renderCerts(certs: Certification[], emptyLabel = 'No published certifications configured.'): string {
+  if (!certs || certs.length === 0) {
+    return `<p class="text-xs font-mono text-[var(--muted-fg)] col-span-full">${esc(emptyLabel)}</p>`;
+  }
   return certs
     .map(
       (c) => `<div class="panel card-interactive p-4 flex items-start gap-3">
   <span class="mt-0.5 w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${
     c.color === 'yellow' ? 'bg-amber-500/15 text-amber-500' : 'bg-sky-500/15 text-sky-500'
   }">★</span>
-  <div class="min-w-0">
+  <div class="min-w-0 flex-1">
     <p class="text-sm font-semibold text-[var(--fg)]">${esc(c.name)}</p>
-    <p class="text-xs text-[var(--muted-fg)] mt-0.5">${esc(c.issuer)}</p>
+    <p class="text-xs text-[var(--muted-fg)] mt-0.5">${esc(c.issuer)}${c.issueDate ? ` · ${esc(c.issueDate)}` : ''}</p>
+    ${c.credentialId ? `<p class="text-[11px] font-mono text-[var(--muted-fg)] mt-1">ID: ${esc(c.credentialId)}</p>` : ''}
+    ${
+      c.credentialUrl
+        ? `<a href="${esc(safeUrl(c.credentialUrl))}" target="_blank" rel="noopener noreferrer" class="inline-block mt-1.5 text-xs font-mono text-[var(--signal)] hover:underline">Verify ↗</a>`
+        : ''
+    }
   </div>
 </div>`,
     )
     .join('');
 }
 
-export function renderExperience(items: ExperienceItem[]): string {
+export function renderExperience(items: ExperienceItem[], emptyLabel = 'No published experience configured.'): string {
+  if (!items || items.length === 0) {
+    return `<p class="text-sm font-mono text-[var(--muted-fg)] text-center py-6">${esc(emptyLabel)}</p>`;
+  }
   return items
     .map((item, idx) => {
       const isLeft = idx % 2 === 0;
@@ -133,7 +174,10 @@ export function renderExperience(items: ExperienceItem[]): string {
     .join('');
 }
 
-export function renderEducation(items: EducationItem[] = []): string {
+export function renderEducation(items: EducationItem[] = [], emptyLabel = 'No published education configured.'): string {
+  if (!items || items.length === 0) {
+    return `<li class="py-6 text-sm font-mono text-[var(--muted-fg)]">${esc(emptyLabel)}</li>`;
+  }
   return items
     .map(
       (edu, idx) => `<li class="reveal is-visible grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 border-t border-[var(--border)] py-6" style="--d: ${(idx * 0.08).toFixed(2)}s">
@@ -151,46 +195,43 @@ export function renderEducation(items: EducationItem[] = []): string {
     .join('');
 }
 
-export function renderProjects(projects: Project[]): string {
+export function renderProjects(projects: Project[], emptyLabel = 'No published projects configured.'): string {
+  if (!projects || projects.length === 0) {
+    return `<p class="md:col-span-2 text-sm font-mono text-[var(--muted-fg)] py-8">${esc(emptyLabel)}</p>`;
+  }
   return projects
     .map((p, idx) => {
       const cover = p.media?.[0];
       const count = p.media?.length ?? 0;
       const online = p.status === 'ONLINE';
-      const isFeatured = idx === 0 && !cover;
+      const num = String(idx + 1).padStart(2, '0');
+      const total = String(projects.length).padStart(2, '0');
+      const primaryTag = p.tags?.[0] || 'Engineering';
 
-      if (isFeatured) {
+      if (idx === 0) {
         return `<article class="project-card-trigger reveal is-visible card-interactive md:col-span-2 panel p-6 sm:p-8 grid gap-8 lg:grid-cols-12 lg:items-center group cursor-pointer" data-project-id="${esc(p.id)}">
-  <div class="lg:col-span-7 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] p-5 font-mono text-xs space-y-3 transition-shadow duration-250 group-hover:shadow-[var(--shadow-raised)]">
+  ${
+    cover
+      ? `<div class="lg:col-span-6 relative aspect-video overflow-hidden rounded-xl bg-[var(--muted-bg)] border border-[var(--border)]">
+    <img src="${esc(safeUrl(cover.src))}" alt="${esc(cover.caption || p.title)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+    ${count > 1 ? `<span class="absolute bottom-2 right-2 chip font-mono !bg-black/60 !text-white !border-white/10">${count} media</span>` : ''}
+  </div>`
+      : `<div class="lg:col-span-6 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)] p-5 font-mono text-xs space-y-3 transition-shadow duration-250 group-hover:shadow-[var(--shadow-raised)]">
     <div class="flex items-center justify-between border-b border-[var(--border)] pb-2.5 text-[11px] text-[var(--muted-fg)]">
-      <span>PLAYBOOK: site-airgap-ha.yml</span>
-      <span class="text-[var(--signal)]">● 0 FAILED · IDEMPOTENT</span>
+      <span>PROJECT // ${num} / ${total}</span>
+      <span class="${online ? 'text-[var(--signal)]' : 'text-amber-500'}">● ${esc(p.status)}</span>
     </div>
-    <div class="space-y-1.5 text-[11px] leading-relaxed">
-      <div class="playbook-line text-[var(--muted-fg)]" style="--line: 0">$ ansible-playbook -i inventory/prod.ini site-airgap-ha.yml</div>
-      <div class="playbook-line text-[var(--signal)]" style="--line: 1">✔ [preflight] Disable swap, load br_netfilter &amp; ip_vs kernel modules</div>
-      <div class="playbook-line text-[var(--signal)]" style="--line: 2">✔ [registry] Bootstrap offline Harbor Registry + Cosign verification</div>
-      <div class="playbook-line text-[var(--signal)]" style="--line: 3">✔ [haproxy] Configure Keepalived VIP + HAProxy L4 API Server LB</div>
-      <div class="playbook-line text-[var(--signal)]" style="--line: 4">✔ [k8s-master] Init stacked etcd multi-master control-plane</div>
-      <div class="playbook-line text-[var(--signal)]" style="--line: 5">✔ [calico] Deploy Calico CNI &amp; Prometheus node-exporter</div>
+    <div class="space-y-2 py-2">
+      <div class="text-sm font-bold text-[var(--fg)] uppercase tracking-wide">${esc(p.title)}</div>
+      <div class="text-xs text-[var(--muted-fg)] leading-relaxed">${esc(p.shortDesc || p.description)}</div>
     </div>
-    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border)] text-center">
-      <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
-        <div class="font-bold text-[var(--fg)]">-70%</div>
-        <div class="text-[10px] text-[var(--muted-fg)]">Provision Time</div>
-      </div>
-      <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
-        <div class="font-bold text-[var(--signal)]">100%</div>
-        <div class="text-[10px] text-[var(--muted-fg)]">Offline Ready</div>
-      </div>
-      <div class="rounded bg-[var(--card)] p-2 border border-[var(--border)]">
-        <div class="font-bold text-[var(--fg)]">HA 3-Master</div>
-        <div class="text-[10px] text-[var(--muted-fg)]">Zero SPOF</div>
-      </div>
+    <div class="flex flex-wrap gap-1.5 pt-2 border-t border-[var(--border)] text-[11px]">
+      ${p.tags.map((t) => `<span class="px-2 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--fg)]">#${esc(t)}</span>`).join('')}
     </div>
-  </div>
-  <div class="lg:col-span-5 flex flex-col gap-3.5 text-left">
-    <p class="text-label text-[var(--muted-fg)]">Infrastructure Automation · Featured</p>
+  </div>`
+  }
+  <div class="lg:col-span-6 flex flex-col gap-3.5 text-left">
+    <p class="text-label text-[var(--muted-fg)]">${esc(primaryTag)} · Featured</p>
     <h3 class="text-h3 text-[var(--fg)]">${esc(p.title)}</h3>
     <p class="text-sm text-[var(--muted-fg)] leading-relaxed">${esc(p.description || p.shortDesc)}</p>
     <ul class="flex flex-wrap gap-y-1 text-xs font-mono text-[var(--muted-fg)] pt-1">
@@ -271,7 +312,7 @@ export function renderCvSheetHtml(d: PortfolioData): string {
 
   const links: { label: string; url: string }[] = [];
   if (i.github?.url) links.push({ label: 'GITHUB', url: i.github.url });
-  links.push({ label: 'PORTFOLIO', url: 'https://quanblue.netlify.app/' });
+  links.push({ label: 'PORTFOLIO', url: 'https://thanhquan.dev/' });
   if (i.youtube?.url) links.push({ label: 'YOUTUBE', url: i.youtube.url });
   if (i.linkedin?.url) links.push({ label: 'LINKEDIN', url: i.linkedin.url });
 

@@ -1,7 +1,11 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, getCareerSettings } from '../../data/portfolio';
 import { renderAvatar } from '../../lib/render';
-const { identity } = portfolioData;
+const { identity, experience, skills, projects, education } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const showCv = career.openToWork && Boolean(career.cvUrl);
+const currentRole = experience[0];
+const topSkills = skills.slice(0, 5).map((s) => s.name).join(', ');
 ---
 
 <section id="about" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
@@ -15,55 +19,54 @@ const { identity } = portfolioData;
       </figcaption>
     </figure>
 
-    <!-- Right Bio + 3 Pillars (lg:col-span-8) -->
+    <!-- Right Bio + Published Summary Pillars (lg:col-span-8) -->
     <div class="lg:col-span-8">
       <p class="reveal text-label text-[var(--signal)] mb-2">05 · About Me</p>
-      <h2 class="reveal-wipe text-h2 text-[var(--fg)]">From bare-metal to cluster, end to end.</h2>
+      <h2 class="reveal-wipe text-h2 text-[var(--fg)]" data-bind="role">{identity.role}</h2>
 
       <div class="reveal mt-5 grid max-w-[65ch] gap-4 text-lead text-[var(--muted-fg)]" style="--d: 0.08s">
-        <p>
-          Tốt nghiệp Kỹ sư Công nghệ Thông tin chuyên ngành Mạng và Hệ thống Phân tán, mình bắt đầu sự nghiệp từ vị trí System Administrator trước khi đảm nhận vai trò <strong class="text-[var(--fg)]"><span data-bind="role">{identity.role}</span> tại Viettel</strong>.
-        </p>
-        <p>
-          Góc nhìn kết hợp giữa quản trị hạ tầng vật lý (Linux, Networking, Load Balancing) và nền tảng Cloud-Native (Kubernetes, Ansible, Jenkins, Prometheus) giúp mình xây dựng những hệ thống có tính sẵn sàng cao, tự động hóa hoàn toàn và an toàn ngay từ khâu thiết kế.
-        </p>
+        <p data-bind="bio">{identity.bio}</p>
       </div>
 
-      <!-- 3 Pillars with top border -->
-      <ul class="mt-10 grid gap-6 sm:grid-cols-3">
+      <!-- 3 Data-Driven Summary Pillars with top border -->
+      <ul id="ed-about-pillars" class="mt-10 grid gap-6 sm:grid-cols-3">
         <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.1s">
           <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
             <i class="fa-solid fa-server text-xs text-[var(--signal)]"></i>
-            <span>HA Platform</span>
+            <span data-ed-pillar-title="role">Current Focus</span>
           </h3>
-          <p class="text-sm text-[var(--muted-fg)]">
-            Cụm Kubernetes multi-master chịu lỗi cao, cân bằng tải HAProxy/Keepalived không điểm nghẽn đơn (Zero SPOF).
+          <p data-ed-pillar-body="role" class="text-sm text-[var(--muted-fg)]">
+            {currentRole ? `${currentRole.role} @ ${currentRole.company} (${currentRole.period})` : identity.role}
           </p>
         </li>
 
         <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.18s">
           <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
             <i class="fa-solid fa-gears text-xs text-[var(--signal)]"></i>
-            <span>Secure CI/CD &amp; IaC</span>
+            <span data-ed-pillar-title="stack">Core Stack</span>
           </h3>
-          <p class="text-sm text-[var(--muted-fg)]">
-            Pipeline Jenkins tích hợp Trivy + SBOM + Image Signing và tự động hóa hạ tầng Air-Gapped bằng Ansible.
+          <p data-ed-pillar-body="stack" class="text-sm text-[var(--muted-fg)]">
+            {topSkills || 'No published skills'}
           </p>
         </li>
 
         <li class="reveal grid content-start gap-2.5 border-t-2 border-[var(--fg)] pt-4" style="--d: 0.26s">
           <h3 class="flex items-center gap-2 font-semibold text-[var(--fg)]">
             <i class="fa-solid fa-chart-line text-xs text-[var(--signal)]"></i>
-            <span>Observability</span>
+            <span data-ed-pillar-title="profile">Published Record</span>
           </h3>
-          <p class="text-sm text-[var(--muted-fg)]">
-            Giám sát toàn diện metrics &amp; logs với Prometheus, Grafana và ELK Stack, tối ưu hóa SLA và thời gian xử lý sự cố.
+          <p data-ed-pillar-body="profile" class="text-sm text-[var(--muted-fg)]">
+            {`${projects.length} projects · ${education.length} education · ${skills.length} skills`}
           </p>
         </li>
       </ul>
 
       <!-- Compact Curriculum Vitae (CV) Trigger Card -->
-      <div class="reveal mt-8 panel p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-[var(--line-strong)] bg-[var(--muted-bg)]/40" style="--d: 0.32s">
+      <div
+        data-cv-gate
+        class={`reveal mt-8 panel p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-[var(--line-strong)] bg-[var(--muted-bg)]/40 ${showCv ? '' : 'hidden'}`}
+        style="--d: 0.32s"
+      >
         <div class="flex items-center gap-3.5 min-w-0">
           <span class="grid size-10 place-items-center rounded-xl border border-[var(--signal)]/40 bg-emerald-500/10 text-[var(--signal)] shrink-0">
             <i class="fa-regular fa-file-lines text-base"></i>
@@ -73,8 +76,8 @@ const { identity } = portfolioData;
               <h3 class="text-sm font-bold text-[var(--fg)]">Curriculum Vitae (Resume)</h3>
               <span class="rounded border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 font-mono text-[10px] font-semibold text-[var(--signal)]">PDF / A4</span>
             </div>
-            <p class="text-xs text-[var(--muted-fg)] mt-0.5 truncate">
-              Tóm tắt kinh nghiệm làm việc, dự án hạ tầng Kubernetes HA &amp; kỹ năng chuyên môn.
+            <p class="text-xs text-[var(--muted-fg)] mt-0.5 truncate" data-ed-cv-sub>
+              Summary of published experience, projects, and technical skills.
             </p>
           </div>
         </div>
@@ -85,7 +88,7 @@ const { identity } = portfolioData;
             class="inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--fg)] px-4 text-xs font-mono font-semibold text-[var(--bg)] hover:opacity-90 active:scale-[0.98] cursor-pointer transition"
           >
             <i class="fa-regular fa-eye"></i>
-            <span>Xem CV</span>
+            <span>View CV</span>
           </button>
           <button
             type="button"
@@ -100,3 +103,49 @@ const { identity } = portfolioData;
     </div>
   </div>
 </section>
+
+<script>
+  window.addEventListener('portfolio:data', (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    if (!detail) return;
+    const isVi = detail._locale === 'vi';
+    const root = document.getElementById('ed-about-pillars');
+    if (root) {
+      const roleTitle = root.querySelector('[data-ed-pillar-title="role"]');
+      const roleBody = root.querySelector('[data-ed-pillar-body="role"]');
+      const stackTitle = root.querySelector('[data-ed-pillar-title="stack"]');
+      const stackBody = root.querySelector('[data-ed-pillar-body="stack"]');
+      const profileTitle = root.querySelector('[data-ed-pillar-title="profile"]');
+      const profileBody = root.querySelector('[data-ed-pillar-body="profile"]');
+
+      const exp0 = (detail.experience || [])[0];
+      const skillNames = (detail.skills || []).slice(0, 5).map((s: any) => s.name).filter(Boolean).join(', ');
+      const projLen = (detail.projects || []).length;
+      const eduLen = (detail.education || []).length;
+      const skillLen = (detail.skills || []).length;
+
+      if (roleTitle) roleTitle.textContent = isVi ? 'Vai trò hiện tại' : 'Current Focus';
+      if (roleBody) {
+        roleBody.textContent = exp0
+          ? `${exp0.role} @ ${exp0.company} (${exp0.period})`
+          : (detail.identity?.role || '');
+      }
+      if (stackTitle) stackTitle.textContent = isVi ? 'Công nghệ chính' : 'Core Stack';
+      if (stackBody) {
+        stackBody.textContent = skillNames || (isVi ? 'Chưa có kỹ năng đăng tải' : 'No published skills');
+      }
+      if (profileTitle) profileTitle.textContent = isVi ? 'Hồ sơ công khai' : 'Published Record';
+      if (profileBody) {
+        profileBody.textContent = isVi
+          ? `${projLen} dự án · ${eduLen} học vấn · ${skillLen} kỹ năng`
+          : `${projLen} projects · ${eduLen} education · ${skillLen} skills`;
+      }
+    }
+    const cvSub = document.querySelector('#about [data-ed-cv-sub]');
+    if (cvSub) {
+      cvSub.textContent = isVi
+        ? 'Tóm tắt kinh nghiệm, dự án và kỹ năng đã công khai.'
+        : 'Summary of published experience, projects, and technical skills.';
+    }
+  });
+</script>

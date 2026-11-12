@@ -1,30 +1,39 @@
 ---
 import type { KnightProfileData } from '../../core/data-adapter';
+import { formatKnightAsciiTitle } from '../../core/ascii-title';
+import { initials } from '../../../lib/render';
 
 interface Props {
   profile: KnightProfileData;
 }
 
 const { profile } = Astro.props;
+const asciiName = (profile.name || 'NGUYEN THANH QUAN')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/[đĐ]/g, (m) => (m === 'đ' ? 'd' : 'D'));
+const nameInfo = formatKnightAsciiTitle(asciiName);
+const ini = initials(profile.name);
 ---
 
 <section class="kn-hero" id="top" aria-label="Home" data-hero="true" data-kn-s="hero">
   <div class="kn-hero-txt">
     <h1
+      id="kn-h-name"
       class="kn-asc kn-name"
       data-kn-t="name"
-      data-ld={"NGUYEN\nTHANH\nQUAN"}
-      data-lm={"NGUYEN\nTHANH\nQUAN"}
-      style="--kd:4.020;--ld:3;--km:4.020;--lm:3"
+      data-ld={nameInfo.desktopLines.join('\n')}
+      data-lm={nameInfo.mobileLines.join('\n')}
+      style={`--kd:${nameInfo.kd};--ld:${nameInfo.ld};--km:${nameInfo.km};--lm:${nameInfo.lm}`}
     >
       {profile.name}
     </h1>
     <p class="kn-role kn-veil" data-kn-occ="true">{profile.headline}</p>
   </div>
-  <div class="kn-fig" data-kn-fig="true" data-av={profile.avatarUrl} data-ini="NQ" aria-hidden="true">
+  <div class="kn-fig" data-kn-fig="true" data-av={profile.avatarUrl || ''} data-ini={ini} aria-hidden="true">
     <img
       class="kn-fig-img"
-      src={profile.avatarUrl}
+      src={profile.avatarUrl ? profile.avatarUrl : undefined}
       alt={profile.name}
       width="400"
       height="400"
@@ -32,5 +41,6 @@ const { profile } = Astro.props;
       decoding="async"
       crossorigin="anonymous"
     />
+    <span class="kn-fig-fallback" aria-hidden="true">{ini}</span>
   </div>
 </section>

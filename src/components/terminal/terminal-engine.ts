@@ -190,19 +190,22 @@ export const COMMAND_LIST: Record<string, TerminalCommand> = {
     name: 'neofetch',
     description: 'Display a stylized ASCII profile summary',
     execute: (_args, { portfolioData }) => {
+      const handle = String(portfolioData.identity.github?.handle || 'quan').replace(/^@/, '').toLowerCase();
+      const shortUser = handle.split(/[^a-z0-9_-]/)[0] || 'quan';
+      const skillNames = (portfolioData.skills || []).slice(0, 6).map((s) => s.name).join(', ') || 'None';
+      const openToWork = portfolioData.careerSettings?.openToWork ?? portfolioData.identity.openToWork;
       const art = [
         '        .--.',
-        '       |o_o |       ntquan@devops-engineer',
+        `       |o_o |       ${shortUser}@${portfolioData.identity.node || 'portfolio'}`,
         '       |:_/ |       ----------------------',
-        '      //   \\ \\      OS: Ubuntu Linux / Alpine Edge',
-        '     (|     | )     Host: HCM-VNM-01 [Multi-Zone]',
-        '    /\'\\_   _/`\\     Kernel: 6.8.0-devops-generic',
-        '    \\___)=(___/     Uptime: 99.9% SLA Online',
-        '                    Shell: Astro Term v1.0.4',
-        '                    Role: ' + portfolioData.identity.role,
-        '                    Target: ' + portfolioData.identity.name,
-        '                    Packages: k8s, docker, ansible, prometheus',
-        '                    Status: [CLUSTER ONLINE]',
+        '      //   \\ \\      Name: ' + portfolioData.identity.name,
+        '     (|     | )     Role: ' + portfolioData.identity.role,
+        `    /'\\_   _/\`\\     Location: ${portfolioData.identity.location}`,
+        '    \\___)=(___/     Shell: Astro Simulated Term',
+        '                    Projects: ' + (portfolioData.projects || []).length + ' published',
+        '                    Skills: ' + skillNames,
+        '                    Career: ' + (openToWork ? 'Open to Work' : 'Focused'),
+        '                    Mode: [SIMULATED PORTFOLIO SHELL]',
       ];
 
       return art.map((line) => ({ text: line, type: 'ascii' }));

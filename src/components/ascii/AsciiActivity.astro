@@ -1,48 +1,18 @@
 ---
 import { portfolioData } from '../../data/portfolio';
-const { telemetry } = portfolioData;
-
-// Authentic annual telemetry stream from quanblue.forkfolio.dev (52 weeks x 7 days)
-const rawCal =
-  '003033000000003030300300000030330033000000000300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000030343333003304304033643400300003000000003000300000000000000000000000000000000000000000000000000334694567669558363475400036840003054303003554440043303043033400343034444345799675779536689944';
-
-const weeks52: number[][] = [];
-for (let i = 0; i < 52; i++) {
-  const week: number[] = [];
-  for (let d = 0; d < 7; d++) {
-    const val = Number(rawCal[i * 7 + d]) || 0;
-    const lvl = val === 0 ? 0 : val <= 3 ? 1 : val <= 5 ? 2 : val <= 7 ? 3 : 4;
-    week.push(lvl);
-  }
-  weeks52.push(week);
-}
-
-const monthMarkers = [
-  { name: 'Dec', week: 0 },
-  { name: 'Jan', week: 4 },
-  { name: 'Feb', week: 8 },
-  { name: 'Mar', week: 13 },
-  { name: 'Apr', week: 17 },
-  { name: 'May', week: 21 },
-  { name: 'Jun', week: 26 },
-  { name: 'Jul', week: 30 },
-  { name: 'Aug', week: 35 },
-  { name: 'Sep', week: 39 },
-  { name: 'Oct', week: 43 },
-  { name: 'Nov', week: 48 },
-];
+import { renderAsciiActivityHtml } from './ascii-renderers';
 ---
 
 <section id="activity" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)] font-mono">
   <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-12">
     <!-- ASCII Title Banner -->
     <div class="space-y-2">
-      <span class="text-xs text-[var(--signal)] font-semibold tracking-wider">// 06. SECTION_TELEMETRY</span>
+      <span class="text-xs text-[var(--signal)] font-semibold tracking-wider">// 06. SECTION_ACTIVITY</span>
       <div class="overflow-x-auto py-1">
         <pre
           data-ascii-banner="TELEMETRY"
           class="font-mono text-[9px] sm:text-[13px] md:text-[15px] font-bold text-[var(--fg)] tracking-tight leading-[1.1] select-all cursor-pointer"
-          aria-label="TELEMETRY"
+          aria-label="ACTIVITY"
           title="Click to re-decrypt"
         >
  _____ _____ _     _____ __  __ _____ _____ ______   __
@@ -54,154 +24,6 @@ const monthMarkers = [
       </div>
     </div>
 
-    <!-- 4 High-Level SRE Metrics -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
-        <span class="ff-cross-tl">+</span>
-        <span class="ff-cross-tr">+</span>
-        <span class="ff-cross-bl">+</span>
-        <span class="ff-cross-br">+</span>
-        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Uptime SLA</span>
-        <span class="text-2xl sm:text-3xl font-black text-[var(--signal)] mt-1 block">{telemetry.uptimeSLA}</span>
-        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">Zero SPOF platform</span>
-      </div>
-
-      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
-        <span class="ff-cross-tl">+</span>
-        <span class="ff-cross-tr">+</span>
-        <span class="ff-cross-bl">+</span>
-        <span class="ff-cross-br">+</span>
-        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Throughput</span>
-        <span class="text-2xl sm:text-3xl font-black text-[var(--fg)] mt-1 block">2,489</span>
-        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">reqs/min telemetry</span>
-      </div>
-
-      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
-        <span class="ff-cross-tl">+</span>
-        <span class="ff-cross-tr">+</span>
-        <span class="ff-cross-bl">+</span>
-        <span class="ff-cross-br">+</span>
-        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Kernel Pods</span>
-        <span class="text-2xl sm:text-3xl font-black text-[var(--fg)] mt-1 block">48</span>
-        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">Across 3 control planes</span>
-      </div>
-
-      <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
-        <span class="ff-cross-tl">+</span>
-        <span class="ff-cross-tr">+</span>
-        <span class="ff-cross-bl">+</span>
-        <span class="ff-cross-br">+</span>
-        <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Deploy Health</span>
-        <span class="text-2xl sm:text-3xl font-black text-[var(--signal)] mt-1 block">100%</span>
-        <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">SBOM + Trivy signed</span>
-      </div>
-    </div>
-
-    <!-- Crisp & Clean Activity Heatmap (Full 52 Weeks) -->
-    <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8 space-y-6">
-      <span class="ff-cross-tl">+</span>
-      <span class="ff-cross-tr">+</span>
-      <span class="ff-cross-bl">+</span>
-      <span class="ff-cross-br">+</span>
-
-      <!-- Heatmap Header -->
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-4 text-xs">
-        <div>
-          <span class="font-bold text-[var(--fg)] tracking-wider">[ INFRASTRUCTURE_COMMIT_LOG ]</span>
-          <span class="text-[var(--muted-fg)] ml-2">52-week telemetry stream (1,680 commits)</span>
-        </div>
-
-        <!-- Clean Solid Legend -->
-        <div class="flex items-center gap-1.5 text-[11px] text-[var(--muted-fg)]">
-          <span>Less</span>
-          <span class="size-2.5 rounded-[2px] bg-[var(--muted-bg)] border border-[var(--border)]" title="Level 0: No activity"></span>
-          <span class="size-2.5 rounded-[2px] bg-emerald-950 border border-emerald-800" title="Level 1: Low activity"></span>
-          <span class="size-2.5 rounded-[2px] bg-emerald-800 border border-emerald-600" title="Level 2: Moderate activity"></span>
-          <span class="size-2.5 rounded-[2px] bg-emerald-600 border border-emerald-400" title="Level 3: High activity"></span>
-          <span class="size-2.5 rounded-[2px] bg-emerald-400 border border-emerald-300 shadow-[0_0_6px_rgba(52,211,153,0.5)]" title="Level 4: Peak activity"></span>
-          <span>More</span>
-        </div>
-      </div>
-
-      <!-- Scrollable Heatmap Container -->
-      <div class="overflow-x-auto pb-2">
-        <div class="min-w-[780px] space-y-2">
-          <!-- Month Header Row Aligned with Weeks -->
-          <div class="relative h-4 text-[10px] text-[var(--muted-fg)] pl-8">
-            {monthMarkers.map((m) => (
-              <span
-                class="absolute top-0 -translate-x-1/2 first:translate-x-0"
-                style={`left: calc(2rem + ${(m.week / 52) * 100}% * 0.96);`}
-              >
-                {m.name}
-              </span>
-            ))}
-          </div>
-
-          <!-- Heatmap Grid Row with Day Labels -->
-          <div class="flex items-start gap-2">
-            <!-- Day of Week Labels -->
-            <div class="flex flex-col justify-between h-[86px] text-[9px] text-[var(--muted-fg)] select-none pt-0.5 w-6 shrink-0">
-              <span>Mon</span>
-              <span>Wed</span>
-              <span>Fri</span>
-            </div>
-
-            <!-- 52-Week Columns Grid -->
-            <div class="flex gap-1.5 p-2.5 rounded-xl bg-[var(--muted-bg)]/40 border border-[var(--border)] flex-grow justify-between">
-              {weeks52.map((week, wIdx) => (
-                <div class="flex flex-col gap-1.5">
-                  {week.map((lvl, dIdx) => {
-                    const cellStyle =
-                      lvl === 0
-                        ? 'bg-[var(--card)] border border-[var(--border)]/60 hover:border-[var(--signal)]'
-                        : lvl === 1
-                        ? 'bg-emerald-950 border border-emerald-800/80 hover:border-emerald-500'
-                        : lvl === 2
-                        ? 'bg-emerald-800 border border-emerald-600 hover:border-emerald-400'
-                        : lvl === 3
-                        ? 'bg-emerald-600 border border-emerald-400 hover:border-emerald-300'
-                        : 'bg-emerald-400 border border-emerald-200 shadow-[0_0_6px_rgba(52,211,153,0.4)]';
-                    return (
-                      <span
-                        class={`size-2.5 rounded-[2px] transition-transform duration-100 hover:scale-150 cursor-pointer ${cellStyle}`}
-                        title={`Week ${wIdx + 1}, Day ${dIdx + 1} · Level ${lvl}`}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4 Telemetry Metrics Summary from quanblue.forkfolio.dev -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[var(--border)] text-xs">
-        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40">
-          <span class="text-[10px] text-[var(--muted-fg)] uppercase block tracking-wider">// CONTRIBUTIONS</span>
-          <span class="text-base sm:text-lg font-black text-[var(--fg)] mt-1 block">1,680</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-0.5 block">in the last year</span>
-        </div>
-
-        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40">
-          <span class="text-[10px] text-[var(--muted-fg)] uppercase block tracking-wider">// ACTIVE DAYS</span>
-          <span class="text-base sm:text-lg font-black text-[var(--signal)] mt-1 block">111 days</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-0.5 block">regular commit frequency</span>
-        </div>
-
-        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40">
-          <span class="text-[10px] text-[var(--muted-fg)] uppercase block tracking-wider">// LONGEST STREAK</span>
-          <span class="text-base sm:text-lg font-black text-[var(--fg)] mt-1 block">26 days</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-0.5 block">continuous deployment</span>
-        </div>
-
-        <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40">
-          <span class="text-[10px] text-[var(--muted-fg)] uppercase block tracking-wider">// BUSIEST DAY</span>
-          <span class="text-base sm:text-lg font-black text-[var(--signal)] mt-1 block">124 commits</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-0.5 block">on Aug 21, 2026</span>
-        </div>
-      </div>
-    </div>
+    <div class="space-y-8" data-ascii-activity-body set:html={renderAsciiActivityHtml(portfolioData, 'en')} />
   </div>
 </section>

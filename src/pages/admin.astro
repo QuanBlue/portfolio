@@ -163,10 +163,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   import { mergePortfolioData } from '../data/portfolio';
   import type { PortfolioData } from '../data/portfolio';
   import { esc } from '../lib/render';
-  import { getAllThemes } from '../themes/core';
+  import { ADMIN_PREVIEW_GRANT_KEY, getAllThemes } from '../themes/core';
   import type { ThemeDefinition } from '../themes/core/types';
 
-  type FieldType = 'text' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media' | 'pdf' | 'themeSelector';
+  type FieldType = 'text' | 'number' | 'textarea' | 'select' | 'bool' | 'csv' | 'lines' | 'kv' | 'image' | 'media' | 'pdf' | 'themeSelector';
   type SelectOption = string | { value: string; label: string };
   interface Field {
     key: string;
@@ -187,7 +187,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   interface ObjectSection {
     kind: 'object';
-    id: 'identity';
+    id: 'identity' | 'activity';
     title: string;
     fields: Field[];
   }
@@ -214,7 +214,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       fields: [
         { key: 'avatar', label: 'Avatar', type: 'image', maxDim: 480 },
         { key: 'cvUrl', label: 'CV / Resume (PDF)', type: 'pdf', wide: true },
-        { key: 'openToWork', label: 'Open to Work (Cho phép xem & tải CV công khai)', type: 'boolean', wide: true },
+        { key: 'openToWork', label: 'Open to Work (Cho phép xem & tải CV công khai)', type: 'bool', wide: true },
         {
           key: 'themeVariant',
           label: 'Theme hiển thị (Giao diện)',
@@ -336,6 +336,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         delay: '0s',
       }),
     },
+    {
+      kind: 'object',
+      id: 'activity',
+      title: 'Activity (Integration)',
+      fields: [
+        { key: 'enabled', label: 'Enable GitHub Activity & Contribution Heatmap (uses verified snapshot or custom daily JSON below)', type: 'bool', wide: true },
+        { key: 'username', label: 'GitHub Account Lock (leave blank to match Identity → GitHub)', type: 'text' },
+        { key: 'fetchedAt', label: 'Last Retrieved Timestamp (ISO UTC, optional)', type: 'text' },
+        { key: 'days', label: 'Verified Daily Contributions JSON ([{ "date": "YYYY-MM-DD", "contributionCount": 3 }, ...]) — Leave empty to use synced build snapshot; all totals & streaks auto-calculate from these days', type: 'json', wide: true },
+      ],
+    },
   ];
 
   let data: PortfolioData = structuredClone(portfolioData);
@@ -423,6 +434,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       case 'text':
         control = `<input class="adm-input" ${attrs} ${phAttr} value="${esc(displayValue ?? '')}" />`;
         break;
+      case 'number':
+        control = `<input type="number" class="adm-input" ${attrs} value="${esc(displayValue ?? '')}" />`;
+        break;
       case 'textarea':
         control = `<textarea class="adm-input" rows="4" ${attrs} ${phAttr}>${esc(displayValue ?? '')}</textarea>`;
         break;
@@ -443,6 +457,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         break;
       case 'lines':
         control = `<textarea class="adm-input" rows="4" ${attrs} ${phAttr}>${esc((displayValue ?? []).join('\n'))}</textarea>`;
+        break;
+      case 'json':
+        control = `<textarea class="adm-input font-mono text-xs" rows="6" ${attrs} placeholder='[{"date":"2026-11-10","contributionCount":3}]'>${esc(Array.isArray(value) ? JSON.stringify(value, null, 2) : '')}</textarea>`;
         break;
       case 'kv':
         control = `<textarea class="adm-input" rows="4" ${attrs} placeholder="Camera: Sony A7\nLens: 35mm">${esc(
@@ -536,7 +553,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     <button type="button" class="adm-btn flex-1 text-center font-medium cursor-pointer ${isSelected ? 'bg-emerald-600 text-white border-emerald-600' : ''}" data-select-theme="${esc(t.id)}">
                       ${isSelected ? 'Đang chọn' : 'Chọn theme này'}
                     </button>
-                    <a href="/?preview=${esc(t.id)}" target="_blank" rel="noopener noreferrer" class="adm-btn text-center hover:text-emerald-500" title="Mở tab mới xem trước dữ liệu thật">
+                    <a href="/?preview=${esc(t.id)}" data-preview-theme="${esc(t.id)}" target="_blank" rel="noopener noreferrer" class="adm-btn text-center hover:text-emerald-500" title="Mở tab mới xem trước dữ liệu thật">
                       Preview ↗
                     </a>
                   </div>
@@ -627,7 +644,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     }" data-select-theme="${esc(t.id)}">
                       ${isSelected ? '✓ Đang chọn làm mặc định' : 'Đặt làm Theme mặc định'}
                     </button>
-                    <a href="/?preview=${esc(t.id)}" target="_blank" rel="noopener noreferrer" class="adm-btn inline-flex items-center gap-1 text-center hover:text-emerald-500" title="Mở tab mới xem trước giao diện với dữ liệu thật">
+                    <a href="/?preview=${esc(t.id)}" data-preview-theme="${esc(t.id)}" target="_blank" rel="noopener noreferrer" class="adm-btn inline-flex items-center gap-1 text-center hover:text-emerald-500" title="Mở tab mới xem trước giao diện với dữ liệu thật">
                       <span>Preview</span>
                       <span>↗</span>
                     </a>
@@ -694,16 +711,34 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   };
 
   // ---- events ----
+  const INVALID_JSON = Symbol('INVALID_JSON');
   const readControl = (el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement): unknown => {
     const type = el.dataset.type;
     const v = (el as HTMLInputElement).value;
     switch (type) {
       case 'bool':
         return (el as HTMLInputElement).checked;
+      case 'number':
+        return v === '' ? undefined : Number(v);
       case 'csv':
         return v.split(',').map((s) => s.trim()).filter(Boolean);
       case 'lines':
         return v.split('\n').map((s) => s.trim()).filter(Boolean);
+      case 'json': {
+        const trimmed = v.trim();
+        if (!trimmed) return undefined;
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (!Array.isArray(parsed)) {
+            setStatus('Invalid JSON in Activity days (expected an array)', 'warn');
+            return INVALID_JSON;
+          }
+          return parsed;
+        } catch {
+          setStatus('Invalid JSON syntax in Activity days', 'warn');
+          return INVALID_JSON;
+        }
+      }
       case 'kv':
         return v
           .split('\n')
@@ -740,7 +775,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       return;
     }
     if (!el.dataset?.path) return;
-    setPath(data, el.dataset.path, readControl(el));
+    const nextVal = readControl(el);
+    if (nextVal === INVALID_JSON) {
+      el.setAttribute('aria-invalid', 'true');
+      return;
+    }
+    el.removeAttribute('aria-invalid');
+    setPath(data, el.dataset.path, nextVal);
+    if (el.dataset.path === 'identity.openToWork') {
+      setPath(data, 'careerSettings.openToWork', Boolean(nextVal));
+    } else if (el.dataset.path === 'identity.cvUrl') {
+      setPath(data, 'careerSettings.cvUrl', String(nextVal ?? ''));
+    } else if (el.dataset.path === 'identity.avatar') {
+      setPath(data, 'identity.avatarUpdatedAt', new Date().toISOString());
+    }
     queueSave();
     // keep tab counts / summary titles fresh without re-rendering inputs
     const summaryTitle = el.closest('details')?.querySelector('summary span.truncate');
@@ -804,6 +852,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           ? await uploadImage(file, 'cv', { ext: 'pdf', contentType: 'application/pdf' })
           : await fileToRawDataUrl(file);
         setPath(data, el.dataset.uploadPdf, url);
+        if (el.dataset.uploadPdf === 'identity.cvUrl') {
+          setPath(data, 'careerSettings.cvUrl', url);
+        }
         queueSave();
         render();
       } catch (err) {
@@ -820,6 +871,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           Number(el.dataset.maxdim) || 1600,
         );
         setPath(data, el.dataset.upload, url);
+        if (el.dataset.upload === 'identity.avatar') {
+          setPath(data, 'identity.avatarUpdatedAt', new Date().toISOString());
+        }
         queueSave();
         render();
       } catch (err) {
@@ -834,16 +888,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const t = e.target as HTMLElement;
     if (t.closest('[data-stop]')) e.preventDefault(); // don't toggle <details>
 
+    const previewLink = t.closest<HTMLAnchorElement>('[data-preview-theme]');
+    if (previewLink) {
+      if (!signedIn) {
+        e.preventDefault();
+        return;
+      }
+      if (!isSupabaseConfigured) {
+        try {
+          localStorage.setItem(ADMIN_PREVIEW_GRANT_KEY, 'true');
+        } catch {}
+      }
+      return;
+    }
+
     const themeBtn = t.closest<HTMLElement>('[data-select-theme]');
     if (themeBtn) {
+      if (!signedIn) return;
       const chosenTheme = themeBtn.dataset.selectTheme;
       if (chosenTheme) {
         setPath(data, 'identity.themeVariant', chosenTheme);
         setPath(data, 'appearance.activeTheme', chosenTheme);
-        try {
-          localStorage.setItem('portfolio-published-theme', chosenTheme);
-          localStorage.setItem('user-theme-variant', chosenTheme);
-        } catch (e) {}
         queueSave();
         render();
       }
@@ -878,6 +943,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       [list[from], list[to]] = [list[to], list[from]];
     } else if (btn.dataset.clear) {
       setPath(data, btn.dataset.clear, '');
+      if (btn.dataset.clear === 'identity.cvUrl') {
+        setPath(data, 'careerSettings.cvUrl', '');
+      } else if (btn.dataset.clear === 'identity.avatar') {
+        setPath(data, 'identity.avatarUpdatedAt', new Date().toISOString());
+      }
     }
     queueSave();
     render();
@@ -967,12 +1037,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   async function saveAll(): Promise<boolean> {
     try {
+      if (!signedIn) {
+        throw new Error('Unauthorized: Authenticated Admin session is required.');
+      }
       saveBtn.disabled = true;
       barSaveBtn.disabled = true;
       modalSaveBtn.disabled = true;
       setStatus('Saving to live site…', 'muted');
       clearTimeout(saveTimer);
       if (isSupabaseConfigured) {
+        const session = await getSession();
+        if (!isOwnerSession(session)) {
+          signedIn = false;
+          await boot();
+          throw new Error('Unauthorized: Admin session is missing or lacks permission.');
+        }
         await publishRemote(data);
         await clearStored();
       } else {
@@ -1170,8 +1249,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const { data: d, fromDraft } = await loadAdminData();
     data = structuredClone(d);
     if (!Array.isArray(data.gallery)) data.gallery = [];
-    if (!Array.isArray(data.education)) data.education = structuredClone(defaultPortfolioData.education ?? []);
-    if (!Array.isArray(data.certifications)) data.certifications = structuredClone(defaultPortfolioData.certifications ?? []);
+    if (!Array.isArray(data.education)) data.education = [];
+    if (!Array.isArray(data.certifications)) data.certifications = [];
+    if (!Array.isArray(data.experience)) data.experience = [];
+    if (!Array.isArray(data.skills)) data.skills = [];
+    if (!Array.isArray(data.projects)) data.projects = [];
+    if (!data.activity) data.activity = { enabled: false };
     render();
     if (fromDraft) {
       markDirty('Loaded unsaved draft · Click Save to apply');
@@ -1235,6 +1318,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
       note.innerHTML = 'Running in <b>Local Mode</b> (Supabase not configured). Edits are saved to local IndexedDB drafts. Use <b>Export content.json</b> to commit changes.';
     } else {
+      try {
+        localStorage.removeItem(ADMIN_PREVIEW_GRANT_KEY);
+      } catch {}
       if (authGroup) {
         authGroup.classList.add('hidden');
         authGroup.classList.remove('flex');

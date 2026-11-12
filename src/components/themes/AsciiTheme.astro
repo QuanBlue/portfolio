@@ -53,6 +53,8 @@ import AsciiContact from '../ascii/AsciiContact.astro';
 </style>
 
 <script>
+  import { initAsciiLiveUpdates } from '../ascii/ascii-live';
+
   // Continuous Scroll-Driven Focus Fade (Spotlight Effect like quanblue.forkfolio.dev)
   function setupAsciiScrollFade() {
     const container = document.querySelector('.theme-ascii-container');
@@ -164,5 +166,6 @@ import AsciiContact from '../ascii/AsciiContact.astro';
     });
   }
 
+  initAsciiLiveUpdates();
   setupAsciiScrollFade();
 </script>

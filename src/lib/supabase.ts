@@ -5,6 +5,9 @@
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient, Session } from '@supabase/supabase-js';
 import { defaultPortfolioData, type PortfolioData } from '../data/portfolio';
+import { ADMIN_PREVIEW_GRANT_KEY } from '../themes/core/resolver';
+import { applyAppearance } from '../themes/core/settings';
+import type { ThemeId } from '../themes/core/types';
 
 const URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
 const KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
@@ -35,11 +38,28 @@ export async function fetchRemote(): Promise<Partial<PortfolioData> | null> {
   }
 }
 
+export function assertAuthorizedAdminSession(session: Session | null): asserts session is Session {
+  if (!isOwnerSession(session)) {
+    throw new Error('Unauthorized: Authenticated Admin session is required.');
+  }
+}
+
 export async function publishRemote(content: PortfolioData): Promise<void> {
+  const session = await getSession();
+  assertAuthorizedAdminSession(session);
   const { error } = await getClient()
     .from(TABLE)
     .upsert({ id: ROW_ID, data: content, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message);
+}
+
+export async function publishThemeSelectionRemote(
+  content: PortfolioData,
+  themeId: ThemeId,
+): Promise<PortfolioData> {
+  const next = applyAppearance(content, { activeTheme: themeId });
+  await publishRemote(next);
+  return next;
 }
 
 /** Upload an image blob and return its public URL. */
@@ -48,6 +68,8 @@ export async function uploadImage(
   folder: string,
   opts: { ext?: string; contentType?: string } = {},
 ): Promise<string> {
+  const session = await getSession();
+  assertAuthorizedAdminSession(session);
   const ext = opts.ext ?? 'jpg';
   const path = `${folder}/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const { error } = await getClient().storage.from(BUCKET).upload(path, blob, {
@@ -140,5 +162,12 @@ export function onAuthChange(cb: () => void): void {
 }
 
 export async function signOut(): Promise<void> {
-  await getClient().auth.signOut();
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.removeItem(ADMIN_PREVIEW_GRANT_KEY);
+    } catch {}
+  }
+  if (isSupabaseConfigured) {
+    await getClient().auth.signOut();
+  }
 }

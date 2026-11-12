@@ -1,27 +1,14 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, type Skill } from '../../data/portfolio';
+import { deriveShortHandle, renderForkfolioSkillsHtml } from './forkfolio-renderers';
 import TerminalPrompt from './terminal/TerminalPrompt.astro';
-import type { Skill } from '../../data/portfolio';
 
 interface Props {
   skills?: Skill[];
 }
 
 const { skills = portfolioData.skills ?? [] } = Astro.props;
-
-// Dynamically group skills by category from database
-const categoryMap = new Map<string, { name: string; nameVi: string; items: Skill[] }>();
-
-for (const s of skills) {
-  const cat = s.category || 'Core Engineering';
-  const catVi = s.category_vi || cat;
-  if (!categoryMap.has(cat)) {
-    categoryMap.set(cat, { name: cat, nameVi: catVi, items: [] });
-  }
-  categoryMap.get(cat)!.items.push(s);
-}
-
-const categories = Array.from(categoryMap.values());
+const shortHandle = deriveShortHandle(portfolioData);
 ---
 
 <section
@@ -34,7 +21,7 @@ const categories = Array.from(categoryMap.values());
     <div class="space-y-2">
       <TerminalPrompt
         command="brew bundle"
-        user="quan"
+        user={shortHandle}
         host="portfolio"
         path="~"
         typeSpeed={28}
@@ -46,107 +33,12 @@ const categories = Array.from(categoryMap.values());
           TECHNICAL SKILLS
         </h2>
         <span class="font-mono text-xs text-[var(--muted-fg)]">
-          [05] ~/<span class="text-[var(--signal)]">skills</span> · {skills.length} installed
+          [05] ~/<span class="text-[var(--signal)]">skills</span> · <span data-ff-skills-count>{skills.length} installed</span>
         </span>
       </div>
     </div>
 
     <!-- Output: Minimal Grouped Skill Modules Grid -->
-    <div class="ff-term-output space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {categories.map((group, idx) => {
-          const num = String(idx + 1).padStart(2, '0');
-          return (
-            <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4 hover:border-[var(--line-strong)] transition shadow-sm">
-              <span class="ff-cross-tl">+</span>
-              <span class="ff-cross-tr">+</span>
-              <span class="ff-cross-bl">+</span>
-              <span class="ff-cross-br">+</span>
-
-              <!-- Category Terminal Output Header -->
-              <div class="flex items-center justify-between border-b border-[var(--border)] pb-3 font-mono text-xs">
-                <div class="flex items-center gap-2">
-                  <span class="text-[var(--signal)] font-bold">// {num}</span>
-                  <h3
-                    class="font-bold text-[var(--fg)] uppercase tracking-wider text-sm ff-cat-title"
-                    data-cat-en={group.name}
-                    data-cat-vi={group.nameVi}
-                  >
-                    {group.name}
-                  </h3>
-                </div>
-                <span class="text-[10px] text-[var(--muted-fg)] font-mono">
-                  {group.items.length} {group.items.length === 1 ? 'PACKAGE' : 'PACKAGES'}
-                </span>
-              </div>
-
-              <!-- Terminal Package Receipts (Receipt List) -->
-              <div class="space-y-2 pt-1">
-                {group.items.map((skill) => (
-                  <div class="flex items-center justify-between py-1.5 px-3 rounded-lg border border-[var(--border)]/60 bg-[var(--muted-bg)]/30 font-mono text-xs hover:border-[var(--signal)]/40 hover:bg-[var(--muted-bg)]/70 transition">
-                    <div class="flex items-center gap-2">
-                      <span class="text-[var(--signal)] font-bold select-none">✓</span>
-                      <span class="font-semibold text-[var(--fg)]">{skill.name}</span>
-                    </div>
-                    <span class="text-[11px] text-[var(--muted-fg)] font-mono">
-                      {skill.tag}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <!-- Compact Inline Summary -->
-              <div class="pt-2 border-t border-[var(--border)] text-xs font-mono text-[var(--muted-fg)] flex items-center justify-between">
-                <span class="truncate">
-                  {group.items.map((s) => s.name).join(' · ')}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <!-- Active Modules Central Register -->
-      <div class="ff-panel p-6 sm:p-7 space-y-4">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-3 font-mono text-xs text-[var(--muted-fg)]">
-          <span class="font-bold text-[var(--fg)]">[ ACTIVE_STACK_REGISTER ]</span>
-          <span class="text-[var(--signal)] font-semibold">● ALL GREEN</span>
-        </div>
-
-        <div class="flex flex-wrap gap-2.5">
-          {skills.map((s) => (
-            <div class="ff-btn !cursor-default">
-              <span class="size-1.5 rounded-full bg-[var(--signal)]"></span>
-              <span class="font-semibold text-[var(--fg)]">{s.name}</span>
-              <span class="text-[10px] text-[var(--muted-fg)]">{s.tag}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    <div class="ff-term-output space-y-6" data-ff-skills-body set:html={renderForkfolioSkillsHtml(skills, 'en')} />
   </div>
 </section>
-
-<script is:inline>
-  (function () {
-    function updateSkillsLocale(locale) {
-      var isVi = locale === 'vi';
-      var heading = document.querySelector('.ff-skills-heading');
-      if (heading) heading.textContent = isVi ? 'KỸ NĂNG KỸ THUẬT' : 'TECHNICAL SKILLS';
-
-      var catTitles = document.querySelectorAll('.ff-cat-title');
-      catTitles.forEach(function (el) {
-        var text = isVi ? el.getAttribute('data-cat-vi') : el.getAttribute('data-cat-en');
-        if (text) el.textContent = text;
-      });
-    }
-
-    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
-    updateSkillsLocale(initialLoc);
-
-    window.addEventListener('locale:changed', function (e) {
-      var loc = (e && e.detail && e.detail.locale) || 'en';
-      updateSkillsLocale(loc);
-    });
-  })();
-</script>

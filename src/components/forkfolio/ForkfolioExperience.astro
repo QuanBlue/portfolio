@@ -1,13 +1,14 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, type ExperienceItem } from '../../data/portfolio';
+import { deriveShortHandle, renderForkfolioExperienceHtml } from './forkfolio-renderers';
 import TerminalPrompt from './terminal/TerminalPrompt.astro';
-import type { ExperienceItem } from '../../data/portfolio';
 
 interface Props {
   experience?: ExperienceItem[];
 }
 
 const { experience = portfolioData.experience ?? [] } = Astro.props;
+const shortHandle = deriveShortHandle(portfolioData);
 ---
 
 <section
@@ -20,7 +21,7 @@ const { experience = portfolioData.experience ?? [] } = Astro.props;
     <div class="space-y-2">
       <TerminalPrompt
         command="cat ~/career.log"
-        user="quan"
+        user={shortHandle}
         host="portfolio"
         path="~"
         typeSpeed={28}
@@ -38,132 +39,10 @@ const { experience = portfolioData.experience ?? [] } = Astro.props;
     </div>
 
     <!-- Output: Clean Vertical Monospace Timeline -->
-    <div class="ff-term-output relative pl-6 sm:pl-10 before:absolute before:left-2.5 sm:before:left-4 before:top-3 before:bottom-3 before:w-px before:bg-[var(--border)] space-y-8">
-      {experience.map((exp, idx) => {
-        const num = String(idx + 1).padStart(2, '0');
-        const total = String(experience.length).padStart(2, '0');
-
-        return (
-          <div class="relative group">
-            <!-- Timeline Node Dot -->
-            <div class="absolute -left-6 sm:-left-10 top-6 size-5 sm:size-8 flex items-center justify-center">
-              <span class={`size-2.5 sm:size-3 rounded-full border-2 border-[var(--signal)] bg-[var(--card)] ${exp.isCurrent ? 'ring-4 ring-emerald-500/20 animate-pulse' : ''}`}></span>
-            </div>
-
-            <!-- Content Card -->
-            <article class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8 hover:border-[var(--line-strong)] transition shadow-sm">
-              <span class="ff-cross-tl">+</span>
-              <span class="ff-cross-tr">+</span>
-              <span class="ff-cross-bl">+</span>
-              <span class="ff-cross-br">+</span>
-
-              <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                <!-- Left Date & Metadata (md:col-span-4) -->
-                <div class="md:col-span-4 space-y-2 font-mono">
-                  <span class="text-xs text-[var(--muted-fg)] block">{num} / {total}</span>
-                  <div
-                    class="text-sm sm:text-base font-bold text-[var(--fg)] ff-exp-period"
-                    data-period-en={exp.period}
-                    data-period-vi={exp.period_vi || exp.period}
-                  >
-                    {exp.period}
-                  </div>
-                  {exp.isCurrent && (
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[var(--signal)]/40 bg-emerald-500/10 text-[11px] font-semibold text-[var(--signal)]">
-                      <span class="size-1.5 rounded-full bg-[var(--signal)] animate-pulse"></span>
-                      <span class="ff-exp-current" data-en="CURRENT ROLE" data-vi="VỊ TRÍ HIỆN TẠI">CURRENT ROLE</span>
-                    </span>
-                  )}
-                </div>
-
-                <!-- Right Role & Highlights (md:col-span-8) -->
-                <div class="md:col-span-8 space-y-4">
-                  <div>
-                    <h3
-                      class="font-mono text-xl sm:text-2xl font-black text-[var(--fg)] tracking-tight ff-exp-role"
-                      data-role-en={exp.role}
-                      data-role-vi={exp.role_vi || exp.role}
-                    >
-                      {exp.role}
-                    </h3>
-                    <p class="font-mono text-sm font-semibold text-[var(--signal)] mt-0.5">
-                      @ {exp.company}
-                    </p>
-                  </div>
-
-                  <!-- Bullets -->
-                  <ul class="space-y-2 text-sm text-[var(--muted-fg)] leading-relaxed font-mono">
-                    {exp.bullets.map((b, bIdx) => (
-                      <li class="flex items-start gap-2.5">
-                        <span class="font-mono text-[var(--signal)] select-none shrink-0 mt-0.5">›</span>
-                        <span
-                          class="ff-exp-bullet"
-                          data-bullet-en={b}
-                          data-bullet-vi={exp.bullets_vi?.[bIdx] || b}
-                        >
-                          {b}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <!-- Tags -->
-                  <div class="flex flex-wrap gap-2 pt-2 border-t border-[var(--border)]">
-                    {exp.tags.map((t) => (
-                      <span class="ff-tag">
-                        <span class="text-[var(--signal)]">#</span>
-                        <span>{t}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </article>
-          </div>
-        );
-      })}
-    </div>
+    <div
+      class="ff-term-output relative pl-6 sm:pl-10 before:absolute before:left-2.5 sm:before:left-4 before:top-3 before:bottom-3 before:w-px before:bg-[var(--border)] space-y-8"
+      data-ff-experience-list
+      set:html={renderForkfolioExperienceHtml(experience, 'en')}
+    />
   </div>
 </section>
-
-<script is:inline>
-  (function () {
-    function updateExperienceLocale(locale) {
-      var isVi = locale === 'vi';
-      var heading = document.querySelector('.ff-exp-heading');
-      if (heading) heading.textContent = isVi ? 'KINH NGHIỆM' : 'EXPERIENCE';
-
-      var periods = document.querySelectorAll('.ff-exp-period');
-      periods.forEach(function (el) {
-        var text = isVi ? el.getAttribute('data-period-vi') : el.getAttribute('data-period-en');
-        if (text) el.textContent = text;
-      });
-
-      var roles = document.querySelectorAll('.ff-exp-role');
-      roles.forEach(function (el) {
-        var text = isVi ? el.getAttribute('data-role-vi') : el.getAttribute('data-role-en');
-        if (text) el.textContent = text;
-      });
-
-      var bullets = document.querySelectorAll('.ff-exp-bullet');
-      bullets.forEach(function (el) {
-        var text = isVi ? el.getAttribute('data-bullet-vi') : el.getAttribute('data-bullet-en');
-        if (text) el.textContent = text;
-      });
-
-      var currents = document.querySelectorAll('.ff-exp-current');
-      currents.forEach(function (el) {
-        var text = isVi ? el.getAttribute('data-vi') : el.getAttribute('data-en');
-        if (text) el.textContent = text;
-      });
-    }
-
-    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
-    updateExperienceLocale(initialLoc);
-
-    window.addEventListener('locale:changed', function (e) {
-      var loc = (e && e.detail && e.detail.locale) || 'en';
-      updateExperienceLocale(loc);
-    });
-  })();
-</script>

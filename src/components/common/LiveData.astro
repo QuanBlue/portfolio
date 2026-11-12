@@ -1,5 +1,5 @@
 ---
-// Applies the owner's saved edits (Supabase / IndexedDB) on top of the built-in data.
+// Applies canonical published edits (Supabase in production, IndexedDB drafts in Local Mode) across all active themes.
 ---
 
 <script>
@@ -15,9 +15,9 @@
     renderEducation,
     renderProjects,
   } from '../../lib/render';
+  import { getCareerSettings, resolveAvatarUrl, type PortfolioData } from '../../data/portfolio';
   import { getLocale } from '../../i18n/locale-store';
   import { localizePortfolioData } from '../../i18n/translate';
-  import type { PortfolioData } from '../../data/portfolio';
 
   getSession().then((session) => {
     const isOwner = isOwnerSession(session);
@@ -41,7 +41,9 @@
     if (el) el.innerHTML = markup;
   };
   const text = (sel: string, value: string) => {
-    document.querySelectorAll(sel).forEach((el) => (el.textContent = value));
+    document.querySelectorAll(sel).forEach((el) => {
+      el.textContent = value;
+    });
   };
 
   let rawData: PortfolioData | null = null;
@@ -49,60 +51,111 @@
   function applyPortfolioData(data: PortfolioData, locale: 'en' | 'vi') {
     const d = localizePortfolioData(data, locale);
     const i = d.identity;
+    const career = getCareerSettings(d);
+    const showCv = Boolean(career.openToWork) && Boolean(career.cvUrl);
+    const avatarUrl = resolveAvatarUrl(d);
 
-    text('[data-bind="name"]', i.name);
-    html('bind-hero-name', renderNameWords(i.name));
-    text('[data-bind="role"]', i.role);
-    text('[data-bind="location"]', i.location);
-    text('[data-bind="bio"]', i.bio);
+    const activeExp = (d.experience || []).find((e) => e.isCurrent) || (d.experience || [])[0];
+    const companyText = activeExp?.company?.trim() || '';
+
+    text('[data-bind="name"]', i.name || '');
+    html('bind-hero-name', renderNameWords(i.name || ''));
+    text('[data-bind="role"]', i.role || '');
+    text('[data-bind="location"]', i.location || '');
+    text('[data-bind="bio"]', i.bio || '');
     if (i.node) text('[data-bind="node"]', i.node);
     if (i.ip) text('[data-bind="ip"]', i.ip);
 
+    document.querySelectorAll<HTMLElement>('[data-bind-company]').forEach((el) => {
+      if (companyText) {
+        el.textContent = el.dataset.companyPrefix ? `${el.dataset.companyPrefix}${companyText}` : companyText;
+        el.classList.remove('hidden');
+      } else {
+        el.textContent = '';
+        el.classList.add('hidden');
+      }
+    });
+
     document.querySelectorAll<HTMLAnchorElement>('[data-bind="email"]').forEach((a) => {
       if (a.dataset.bindKeepText !== 'true') {
-        a.textContent = i.email;
+        a.textContent = i.email || '';
       }
-      a.href = `mailto:${i.email}`;
+      a.href = i.email ? `mailto:${i.email}` : '#';
     });
+
     for (const key of ['linkedin', 'github'] as const) {
+      const social = i[key];
       document.querySelectorAll<HTMLAnchorElement>(`[data-bind="${key}"]`).forEach((a) => {
-        a.href = safeUrl(i[key].url);
+        a.href = safeUrl(social?.url);
+      });
+      document.querySelectorAll<HTMLElement>(`[data-bind-handle="${key}"]`).forEach((el) => {
+        el.textContent = social?.handle || '';
       });
     }
 
+    // Career availability & CV gating across all themes
+    document.querySelectorAll<HTMLElement>('[data-career-badge]').forEach((el) => {
+      el.classList.toggle('hidden', !career.openToWork);
+    });
+    document.querySelectorAll<HTMLElement>('[data-cv-gate]').forEach((el) => {
+      el.classList.toggle('hidden', !showCv);
+    });
+
+    // Render avatars cleanly across standard, ASCII, Editorial, and Modern Mono
     html('bind-avatar', renderAvatar(i));
     html('bind-avatar-forkfolio', renderAvatar(i));
     document.querySelectorAll<HTMLImageElement>('img[data-bind="avatar"]').forEach((img) => {
-      img.src = safeUrl(i.avatar);
+      if (avatarUrl) {
+        img.src = avatarUrl;
+        img.classList.remove('hidden');
+      } else {
+        img.removeAttribute('src');
+        img.classList.add('hidden');
+      }
     });
-    html('bind-skills', renderSkills(d.skills));
-    html('bind-certs', renderCerts(d.certifications));
-    html('bind-experience', renderExperience(d.experience));
-    if (d.education && d.education.length > 0) {
-      html('bind-education', renderEducation(d.education));
-    }
-    html('bind-projects', renderProjects(d.projects));
-    text('#count-projects', String(d.projects.length));
-    text('#count-skills', String(d.skills.length));
+
+    html('bind-skills', renderSkills(d.skills || [], locale === 'vi' ? '[ Chưa có kỹ năng đăng tải ]' : '[ No published skills ]'));
+    html('bind-certs', renderCerts(d.certifications || [], locale === 'vi' ? '[ Chưa có chứng chỉ đăng tải ]' : '[ No published certifications ]'));
+    html('bind-experience', renderExperience(d.experience || [], locale === 'vi' ? '[ Chưa có kinh nghiệm đăng tải ]' : '[ No published experience ]'));
+    html('bind-education', renderEducation(d.education || [], locale === 'vi' ? '[ Chưa có học vấn đăng tải ]' : '[ No published education ]'));
+    html('bind-projects', renderProjects(d.projects || [], locale === 'vi' ? '[ Chưa có dự án đăng tải ]' : '[ No published projects ]'));
+
+    text('#count-projects', String((d.projects || []).length));
+    text('#count-skills', String((d.skills || []).length));
     text('#count-gallery', String((d.gallery ?? []).filter((g) => Boolean(g.image && g.image.trim())).length));
 
-    window.dispatchEvent(new CustomEvent('portfolio:data', { detail: { ...d, _locale: locale } }));
+    (window as any).__PORTFOLIO_LOCALIZED__ = d;
+    window.dispatchEvent(
+      new CustomEvent('portfolio:data', {
+        detail: {
+          ...d,
+          _raw: data,
+          _locale: locale,
+          _source: (window as any).__PORTFOLIO_SOURCE__ || 'build-default',
+        },
+      }),
+    );
     window.dispatchEvent(new Event('scroll'));
   }
 
-  loadLiveData().then((d) => {
-    rawData = d;
-    const override = (window as any).__PORTFOLIO_OVERRIDE__ as Partial<PortfolioData> | null;
-    const remotePublishedTheme = override?.appearance?.activeTheme || override?.identity?.themeVariant;
-    if (remotePublishedTheme) {
-      try {
-        localStorage.setItem('portfolio-published-theme', remotePublishedTheme);
-        localStorage.setItem('user-theme-variant', remotePublishedTheme);
-      } catch (e) {}
-    }
-    const currentLocale = getLocale();
-    applyPortfolioData(rawData, currentLocale);
-  });
+  loadLiveData()
+    .then((d) => {
+      rawData = d;
+      const override = (window as any).__PORTFOLIO_OVERRIDE__ as Partial<PortfolioData> | null;
+      const remotePublishedTheme = override?.appearance?.activeTheme || override?.identity?.themeVariant;
+      if (remotePublishedTheme) {
+        try {
+          localStorage.setItem('portfolio-published-theme', remotePublishedTheme);
+          localStorage.setItem('user-theme-variant', remotePublishedTheme);
+        } catch (e) {}
+      }
+      const currentLocale = getLocale();
+      applyPortfolioData(rawData, currentLocale);
+      (window as any).__resolvePortfolioReady__?.(d);
+    })
+    .catch(() => {
+      (window as any).__resolvePortfolioReady__?.(null);
+    });
 
   window.addEventListener('locale:changed', (e: Event) => {
     const loc = ((e as CustomEvent).detail?.locale as 'en' | 'vi') || 'en';

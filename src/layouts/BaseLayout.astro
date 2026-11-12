@@ -18,6 +18,7 @@ const {
   isDashboard = false,
 } = Astro.props;
 const hasCms = Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY);
+const isDev = import.meta.env.DEV;
 const initialThemeVariant = portfolioData.identity?.themeVariant || 'ascii';
 ---
 
@@ -78,7 +79,7 @@ const initialThemeVariant = portfolioData.identity?.themeVariant || 'ascii';
     </noscript>
 
     <!-- Color Mode & Early Theme Pre-activation (Zero-CLS & Synchronous First-Paint Resolution) -->
-    <script is:inline>
+    <script is:inline define:vars={{ isDev, hasCms }}>
       if (localStorage.getItem('color-theme') === 'light') {
         document.documentElement.classList.remove('dark');
       } else {
@@ -94,20 +95,29 @@ const initialThemeVariant = portfolioData.identity?.themeVariant || 'ascii';
       } catch (e) {}
 
       // Synchronous theme resolution prior to DOM parsing/rendering:
-      // Priority 1: Explicit URL preview (?preview=... or ?theme=...)
+      // Priority 1: Explicit URL preview ONLY in development or with Local Mode Admin preview grant (production Supabase preview waits for owner session verification)
       // Priority 3: Valid cached copy of published theme ('portfolio-published-theme' / 'user-theme-variant')
       // Fallback: Neutral 'resolving' state with safety timeout to prevent permanent blank screen
       try {
         var p = new URLSearchParams(window.location.search);
         var qTheme = p.get('preview') || p.get('theme');
         var valid = ['ascii', 'knight', 'editorial', 'forkfolio'];
-        var isPreview = qTheme && valid.indexOf(qTheme) !== -1;
+        var isPreviewCandidate = Boolean(qTheme && valid.indexOf(qTheme) !== -1);
         var sTheme = localStorage.getItem('portfolio-published-theme') || localStorage.getItem('user-theme-variant');
-        var hasValidCache = sTheme && valid.indexOf(sTheme) !== -1;
+        var hasValidCache = Boolean(sTheme && valid.indexOf(sTheme) !== -1);
+        var hasLocalGrant = !hasCms && localStorage.getItem('portfolio-admin-preview-grant') === 'true';
 
-        if (isPreview) {
+        if (isPreviewCandidate && (isDev || hasLocalGrant)) {
           document.documentElement.dataset.portfolioTheme = qTheme;
           document.documentElement.dataset.portfolioPreview = 'true';
+        } else if (isPreviewCandidate && hasCms) {
+          // Hold neutral resolving state in production until Supabase verifies Admin session ownership
+          document.documentElement.dataset.portfolioTheme = 'resolving';
+          window.__themeFallbackTimer = setTimeout(function () {
+            if (document.documentElement.dataset.portfolioTheme === 'resolving') {
+              document.documentElement.dataset.portfolioTheme = hasValidCache ? sTheme : 'ascii';
+            }
+          }, 1500);
         } else if (hasValidCache) {
           document.documentElement.dataset.portfolioTheme = sTheme;
         } else {
@@ -122,6 +132,13 @@ const initialThemeVariant = portfolioData.identity?.themeVariant || 'ascii';
       } catch (e) {
         document.documentElement.dataset.portfolioTheme = 'ascii';
       }
+
+      // Synchronize async live data readiness across themes (e.g. Knight ASCII portrait stage)
+      try {
+        window.__PORTFOLIO_READY__ = new Promise(function (resolve) {
+          window.__resolvePortfolioReady__ = resolve;
+        });
+      } catch (e) {}
     </script>
   </head>
   <body class="flex flex-col min-h-screen relative antialiased selection:bg-emerald-500/20 selection:text-emerald-400">

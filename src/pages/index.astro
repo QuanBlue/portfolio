@@ -132,19 +132,59 @@ const initialTheme = resolved.theme.id;
   window.addEventListener('scroll', onExperienceScroll, { passive: true });
   window.addEventListener('resize', onExperienceScroll, { passive: true });
 
-  // 3. Centralized Dynamic Theme Controller (Registry-Driven)
-  import { resolveTheme, resolveClientTheme, getAllThemes, persistLocalTheme } from '../themes/core';
+  // 3. Centralized Dynamic Theme Controller (Admin-Controlled Default + Authorized Preview Only)
+  import {
+    ADMIN_PREVIEW_GRANT_KEY,
+    hasTheme,
+    isThemePreviewAuthorized,
+    persistLocalTheme,
+    resolveClientTheme,
+    resolveTheme,
+  } from '../themes/core';
   import type { ThemeId } from '../themes/core/types';
+  import type { PortfolioData } from '../data/portfolio';
+  import { getSession, isOwnerSession, isSupabaseConfigured } from '../lib/supabase';
 
   const themeWrappers = document.querySelectorAll<HTMLElement>('[data-theme-wrapper]');
-  const variantBtn = document.getElementById('theme-variant-toggle');
-  const variantLabel = document.getElementById('theme-variant-label');
   const brandName = document.getElementById('hdr-brand-name');
   const brandSub = document.getElementById('hdr-brand-sub');
 
-  const registeredThemes = getAllThemes();
-  const cycleOrder: ThemeId[] = registeredThemes.map((t) => t.id);
   let activeThemeVariant: ThemeId = 'ascii';
+
+  function updateHeaderBranding(variant: ThemeId) {
+    if (!brandName || !brandSub) return;
+    const liveIdentity = (window as any).__PORTFOLIO__?.identity;
+    const handle = String(liveIdentity?.github?.handle || 'quan').replace(/^@/, '');
+    const nodeHost = String(liveIdentity?.node || 'infra-node');
+    const fullName = String(liveIdentity?.name || 'THANH QUÂN');
+    const shortBrand = fullName
+      .trim()
+      .split(/\s+/)
+      .slice(-2)
+      .join(' ')
+      .toUpperCase();
+    const dottedName = fullName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '.')
+      .replace(/^\.+|\.+$/g, '');
+    const roleShort = String(liveIdentity?.role || 'devops · sre').toLowerCase();
+
+    if (variant === 'ascii') {
+      brandName.textContent = `${handle.split(/[^a-z0-9]/i)[0].toLowerCase() || 'quan'}@${nodeHost}:~$`;
+      brandSub.textContent = roleShort;
+    } else if (variant === 'knight') {
+      brandName.textContent = dottedName || 'nguyen.thanh.quan';
+      brandSub.textContent = roleShort;
+    } else if (variant === 'forkfolio') {
+      brandName.textContent = dottedName || 'nguyen.thanh.quan';
+      brandSub.textContent = roleShort;
+    } else {
+      brandName.textContent = shortBrand || 'THANH QUÂN';
+      brandSub.textContent = roleShort.toUpperCase();
+    }
+  }
 
   function applyThemeVariant(themeId: string, persist = false) {
     const resolved = resolveTheme(themeId);
@@ -165,25 +205,7 @@ const initialTheme = resolved.theme.id;
       el.classList.toggle('block', match);
     });
 
-    if (variantLabel) {
-      variantLabel.textContent = resolved.theme.name;
-    }
-
-    if (brandName && brandSub) {
-      if (variant === 'ascii') {
-        brandName.textContent = 'quan@infra-node:~$';
-        brandSub.textContent = 'devops · sre';
-      } else if (variant === 'knight') {
-        brandName.textContent = 'nguyen.thanh.quan';
-        brandSub.textContent = 'developer · forkfolio';
-      } else if (variant === 'forkfolio') {
-        brandName.textContent = 'nguyen.thanh.quan';
-        brandSub.textContent = 'devops · sre';
-      } else {
-        brandName.textContent = 'THANH QUÂN';
-        brandSub.textContent = 'DEVOPS · SRE';
-      }
-    }
+    updateHeaderBranding(variant);
 
     document.documentElement.dataset.portfolioTheme = variant;
     window.dispatchEvent(new CustomEvent('theme:changed', { detail: { theme: variant, previousTheme: oldVariant } }));
@@ -201,48 +223,120 @@ const initialTheme = resolved.theme.id;
   }
 
   // Initial client resolution following strict priority:
-  // 1. Explicit ?preview= param
-  // 2. Canonical remote theme if already available
+  // 1. Explicit ?preview= param ONLY when authorized (Dev or Authenticated Admin)
+  // 2. Canonical remote published theme if already available
   // 3. Current synchronous DOM theme (from <head> cached published theme bootstrap)
-  // 4. Default fallback
+  // 4. Keep 'resolving' state until LiveData finishes first fetch (prevents cold-cache wrong-theme flash)
+  const urlParamsInit = new URLSearchParams(window.location.search);
+  const rawPreviewParam = urlParamsInit.get('preview') || urlParamsInit.get('theme');
+  const requestedPreviewId = rawPreviewParam && hasTheme(rawPreviewParam) ? rawPreviewParam : null;
+  let previewAuthorized: boolean | null = requestedPreviewId ? null : false;
+
+  async function checkPreviewAuthorized(): Promise<boolean> {
+    if (previewAuthorized !== null) return previewAuthorized;
+    let ownerSession = false;
+    if (isSupabaseConfigured) {
+      try {
+        const session = await getSession();
+        ownerSession = isOwnerSession(session);
+      } catch {
+        ownerSession = false;
+      }
+    }
+    let hasLocalGrant = false;
+    try {
+      hasLocalGrant = !isSupabaseConfigured && localStorage.getItem(ADMIN_PREVIEW_GRANT_KEY) === 'true';
+    } catch {}
+    previewAuthorized = isThemePreviewAuthorized({
+      isDev: import.meta.env.DEV,
+      isSupabaseConfigured,
+      isOwnerSession: ownerSession,
+      hasLocalAdminGrant: hasLocalGrant,
+    });
+    return previewAuthorized;
+  }
+
   const remoteTheme = (window as any).__PORTFOLIO__?.appearance?.activeTheme || (window as any).__PORTFOLIO__?.identity?.themeVariant;
   const currentDomTheme = document.documentElement.dataset.portfolioTheme;
-  const isPreview = document.documentElement.dataset.portfolioPreview === 'true' || Boolean(new URLSearchParams(window.location.search).get('preview'));
 
-  if (isPreview) {
-    const previewId = new URLSearchParams(window.location.search).get('preview') || new URLSearchParams(window.location.search).get('theme');
-    if (previewId) applyThemeVariant(previewId, false);
+  if (requestedPreviewId) {
+    checkPreviewAuthorized().then(async (authorized) => {
+      if (authorized) {
+        document.documentElement.dataset.portfolioPreview = 'true';
+        applyThemeVariant(requestedPreviewId, false);
+        return;
+      }
+      delete document.documentElement.dataset.portfolioPreview;
+      let latestRemote =
+        (window as any).__PORTFOLIO_OVERRIDE__?.appearance?.activeTheme ||
+        (window as any).__PORTFOLIO_OVERRIDE__?.identity?.themeVariant ||
+        (window as any).__PORTFOLIO__?.appearance?.activeTheme ||
+        (window as any).__PORTFOLIO__?.identity?.themeVariant;
+      if (!latestRemote && (window as any).__PORTFOLIO_READY__?.then) {
+        await Promise.race([
+          (window as any).__PORTFOLIO_READY__,
+          new Promise((resolve) => setTimeout(resolve, 1500)),
+        ]);
+        latestRemote =
+          (window as any).__PORTFOLIO_OVERRIDE__?.appearance?.activeTheme ||
+          (window as any).__PORTFOLIO_OVERRIDE__?.identity?.themeVariant ||
+          (window as any).__PORTFOLIO__?.appearance?.activeTheme ||
+          (window as any).__PORTFOLIO__?.identity?.themeVariant;
+      }
+      const resolvedClient = resolveClientTheme({
+        allowUrlParam: false,
+        isPreviewAuthorized: false,
+        allowLocalStorage: true,
+        remoteTheme: latestRemote,
+      });
+      applyThemeVariant(resolvedClient.theme.id, Boolean(latestRemote));
+    });
   } else if (remoteTheme) {
     applyThemeVariant(remoteTheme, true);
   } else if (currentDomTheme && currentDomTheme !== 'resolving') {
     applyThemeVariant(currentDomTheme, false);
-  } else {
-    const resolvedClient = resolveClientTheme({
-      allowUrlParam: true,
-      allowLocalStorage: true,
-      remoteTheme: remoteTheme,
+  } else if ((window as any).__PORTFOLIO_READY__?.then) {
+    Promise.race([
+      (window as any).__PORTFOLIO_READY__,
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ]).then(() => {
+      if (document.documentElement.dataset.portfolioTheme === 'resolving') {
+        const latestRemote = (window as any).__PORTFOLIO__?.appearance?.activeTheme || (window as any).__PORTFOLIO__?.identity?.themeVariant;
+        const resolvedClient = resolveClientTheme({
+          allowUrlParam: false,
+          isPreviewAuthorized: false,
+          allowLocalStorage: true,
+          remoteTheme: latestRemote,
+        });
+        applyThemeVariant(resolvedClient.theme.id, Boolean(latestRemote));
+      }
     });
-    applyThemeVariant(resolvedClient.theme.id, false);
   }
-
-  variantBtn?.addEventListener('click', () => {
-    const currentIndex = cycleOrder.indexOf(activeThemeVariant);
-    const nextIndex = (currentIndex + 1) % cycleOrder.length;
-    applyThemeVariant(cycleOrder[nextIndex], true);
-  });
 
   // Listen to remote changes or Admin Saves
   window.addEventListener('portfolio:data', (e: Event) => {
     const detail = (e as CustomEvent).detail;
     const override = (window as any).__PORTFOLIO_OVERRIDE__ as Partial<PortfolioData> | null;
-    const incomingTheme = override?.appearance?.activeTheme || override?.identity?.themeVariant;
-    if (incomingTheme) {
-      // If admin changed the site theme, respect it unless there's an explicit URL preview param
-      const urlParams = new URLSearchParams(window.location.search);
-      if (!urlParams.get('preview')) {
-        applyThemeVariant(incomingTheme, true);
-      }
+    const overrideTheme = override?.appearance?.activeTheme || override?.identity?.themeVariant;
+    const incomingTheme = overrideTheme || detail?.appearance?.activeTheme || detail?.identity?.themeVariant;
+    const hasActivePreview = Boolean(requestedPreviewId && previewAuthorized !== false);
+
+    if (overrideTheme && !hasActivePreview) {
+      // Apply published Supabase / Local Mode admin theme unless an authorized preview is active
+      applyThemeVariant(overrideTheme, true);
+    } else if (!hasActivePreview && document.documentElement.dataset.portfolioTheme === 'resolving') {
+      const resolvedClient = resolveClientTheme({
+        allowUrlParam: false,
+        isPreviewAuthorized: false,
+        allowLocalStorage: true,
+        remoteTheme: incomingTheme,
+      });
+      applyThemeVariant(resolvedClient.theme.id, Boolean(overrideTheme));
+    } else if (activeThemeVariant) {
+      // Refresh header branding text when identity fields update
+      updateHeaderBranding(activeThemeVariant);
     }
+
     observeReveals();
     requestAnimationFrame(onExperienceScroll);
   });

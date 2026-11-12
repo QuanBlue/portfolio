@@ -10,7 +10,8 @@
     "preview": "astro preview",
     "test": "vitest run",
     "test:knight": "node scripts/knight-smoke-test.mjs",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync:activity": "node scripts/sync-github-activity.mjs"
   },
   "keywords": [
     "portfolio",

@@ -1,38 +1,11 @@
 ---
 import { portfolioData } from '../../data/portfolio';
-import { KNIGHT_ACTIVITY } from '../../themes/core/data-adapter';
+import { getKnightActivity } from '../../themes/core/data-adapter';
+import { deriveShortHandle, renderForkfolioActivityHtml } from './forkfolio-renderers';
 import TerminalPrompt from './terminal/TerminalPrompt.astro';
 
-const { telemetry } = portfolioData;
-
-const rawCal = KNIGHT_ACTIVITY.heatmapString ||
-  '003033000000003030300300000030330033000000000300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000030343333003304304033643400300003000000003000300000000000000000000000000000000000000000000000000334694567669558363475400036840003054303003554440043303043033400343034444345799675779536689944';
-
-const weeks52: number[][] = [];
-for (let i = 0; i < 52; i++) {
-  const week: number[] = [];
-  for (let d = 0; d < 7; d++) {
-    const val = Number(rawCal[i * 7 + d]) || 0;
-    const lvl = val === 0 ? 0 : val <= 3 ? 1 : val <= 5 ? 2 : val <= 7 ? 3 : 4;
-    week.push(lvl);
-  }
-  weeks52.push(week);
-}
-
-const monthMarkers = [
-  { name: 'Dec', week: 0 },
-  { name: 'Jan', week: 4 },
-  { name: 'Feb', week: 8 },
-  { name: 'Mar', week: 13 },
-  { name: 'Apr', week: 17 },
-  { name: 'May', week: 21 },
-  { name: 'Jun', week: 26 },
-  { name: 'Jul', week: 30 },
-  { name: 'Aug', week: 35 },
-  { name: 'Sep', week: 39 },
-  { name: 'Oct', week: 43 },
-  { name: 'Nov', week: 48 },
-];
+const shortHandle = deriveShortHandle(portfolioData);
+const activity = getKnightActivity(portfolioData);
 ---
 
 <section
@@ -45,7 +18,7 @@ const monthMarkers = [
     <div class="space-y-2">
       <TerminalPrompt
         command="git log --since=1.year --stat"
-        user="quan"
+        user={shortHandle}
         host="portfolio"
         path="~"
         typeSpeed={28}
@@ -57,139 +30,12 @@ const monthMarkers = [
           ACTIVITY &amp; TELEMETRY
         </h2>
         <span class="font-mono text-xs text-[var(--muted-fg)]">
-          [06] ~/activity · {KNIGHT_ACTIVITY.totalContributions} commits
+          [06] ~/activity · <span data-ff-activity-meta>{activity ? `${activity.totalContributions} contributions` : 'portfolio index'}</span>
         </span>
       </div>
     </div>
 
-    <!-- Output: Stats Cards & Heatmap -->
-    <div class="ff-term-output space-y-8">
-      <!-- 4 Stats Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 font-mono">
-        <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
-          <span class="ff-cross-tl">+</span>
-          <span class="ff-cross-tr">+</span>
-          <span class="ff-cross-bl">+</span>
-          <span class="ff-cross-br">+</span>
-          <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Uptime SLA</span>
-          <span class="text-2xl sm:text-3xl font-black text-[var(--signal)] mt-1 block">{telemetry.uptimeSLA}</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">Zero SPOF target</span>
-        </div>
-
-        <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
-          <span class="ff-cross-tl">+</span>
-          <span class="ff-cross-tr">+</span>
-          <span class="ff-cross-bl">+</span>
-          <span class="ff-cross-br">+</span>
-          <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Throughput</span>
-          <span class="text-2xl sm:text-3xl font-black text-[var(--fg)] mt-1 block">2,489</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">reqs/min telemetry</span>
-        </div>
-
-        <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
-          <span class="ff-cross-tl">+</span>
-          <span class="ff-cross-tr">+</span>
-          <span class="ff-cross-bl">+</span>
-          <span class="ff-cross-br">+</span>
-          <span class="text-[11px] text-[var(--muted-fg)] uppercase block">Contributions</span>
-          <span class="text-2xl sm:text-3xl font-black text-[var(--fg)] mt-1 block">{KNIGHT_ACTIVITY.totalContributions}</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">past 12 months</span>
-        </div>
-
-        <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
-          <span class="ff-cross-tl">+</span>
-          <span class="ff-cross-tr">+</span>
-          <span class="ff-cross-bl">+</span>
-          <span class="ff-cross-br">+</span>
-          <span class="text-[11px] text-[var(--muted-fg)] uppercase block">APM Latency</span>
-          <span class="text-2xl sm:text-3xl font-black text-[var(--signal)] mt-1 block">{telemetry.traceLatency}</span>
-          <span class="text-[10px] text-[var(--muted-fg)] mt-1 block">trace {telemetry.traceId}</span>
-        </div>
-      </div>
-
-      <!-- Heatmap Matrix -->
-      <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-7 space-y-5 shadow-sm">
-        <span class="ff-cross-tl">+</span>
-        <span class="ff-cross-tr">+</span>
-        <span class="ff-cross-bl">+</span>
-        <span class="ff-cross-br">+</span>
-
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-3 font-mono text-xs">
-          <span class="text-[var(--fg)] font-bold">// INFRASTRUCTURE_ACTIVITY_HEATMAP</span>
-          <span class="text-[var(--muted-fg)]">Last 12 Months · {KNIGHT_ACTIVITY.totalContributions} Contributions</span>
-        </div>
-
-        <!-- Month Labels & Heatmap Grid -->
-        <div class="overflow-x-auto pb-2">
-          <div class="min-w-[780px] space-y-2">
-            <div class="relative h-4 text-[10px] text-[var(--muted-fg)] font-mono pl-8">
-              {monthMarkers.map((m) => (
-                <span
-                  class="absolute top-0 -translate-x-1/2 first:translate-x-0"
-                  style={`left: calc(2rem + ${(m.week / 52) * 100}% * 0.96);`}
-                >
-                  {m.name}
-                </span>
-              ))}
-            </div>
-
-            <!-- Heatmap grid -->
-            <div class="flex items-start gap-2">
-              <div class="flex flex-col justify-between h-[86px] text-[9px] text-[var(--muted-fg)] select-none pt-0.5 w-6 shrink-0 font-mono">
-                <span>Mon</span>
-                <span>Wed</span>
-                <span>Fri</span>
-              </div>
-
-              <div class="flex gap-1.5 p-2.5 rounded-xl bg-[var(--muted-bg)]/40 border border-[var(--border)] flex-grow justify-between">
-                {weeks52.map((week, wIdx) => (
-                  <div class="flex flex-col gap-1.5">
-                    {week.map((level, dIdx) => (
-                      <span
-                        class={`ff-heatmap-cell ${level > 0 ? `ff-heatmap-${level}` : ''}`}
-                        title={`Week ${wIdx + 1}, Day ${dIdx + 1} · Level ${level}`}
-                      />
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between font-mono text-[11px] text-[var(--muted-fg)] pt-2 px-1">
-              <span>
-                Longest streak: <strong class="text-[var(--fg)]">{KNIGHT_ACTIVITY.longestStreak}</strong> · Active days: <strong class="text-[var(--signal)]">{KNIGHT_ACTIVITY.activeDays} days</strong>
-              </span>
-              <div class="flex items-center gap-1.5">
-                <span>Less</span>
-                <span class="ff-heatmap-cell"></span>
-                <span class="ff-heatmap-cell ff-heatmap-1"></span>
-                <span class="ff-heatmap-cell ff-heatmap-2"></span>
-                <span class="ff-heatmap-cell ff-heatmap-3"></span>
-                <span class="ff-heatmap-cell ff-heatmap-4"></span>
-                <span>More</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Output: Factual Portfolio Cards & Configured Heatmap -->
+    <div class="ff-term-output space-y-8" data-ff-activity-body set:html={renderForkfolioActivityHtml(portfolioData, 'en')} />
   </div>
 </section>
-
-<script is:inline>
-  (function () {
-    function updateActivityLocale(locale) {
-      var isVi = locale === 'vi';
-      var heading = document.querySelector('.ff-act-heading');
-      if (heading) heading.textContent = isVi ? 'HOẠT ĐỘNG & HỆ THỐNG' : 'ACTIVITY & TELEMETRY';
-    }
-
-    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
-    updateActivityLocale(initialLoc);
-
-    window.addEventListener('locale:changed', function (e) {
-      var loc = (e && e.detail && e.detail.locale) || 'en';
-      updateActivityLocale(loc);
-    });
-  })();
-</script>

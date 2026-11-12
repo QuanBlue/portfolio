@@ -1,8 +1,10 @@
 ---
 import { portfolioData } from '../../data/portfolio';
 import { safeUrl } from '../../lib/render';
+import { deriveShortHandle } from './forkfolio-renderers';
 import TerminalPrompt from './terminal/TerminalPrompt.astro';
 const { identity } = portfolioData;
+const shortHandle = deriveShortHandle(portfolioData);
 ---
 
 <footer class="pt-12 pb-16 sm:pb-20 border-t border-[var(--border)] font-mono text-xs text-[var(--muted-fg)] bg-[var(--bg)]" data-terminal-section="footer">
@@ -11,7 +13,7 @@ const { identity } = portfolioData;
     <div class="p-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] space-y-3 shadow-sm">
       <TerminalPrompt
         command="exit"
-        user="quan"
+        user={shortHandle}
         host="portfolio"
         path="~"
         typeSpeed={25}
@@ -22,7 +24,7 @@ const { identity } = portfolioData;
       <div class="ff-term-output font-mono text-xs space-y-1 text-[var(--muted-fg)] pl-4 border-l-2 border-[var(--border)]">
         <div>logout</div>
         <div>Saving session...</div>
-        <div>...saving history: 14 commands</div>
+        <div>...session state synchronized</div>
         <div>...completed.</div>
         <div class="text-[var(--signal)] font-bold pt-1">[Process completed]</div>
       </div>
@@ -54,7 +56,7 @@ const { identity } = portfolioData;
     </div>
 
     <div class="flex items-center justify-between pt-3 border-t border-[var(--border)] text-[10px] text-[var(--faint)]">
-      <span>THEME: FORKFOLIO_MODERN_MONO</span>
+      <span>SYS.CONSOLE_SESSION // STDOUT</span>
       <span class="tracking-widest select-none font-bold text-[var(--line-strong)]">+ + + +</span>
     </div>
   </div>

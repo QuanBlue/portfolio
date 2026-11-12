@@ -1,6 +1,6 @@
 ---
-import KnightProjectCard from '../components/KnightProjectCard.astro';
 import type { KnightProjectItem } from '../../core/data-adapter';
+import { renderKnightProjects } from '../../core/render-knight';
 
 interface Props {
   projects: KnightProjectItem[];
@@ -21,15 +21,5 @@ const { projects = [] } = Astro.props;
     Projects
   </h2>
 
-  <div class="kn-pj-list" data-kn-pj-list="true">
-    {projects.length > 0 ? (
-      projects.map((project, idx) => (
-        <KnightProjectCard project={project} index={idx} />
-      ))
-    ) : (
-      <div class="kn-empty-projects" style="padding: 48px 0; color: var(--dim);">
-        <p>No published projects configured in Admin.</p>
-      </div>
-    )}
-  </div>
+  <div class="kn-pj-list" data-kn-pj-list="true" set:html={renderKnightProjects(projects)} />
 </section>

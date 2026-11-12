@@ -1,7 +1,10 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, getCareerSettings } from '../../data/portfolio';
 import { renderNameWords, safeUrl } from '../../lib/render';
 const { identity } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const showCv = career.openToWork && Boolean(career.cvUrl);
+const currentCompany = portfolioData.experience[0]?.company ?? '';
 ---
 
 <section id="hero" class="relative isolate overflow-hidden">
@@ -28,14 +31,15 @@ const { identity } = portfolioData;
     <!-- Left Column (lg:col-span-7) -->
     <div class="lg:col-span-7">
       <div class="enter inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-xs font-mono text-[var(--muted-fg)] mb-5" style="--i: 1">
-        <span class="size-2 rounded-full bg-[var(--signal)] animate-pulse"></span>
-        <span><span data-bind="location">{identity.location}</span> · Available for Infrastructure Roles</span>
+        <span data-career-badge class={`size-2 rounded-full bg-[var(--signal)] animate-pulse ${career.openToWork ? '' : 'hidden'}`}></span>
+        <span data-bind="location">{identity.location}</span>
+        <span data-career-badge class={career.openToWork ? '' : 'hidden'}>· Open to Work</span>
       </div>
 
       <h1 id="bind-hero-name" class="text-display text-[var(--fg)]" set:html={renderNameWords(identity.name)}></h1>
 
       <p class="enter text-h3 mt-4 text-[var(--fg)]" style="--i: 4">
-        <span data-bind="role">{identity.role}</span> <span class="text-[var(--muted-fg)] font-normal">@ Viettel</span>
+        <span data-bind="role">{identity.role}</span> <span data-bind-company data-company-prefix="@ " class={`text-[var(--muted-fg)] font-normal ${currentCompany ? '' : 'hidden'}`}>{currentCompany ? `@ ${currentCompany}` : ''}</span>
       </p>
 
       <p data-bind="bio" class="enter text-lead mt-4 max-w-[38rem] text-[var(--muted-fg)]" style="--i: 5">
@@ -62,7 +66,8 @@ const { identity } = portfolioData;
         <button
           type="button"
           data-open-cv="1"
-          class="inline-flex h-12 items-center gap-2 rounded-xl border border-[var(--signal)]/50 bg-emerald-500/10 px-5 text-sm font-semibold text-[var(--signal)] hover:bg-emerald-500/20 active:scale-[0.98] cursor-pointer transition"
+          data-cv-gate
+          class={`inline-flex h-12 items-center gap-2 rounded-xl border border-[var(--signal)]/50 bg-emerald-500/10 px-5 text-sm font-semibold text-[var(--signal)] hover:bg-emerald-500/20 active:scale-[0.98] cursor-pointer transition ${showCv ? '' : 'hidden'}`}
         >
           <i class="fa-regular fa-file-lines text-xs"></i>
           <span>View CV</span>
@@ -346,7 +351,15 @@ const { identity } = portfolioData;
         const lowerCmd = ALIASES[cmdName.toLowerCase()] ?? cmdName.toLowerCase();
 
         if (lowerCmd === 'edu' || lowerCmd === 'education') {
-          appendHistoryLine('B.Eng in Information Technology — Networks, Linux & Distributed Systems', 'text-[var(--signal)]');
+          const liveData = (window as any).__PORTFOLIO_LOCALIZED__ ?? (window as any).__PORTFOLIO__ ?? portfolioData;
+          const eduList = liveData.education || [];
+          if (!eduList.length) {
+            appendHistoryLine('No published education entries.', 'text-[var(--muted-fg)]');
+          } else {
+            eduList.forEach((eduItem: any) => {
+              appendHistoryLine(`${eduItem.degree} — ${eduItem.school} (${eduItem.period})`, 'text-[var(--signal)]');
+            });
+          }
           window.location.hash = '#education';
           scrollToBottom();
           return;
@@ -363,7 +376,7 @@ const { identity } = portfolioData;
         if (cmd) {
           try {
             const lines = await cmd.execute(args, {
-              portfolioData: (window as any).__PORTFOLIO__ ?? portfolioData,
+              portfolioData: (window as any).__PORTFOLIO_LOCALIZED__ ?? (window as any).__PORTFOLIO__ ?? portfolioData,
               navigate: (url) => { window.location.href = url; },
               openModal: (id) => { (window as any).openProjectModal?.(id); },
               clearTerminal: () => { historyEl.innerHTML = ''; },

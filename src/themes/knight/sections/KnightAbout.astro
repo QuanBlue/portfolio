@@ -1,11 +1,18 @@
 ---
 import type { KnightProfileData } from '../../core/data-adapter';
+import { safeUrl } from '../../../lib/render';
 
 interface Props {
   profile: KnightProfileData;
 }
 
 const { profile } = Astro.props;
+const paragraphs = String(profile.detailedBio || profile.leadBio || '')
+  .split(/\n\n+/)
+  .map((p) => p.trim())
+  .filter(Boolean);
+const leadPara = paragraphs[0] || '';
+const extraPara = paragraphs.slice(1).join('\n\n');
 ---
 
 <section class="kn-sec kn-about" id="about" data-kn-s="about" aria-labelledby="kn-h-about">
@@ -20,14 +27,12 @@ const { profile } = Astro.props;
     About
   </h2>
   <div class="kn-bio">
-    <p class="kn-lead" data-kn-r="bio" data-kn-occ="true">
-      {profile.leadBio}
+    <p class="kn-lead" data-kn-r="bio" data-kn-occ="true" data-kn-lead-bio="true">
+      {leadPara}
     </p>
-    {profile.detailedBio && (
-      <p class="kn-more-bio" data-bind="bio">
-        {profile.detailedBio}
-      </p>
-    )}
+    <p class={`kn-more-bio ${extraPara ? '' : 'hidden'}`} data-kn-extra-bio="true">
+      {extraPara}
+    </p>
     <div class="kn-facts">
       <div>
         <dt>location</dt>
@@ -35,11 +40,25 @@ const { profile } = Astro.props;
       </div>
       <div>
         <dt>github</dt>
-        <dd><a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" class="kn-br">@{profile.githubHandle}</a></dd>
+        <dd>
+          <a
+            data-kn-about-github="true"
+            href={safeUrl(profile.githubUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="kn-br"
+          >
+            {profile.githubHandle ? `@${profile.githubHandle}` : profile.githubUrl}
+          </a>
+        </dd>
       </div>
       <div>
         <dt>contact</dt>
-        <dd><a href={`mailto:${profile.email}`} class="kn-br">{profile.email}</a></dd>
+        <dd>
+          <a data-kn-about-email="true" href={`mailto:${profile.email}`} class="kn-br">
+            {profile.email}
+          </a>
+        </dd>
       </div>
     </div>
   </div>

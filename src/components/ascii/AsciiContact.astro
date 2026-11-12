@@ -1,7 +1,9 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, getCareerSettings } from '../../data/portfolio';
 import { safeUrl } from '../../lib/render';
 const { identity } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const showCv = career.openToWork && Boolean(career.cvUrl);
 ---
 
 <section id="contact" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)] font-mono">
@@ -23,8 +25,8 @@ const { identity } = portfolioData;
  \____\___/|_| \_| |_/_/   \_\____| |_|  
         </pre>
       </div>
-      <p class="text-xs sm:text-sm text-[var(--muted-fg)] max-w-xl font-sans">
-        Luôn sẵn sàng trao đổi về kiến trúc Kubernetes HA, hạ tầng mạng Linux vật lý hoặc cơ hội hợp tác mới.
+      <p class="text-xs sm:text-sm text-[var(--muted-fg)] max-w-xl font-sans" data-ascii-contact-sub>
+        Always open to discuss infrastructure engineering, automation, and new collaborations.
       </p>
     </div>
 
@@ -38,12 +40,13 @@ const { identity } = portfolioData;
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <a
           data-bind="email"
+          data-bind-keep-text="true"
           href={`mailto:${identity.email}`}
           class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
         >
           <div>
             <span class="text-xs text-[var(--signal)] block mb-1">[ DIRECT_EMAIL ]</span>
-            <span class="text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
+            <span data-ascii-email-display class="text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
               {identity.email}
             </span>
           </div>
@@ -60,7 +63,7 @@ const { identity } = portfolioData;
           <div>
             <span class="text-xs text-[var(--signal)] block mb-1">[ PROFESSIONAL_NETWORK ]</span>
             <span class="text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
-              LinkedIn ({identity.linkedin.handle})
+              LinkedIn (<span data-bind-handle="linkedin">{identity.linkedin.handle}</span>)
             </span>
           </div>
           <span class="text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">↗</span>
@@ -72,9 +75,10 @@ const { identity } = portfolioData;
         <button
           type="button"
           data-open-cv="1"
-          class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10"
+          data-cv-gate
+          class={`ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 ${showCv ? '' : 'hidden'}`}
         >
-          <span>[ view_cv_document 📄 ]</span>
+          <span>[ view_cv_document ]</span>
         </button>
 
         <a
@@ -84,7 +88,7 @@ const { identity } = portfolioData;
           rel="noopener noreferrer"
           class="ff-btn"
         >
-          <span>[ github: @QuanBlue ↗ ]</span>
+          <span>[ github: <span data-bind-handle="github">{identity.github.handle}</span> ↗ ]</span>
         </a>
       </div>
     </div>

@@ -4,7 +4,12 @@
  * Shared between build-time SSR (Astro) and runtime live-updates (browser CustomEvent).
  */
 import type { Certification, EducationItem, ExperienceItem, Skill } from '../../data/portfolio';
-import { esc } from '../../lib/render';
+import type { ActivityResolution } from '../../lib/github-activity';
+import { formatIsoTimestampDate, formatUtcDate } from '../../lib/github-activity';
+import { getTranslations } from '../../i18n/translate';
+import { esc, safeUrl } from '../../lib/render';
+import { formatKnightAsciiTitle } from './ascii-title';
+import type { KnightMoreProjectItem, KnightProjectItem } from './data-adapter';
 
 export interface KnightSkillGroup {
   category: string;
@@ -313,4 +318,212 @@ export function renderKnightSkills(skills: Skill[] = [], locale: 'en' | 'vi' = '
     .join('');
 
   return `<div class="kn-sk-grid knight-skill-modules">${modulesHtml}</div>`;
+}
+
+/**
+ * Renders featured Knight project cards from canonical PortfolioData (shared by SSR and runtime live updates).
+ */
+export function renderKnightProjects(projects: KnightProjectItem[] = [], locale: 'en' | 'vi' = 'en'): string {
+  if (!projects || projects.length === 0) {
+    const emptyMsg =
+      locale === 'vi'
+        ? '[ CHƯA CÓ DỰ ÁN ĐƯỢC ĐĂNG TẢI ]'
+        : 'No published projects configured in Admin.';
+    return `<div class="kn-empty-projects" style="padding: 48px 0; color: var(--dim);"><p>${esc(emptyMsg)}</p></div>`;
+  }
+
+  const moveList = ['sweep', 'eddy', 'rise', 'rain', 'slats', 'dust'];
+
+  return projects
+    .map((project, index) => {
+      const move = moveList[index % moveList.length];
+      const formattedLink = project.link ? project.link.replace(/^https?:\/\//, '') : '';
+      const titleInfo = formatKnightAsciiTitle(project.title);
+      const subtitle = project.language
+        ? project.stars > 0
+          ? `${project.language} · ${project.stars} stars`
+          : project.language
+        : project.stars > 0
+          ? `${project.stars} stars`
+          : '';
+
+      return `<article class="kn-p ${project.isFlip ? 'is-flip' : ''}" data-kn-p="${index}" aria-labelledby="kn-p-${index}">
+  <div class="kn-p-txt">
+    <p class="kn-idx" data-kn-r="idx" data-kn-rm="${move}" data-kn-rg="${index + 1}6/">${esc(project.index)}</p>
+    <h3
+      id="kn-p-${index}"
+      class="kn-asc kn-pn"
+      data-kn-t="${move}"
+      data-ld="${esc(titleInfo.desktopLines.join('\n'))}"
+      data-lm="${esc(titleInfo.mobileLines.join('\n'))}"
+      style="--kd:${titleInfo.kd};--ld:${titleInfo.ld};--km:${titleInfo.km};--lm:${titleInfo.lm}"
+    >${esc(project.title)}</h3>
+    <p class="kn-desc" data-kn-r="desc" data-kn-rm="${move}" data-kn-rg="${esc(project.glyphs)}" data-kn-occ="true">${esc(project.description)}</p>
+    <p class="kn-meta" data-kn-r="meta" data-kn-rm="${move}" data-kn-rg="${esc(project.glyphs)}" data-kn-occ="true">${project.language ? `${esc(project.language)} ` : ''}${project.stars > 0 ? `· ${project.stars} stars ` : ''}${formattedLink ? `· <a href="${esc(safeUrl(project.link))}" target="_blank" rel="noopener noreferrer" class="kn-br">${esc(formattedLink)}</a>` : ''}</p>
+  </div>
+  <div
+    class="kn-plate is-cover"
+    data-kn-pic="${move}"
+    data-src=""
+    data-kind="cover"
+    data-pw=""
+    data-ph=""
+    data-cover="${esc(project.coverData)}"
+    role="img"
+    aria-label="${esc(`${project.title}: a cover drawn in characters`)}"
+  >
+    <span class="kn-plate-cv" aria-hidden="true">
+      <b>${esc(project.mark)}</b>
+      <i>${esc(subtitle)}</i>
+    </span>
+  </div>
+</article>`;
+    })
+    .join('');
+}
+
+/**
+ * Renders Knight "More projects" rows cleanly from canonical curated data.
+ */
+export function renderKnightMoreWork(moreProjects: KnightMoreProjectItem[] = []): string {
+  if (!moreProjects || moreProjects.length === 0) return '';
+  return moreProjects
+    .map(
+      (item, idx) => `<li
+  class="kn-row"
+  data-kn-r="row"
+  data-kn-ri="${idx}"
+  data-kn-rg="${esc(item.glyphs)}"
+  data-kn-rs="${esc(item.step)}"
+  data-kn-occ="true"
+>
+  <span class="kn-row-n">${esc(item.name)}</span>
+  <span class="kn-row-m">${item.language ? `${esc(item.language)} ` : ''}${item.stars > 0 ? `· ${item.stars}★` : ''}</span>
+  ${
+    item.link
+      ? `<a class="kn-br kn-row-a" href="${esc(safeUrl(item.link))}" target="_blank" rel="noopener noreferrer" aria-label="${esc(`${item.name} (opens ${item.link.replace(/^https?:\/\//, '')})`)}">repo</a>`
+      : ''
+  }
+  <span class="kn-row-d">${esc(item.description)}</span>
+</li>`,
+    )
+    .join('');
+}
+
+/**
+ * Renders Knight Activity using only verified contribution data for the configured GitHub account.
+ * Shows an honest unavailable state when integration/snapshot data is missing, disabled, or mismatched.
+ */
+export function renderKnightActivity(
+  resolution: ActivityResolution,
+  locale: 'en' | 'vi' = 'en',
+): string {
+  const dict = getTranslations(locale).activity!;
+  const isVi = locale === 'vi';
+  const ghUrl = resolution.githubUrl ? safeUrl(resolution.githubUrl) : '';
+  const ghHandleHtml = resolution.username ? `@${esc(resolution.username)}` : 'GitHub';
+  const linkHtml = ghUrl
+    ? `<a href="${esc(ghUrl)}" target="_blank" rel="noopener noreferrer" class="kn-br">${ghHandleHtml} ↗</a>`
+    : '';
+
+  if (!resolution.available) {
+    const reasonMsg =
+      resolution.reason === 'disabled'
+        ? dict.disabled
+        : resolution.reason === 'account-mismatch'
+          ? dict.accountMismatch
+          : dict.unavailable;
+
+    return `<div class="kn-act-frame kn-empty" data-kn-occ="strict">
+      <p class="kn-empty-txt">${esc(reasonMsg)}</p>
+      ${linkHtml ? `<p class="kn-act-empty-link">${linkHtml}</p>` : ''}
+    </div>`;
+  }
+
+  const numFmt = new Intl.NumberFormat(isVi ? 'vi-VN' : 'en-US');
+  const totalFormatted = numFmt.format(resolution.summary.totalContributions);
+  const streakUnit = resolution.summary.longestStreak === 1 ? dict.daySingular : dict.dayPlural;
+  const busiestDisplay = resolution.summary.busiestDay
+    ? `${numFmt.format(resolution.summary.busiestDay.count)} · ${formatUtcDate(resolution.summary.busiestDay.date, locale)}`
+    : '—';
+  const updatedDisplay = resolution.fetchedAt ? formatIsoTimestampDate(resolution.fetchedAt, locale) : '—';
+  const periodDisplay = `${formatUtcDate(resolution.periodStart, locale)} – ${formatUtcDate(resolution.periodEnd, locale)}`;
+  const sourceBadge =
+    resolution.source === 'admin-configured'
+      ? (isVi ? 'Admin' : 'Configured')
+      : dict.snapshotLabel;
+
+  const monthsHtml = resolution.months
+    .map(
+      (m) =>
+        `<span class="kn-cal-m-lbl" style="--col:${m.weekIndex}" data-month="${esc(m.monthKey)}">${esc(m.label)}</span>`,
+    )
+    .join('');
+
+  const weekdayLabels = isVi ? ['', 'T2', '', 'T4', '', 'T6', ''] : ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+  const daysRailHtml = weekdayLabels.map((lbl) => `<span>${esc(lbl)}</span>`).join('');
+
+  const gridCellsHtml = resolution.weeks
+    .map((week) =>
+      week.days
+        .map((day) => {
+          if (!day) {
+            return `<span class="kn-cal-spacer" aria-hidden="true"></span>`;
+          }
+          const countWord =
+            day.contributionCount === 1 ? dict.contributionSingular : dict.contributionPlural;
+          const dateLabel = formatUtcDate(day.date, locale);
+          const ariaLabel =
+            day.contributionCount === 0
+              ? `${dict.noContributions} · ${dateLabel}`
+              : `${numFmt.format(day.contributionCount)} ${countWord} · ${dateLabel}`;
+
+          return `<button type="button" class="kn-cal-cell" data-date="${esc(day.date)}" data-count="${day.contributionCount}" data-level="${day.level ?? 0}" aria-label="${esc(ariaLabel)}"></button>`;
+        })
+        .join(''),
+    )
+    .join('');
+
+  return `<div class="kn-act-frame" data-kn-occ="strict">
+    <div class="kn-act-meta">
+      <div class="kn-act-meta-left">
+        ${linkHtml}
+        <span class="kn-act-period">${esc(periodDisplay)}</span>
+      </div>
+      <span class="kn-act-source">${esc(sourceBadge)}${resolution.fetchedAt ? ` · ${esc(updatedDisplay)}` : ''}</span>
+    </div>
+
+    <div class="kn-cal" style="--weeks:${resolution.weeks.length}">
+      <div class="kn-cal-scroll" tabindex="0" role="region" aria-label="${esc(`${totalFormatted} ${dict.contributions} (${periodDisplay})`)}">
+        <div class="kn-cal-board">
+          <div class="kn-cal-months" aria-hidden="true">${monthsHtml}</div>
+          <div class="kn-cal-days" aria-hidden="true">${daysRailHtml}</div>
+          <div
+            class="kn-cal-grid"
+            data-kn-cal-grid="true"
+            role="grid"
+            aria-label="${esc(`${totalFormatted} ${dict.contributions}`)}"
+          >${gridCellsHtml}</div>
+        </div>
+      </div>
+
+      <div class="kn-cal-legend" aria-hidden="true">
+        <span>${esc(dict.lessLabel)}</span>
+        <span class="kn-cal-swatch" data-level="0"></span>
+        <span class="kn-cal-swatch" data-level="1"></span>
+        <span class="kn-cal-swatch" data-level="2"></span>
+        <span class="kn-cal-swatch" data-level="3"></span>
+        <span class="kn-cal-swatch" data-level="4"></span>
+        <span>${esc(dict.moreLabel)}</span>
+      </div>
+    </div>
+
+    <dl class="kn-figs" data-kn-act-summary="true">
+      <div><dt>${esc(dict.contributions)}</dt><dd>${esc(totalFormatted)}</dd></div>
+      <div><dt>${esc(dict.activeDays)}</dt><dd>${esc(numFmt.format(resolution.summary.activeDays))}</dd></div>
+      <div><dt>${esc(dict.longestStreak)}</dt><dd>${esc(`${resolution.summary.longestStreak} ${streakUnit}`)}</dd></div>
+      <div><dt>${esc(dict.busiestDay)}</dt><dd>${esc(busiestDisplay)}</dd></div>
+      <div><dt>${esc(dict.lastUpdated)}</dt><dd>${esc(updatedDisplay)}</dd></div>
+    </dl>
+  </div>`;
 }

@@ -55,7 +55,11 @@ import { portfolioData } from '../../data/portfolio';
     const modalTags = document.getElementById('modal-tags');
 
     const findProject = (id) =>
-      ((window.__PORTFOLIO__ && window.__PORTFOLIO__.projects) || projects).find((p) => p.id === id);
+      (
+        (window.__PORTFOLIO_LOCALIZED__ && window.__PORTFOLIO_LOCALIZED__.projects) ||
+        (window.__PORTFOLIO__ && window.__PORTFOLIO__.projects) ||
+        projects
+      ).find((p) => p.id === id);
 
     const mediaBox = document.getElementById('modal-media');
     const mediaMain = document.getElementById('modal-media-main');
@@ -132,19 +136,21 @@ import { portfolioData } from '../../data/portfolio';
       }, 300);
     }
 
-    // Attach click listeners to cards
+    // Attach delegated click listeners for static & dynamically re-rendered triggers
     document.addEventListener('click', (e) => {
-      const card = e.target.closest && e.target.closest('.project-card-trigger');
-      if (!card) return;
-      const id = card.getAttribute('data-project-id');
-      if (id) openModal(id);
-    });
-
-    document.querySelectorAll('[data-project-trigger]').forEach((el) => {
-      el.addEventListener('click', () => {
-        const id = el.getAttribute('data-project-trigger');
+      const target = e.target;
+      if (!target || typeof target.closest !== 'function') return;
+      const card = target.closest('.project-card-trigger');
+      if (card) {
+        const id = card.getAttribute('data-project-id');
         if (id) openModal(id);
-      });
+        return;
+      }
+      const trigger = target.closest('[data-project-trigger]');
+      if (trigger) {
+        const id = trigger.getAttribute('data-project-trigger');
+        if (id) openModal(id);
+      }
     });
 
     if (closeBtn) closeBtn.onclick = closeModal;

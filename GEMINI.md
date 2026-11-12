@@ -172,3 +172,30 @@ When working on the Forkfolio Modern Mono theme:
 
 **RULE: User browser sessions are protected. Automation must use its own isolated browser.**
 
+## DATA VISUALIZATION INTEGRITY
+
+- Data visualizations must always be readable and accurate.
+- Decorative effects must never overlap charts, statistics or interactive controls.
+- All displayed metrics must originate from verified data sources.
+- Never fabricate statistics to fill empty visualizations.
+- Heatmaps and summary metrics must use the same reporting period and normalized dataset.
+- External activity data must use explicitly configured integrations.
+- If data is unavailable, show an honest unavailable state instead of sample data.
+- Before completing a visualization change, verify both rendering correctness and data correctness.
+
+**RULE: Visual effects may enhance data presentation, but must never compromise readability or factual accuracy.**
+
+---
+
+### ADMIN-ONLY THEME MANAGEMENT
+
+- Public portfolio pages must never render theme-switching UI.
+- Only authenticated, authorized administrators may manage themes.
+- Theme selection, preview and publication belong in Admin → Appearance.
+- Every new theme must obey this restriction by default.
+- Light/Dark switching and EN/VI switching remain public features.
+- All registered themes must be checked for forbidden public theme-switch controls after any header/navigation change.
+- Hiding a control with CSS is not sufficient.
+- Never reintroduce a public theme selector.
+
+**INVARIANT: Public visitors consume the published theme; only authorized Admin users manage themes.**

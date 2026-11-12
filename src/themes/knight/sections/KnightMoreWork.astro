@@ -1,5 +1,6 @@
 ---
 import type { KnightMoreProjectItem } from '../../core/data-adapter';
+import { renderKnightMoreWork } from '../../core/render-knight';
 
 interface Props {
   moreProjects?: KnightMoreProjectItem[];
@@ -8,48 +9,23 @@ interface Props {
 const { moreProjects = [] } = Astro.props;
 ---
 
-{moreProjects.length > 0 && (
-  <section class="kn-sec kn-more" id="more-work" data-kn-s="work" aria-labelledby="kn-h-more">
-    <h2
-      id="kn-h-more"
-      class="kn-asc"
-      data-kn-t="ribbon"
-      data-ld={"MORE\nPROJECTS"}
-      data-lm={"MORE\nPROJECTS"}
-      style="--kd:8.640;--ld:1;--km:5.340;--lm:2"
-    >
-      More projects
-    </h2>
+<section
+  class={`kn-sec kn-more ${moreProjects.length > 0 ? '' : 'hidden'}`}
+  id="more-work"
+  data-kn-s="work"
+  data-kn-more-sec="true"
+  aria-labelledby="kn-h-more"
+>
+  <h2
+    id="kn-h-more"
+    class="kn-asc"
+    data-kn-t="ribbon"
+    data-ld={"MORE\nPROJECTS"}
+    data-lm={"MORE\nPROJECTS"}
+    style="--kd:8.640;--ld:1;--km:5.340;--lm:2"
+  >
+    More projects
+  </h2>
 
-    <ol class="kn-list">
-      {moreProjects.map((item, idx) => (
-        <li
-          class="kn-row"
-          data-kn-r="row"
-          data-kn-ri={idx}
-          data-kn-rg={item.glyphs}
-          data-kn-rs={item.step}
-          data-kn-occ="true"
-        >
-          <span class="kn-row-n">{item.name}</span>
-          <span class="kn-row-m">
-            {item.language ? `${item.language} ` : ''}
-            {item.stars > 0 ? `· ${item.stars}★` : ''}
-          </span>
-          {item.link && (
-            <a
-              class="kn-br kn-row-a"
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${item.name} (opens ${item.link.replace(/^https?:\/\//, '')})`}
-            >
-              repo
-            </a>
-          )}
-          <span class="kn-row-d">{item.description}</span>
-        </li>
-      ))}
-    </ol>
-  </section>
-)}
+  <ol class="kn-list" data-kn-more-list="true" set:html={renderKnightMoreWork(moreProjects)} />
+</section>

@@ -6,13 +6,13 @@ interface Props {
   name?: string;
 }
 const { name = 'Nguyen Thanh Quan' } = Astro.props;
-
+const brandHandle = (name || 'nguyen.thanh.quan').toLowerCase().trim().replace(/\s+/g, '.');
 const career = getCareerSettings(portfolioData);
 const showCv = career.openToWork === true && Boolean(career.cvUrl);
 ---
 
 <nav class="kn-nav kn-veil" aria-label="Sections" data-kn-nav="true">
-  <a href="#top" class="kn-nav-n" aria-label={name}>nguyen.thanh.quan</a>
+  <a href="#top" class="kn-nav-n" aria-label={name}>{brandHandle}</a>
   <div class="kn-nav-r">
     <ol class="kn-nav-l">
       <li><a href="#about" data-kn-nk="about">about</a></li>

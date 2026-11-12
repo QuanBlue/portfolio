@@ -1,17 +1,19 @@
 ---
 import KnightFooter from '../components/KnightFooter.astro';
 import type { KnightProfileData } from '../../core/data-adapter';
+import { safeUrl } from '../../../lib/render';
 
 interface Props {
   profile: KnightProfileData;
 }
 
 const { profile } = Astro.props;
+const shortName = (profile.name || 'Quan').split(/\s+/).slice(-1)[0] || 'Quan';
 ---
 
 <section class="kn-sec kn-end" id="contact" data-kn-s="contact" aria-labelledby="kn-h-contact">
   <div class="kn-end-box">
-    <p class="kn-k">Write to Nguyen</p>
+    <p class="kn-k" data-kn-contact-k="true">Write to {shortName}</p>
     <h2
       id="kn-h-contact"
       class="kn-asc kn-talk"
@@ -24,15 +26,15 @@ const { profile } = Astro.props;
     </h2>
 
     <p class="kn-links" data-kn-r="links" data-kn-occ="true">
-      <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer">github</a>
+      <a data-kn-contact-github="true" href={safeUrl(profile.githubUrl)} target="_blank" rel="noopener noreferrer">github</a>
       <span> · </span>
-      <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer">linkedin</a>
+      <a data-kn-contact-linkedin="true" href={safeUrl(profile.linkedinUrl)} target="_blank" rel="noopener noreferrer">linkedin</a>
       <span> · </span>
-      <a href={`mailto:${profile.email}`}>email</a>
+      <a data-kn-contact-email="true" href={`mailto:${profile.email}`}>email</a>
     </p>
 
     <div class="kn-form" data-kn-occ="box">
-      <p class="kn-form-k">or leave Nguyen a note here</p>
+      <p class="kn-form-k">or leave a note here</p>
       <form class="space-y-3" id="knight-contact-form" action={`mailto:${profile.email}`} method="POST" enctype="text/plain">
         <input type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" name="company" />
         <div class="grid gap-3 sm:grid-cols-2">

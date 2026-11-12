@@ -56,20 +56,8 @@ const navSections = [
     <!-- Sliding Active Tab Indicator (for Editorial theme) -->
     <span id="tab-indicator" class="tab-indicator hidden" aria-hidden="true"></span>
 
-    <!-- Right Controls: Theme Variant Switcher, Blog, Admin, Light/Dark, Contact CTA -->
+    <!-- Right Controls: Language Switcher, Blog, Admin, Light/Dark Color Mode, Contact CTA -->
     <div class="flex items-center gap-1.5 shrink-0">
-      <!-- Quick Theme Variant Switcher Pill -->
-      <button
-        id="theme-variant-toggle"
-        type="button"
-        class="inline-flex h-8 items-center gap-1 px-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] font-mono text-[11px] text-[var(--muted-fg)] hover:border-[var(--signal)] hover:text-[var(--fg)] cursor-pointer transition"
-        title="Đổi giao diện: ASCII ⇄ Forkfolio ⇄ Editorial"
-        aria-label="Toggle portfolio layout style"
-      >
-        <span class="text-[var(--signal)]">❖</span>
-        <span id="theme-variant-label" class="font-semibold">ASCII</span>
-      </button>
-
       <!-- Global Language Switcher (EN | VI) -->
       <LanguageSwitcher variant="standard" />
 
@@ -87,7 +75,7 @@ const navSections = [
       <a
         href="/admin"
         id="hdr-admin-link"
-        title="Admin Dashboard (Quản trị & Đổi theme)"
+        title="Admin Dashboard"
         class={`inline-flex h-9 items-center gap-1.5 rounded-lg border px-2 sm:px-2.5 font-mono text-xs font-semibold transition ${
           currentPath.startsWith('/admin')
             ? 'border-[var(--signal)] bg-[var(--muted-bg)] text-[var(--signal)]'

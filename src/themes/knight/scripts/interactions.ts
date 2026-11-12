@@ -3,6 +3,8 @@
  * Coordinates cursor tracking, navigation spy, tooltips, and procedural hover glimmers
  */
 
+import { formatUtcDate } from '../../../lib/github-activity';
+import { getTranslations } from '../../../i18n/translate';
 import { initCharacterScramble } from './character-scramble';
 import { initMagneticElements } from './magnetic';
 
@@ -163,7 +165,7 @@ export function setupKnightInteractions(root: HTMLElement): () => void {
   updateNav();
   cleanups.push(() => window.removeEventListener('scroll', onNavScroll));
 
-  // 4. GitHub Contribution Calendar Tooltip
+  // 4. GitHub Contribution Calendar Tooltip (Delegated + Keyboard Accessible + Viewport-Clamped)
   let tooltip = document.querySelector<HTMLElement>('.kn-tooltip');
   if (!tooltip) {
     tooltip = document.createElement('div');
@@ -172,36 +174,76 @@ export function setupKnightInteractions(root: HTMLElement): () => void {
     document.body.appendChild(tooltip);
   }
 
-  const cells = root.querySelectorAll<HTMLElement>('.kn-cal-cell');
-  const calGrid = root.querySelector<HTMLElement>('[data-kn-cal]');
-  const heatmapStr = calGrid?.dataset.knCal || '';
+  function showCellTooltip(cell: HTMLElement) {
+    if (!tooltip) return;
+    const dateStr = cell.dataset.date;
+    if (!dateStr) return;
+    const rawCount = Number(cell.dataset.count || '0');
+    const count = Number.isFinite(rawCount) ? rawCount : 0;
+    const loc = document.documentElement.lang === 'vi' ? 'vi' : 'en';
+    const actDict = getTranslations(loc).activity!;
+    const numFmt = new Intl.NumberFormat(loc === 'vi' ? 'vi-VN' : 'en-US');
+    const countLabel =
+      count === 0
+        ? actDict.noContributions
+        : `${numFmt.format(count)} ${count === 1 ? actDict.contributionSingular : actDict.contributionPlural}`;
+    tooltip.textContent = `${countLabel} · ${formatUtcDate(dateStr, loc)}`;
 
-  cells.forEach((cell, idx) => {
-    const level = heatmapStr[idx] || '0';
-    cell.dataset.level = level;
+    const rect = cell.getBoundingClientRect();
+    const showBelow = rect.top < 48;
+    tooltip.classList.toggle('is-below', showBelow);
 
-    // Approximate date & contributions for tooltip
-    const weeksAgo = 52 - Math.floor(idx / 7);
-    const dayOfWeek = idx % 7;
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const count = level === '0' ? 0 : Number(level) * 3 + (idx % 4);
+    tooltip.classList.add('is-visible');
+    const tipWidth = tooltip.offsetWidth || 160;
+    const half = tipWidth / 2;
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+    const targetX = rect.left + rect.width / 2;
+    const clampedX = Math.max(half + 12, Math.min(vw - half - 12, targetX));
 
-    cell.addEventListener('mouseenter', () => {
-      if (!tooltip) return;
-      const rect = cell.getBoundingClientRect();
-      const countLabel = count === 0 ? 'No contributions' : `${count} contributions`;
-      tooltip.textContent = `${countLabel} · ${weeksAgo}w ago (${dayNames[dayOfWeek]})`;
-      tooltip.style.left = `${rect.left + rect.width / 2}px`;
-      tooltip.style.top = `${rect.top}px`;
-      tooltip.classList.add('is-visible');
-    });
+    tooltip.style.left = `${clampedX.toFixed(1)}px`;
+    tooltip.style.top = `${(showBelow ? rect.bottom : rect.top).toFixed(1)}px`;
+  }
 
-    cell.addEventListener('mouseleave', () => {
-      if (tooltip) tooltip.classList.remove('is-visible');
-    });
-  });
+  function hideCellTooltip() {
+    if (tooltip) tooltip.classList.remove('is-visible');
+  }
+
+  function onRootPointerOver(e: MouseEvent) {
+    const cell = (e.target as HTMLElement | null)?.closest<HTMLElement>('.kn-cal-cell');
+    if (cell) showCellTooltip(cell);
+  }
+
+  function onRootPointerOut(e: MouseEvent) {
+    const cell = (e.target as HTMLElement | null)?.closest<HTMLElement>('.kn-cal-cell');
+    if (cell) hideCellTooltip();
+  }
+
+  function onRootFocusIn(e: FocusEvent) {
+    const cell = (e.target as HTMLElement | null)?.closest<HTMLElement>('.kn-cal-cell');
+    if (cell) showCellTooltip(cell);
+  }
+
+  function onRootFocusOut(e: FocusEvent) {
+    const cell = (e.target as HTMLElement | null)?.closest<HTMLElement>('.kn-cal-cell');
+    if (cell) hideCellTooltip();
+  }
+
+  function onTooltipEscape(e: KeyboardEvent) {
+    if (e.key === 'Escape') hideCellTooltip();
+  }
+
+  root.addEventListener('mouseover', onRootPointerOver);
+  root.addEventListener('mouseout', onRootPointerOut);
+  root.addEventListener('focusin', onRootFocusIn);
+  root.addEventListener('focusout', onRootFocusOut);
+  document.addEventListener('keydown', onTooltipEscape);
 
   cleanups.push(() => {
+    root.removeEventListener('mouseover', onRootPointerOver);
+    root.removeEventListener('mouseout', onRootPointerOut);
+    root.removeEventListener('focusin', onRootFocusIn);
+    root.removeEventListener('focusout', onRootFocusOut);
+    document.removeEventListener('keydown', onTooltipEscape);
     if (tooltip && tooltip.parentNode) tooltip.parentNode.removeChild(tooltip);
   });
 

@@ -1,7 +1,10 @@
 ---
+import { portfolioData } from '../../../data/portfolio';
+import { deriveShortHandle } from '../forkfolio-renderers';
 // TerminalStatusBar.astro — Elevated Persistent Terminal Status & Segmented Progress Rail
 // Conforms to Forkfolio Modern Mono single-terminal application frame with prominent visual hierarchy
 const cellCount = 24;
+const shellHandle = deriveShortHandle(portfolioData);
 ---
 
 <div
@@ -23,7 +26,7 @@ const cellCount = 24;
 
       <!-- Terminal Session Identity Pill -->
       <span class="hidden md:inline-flex items-center gap-1 text-xs text-[var(--fg)] font-semibold px-2 py-0.5 rounded bg-[var(--card)]/90 border border-[var(--border)] shadow-xs">
-        <span class="text-[var(--signal)]">quanblue</span>@portfolio:<span class="text-[var(--signal)]">~</span>
+        <span class="text-[var(--signal)]" data-ff-shell-handle>{shellHandle}</span>@portfolio:<span class="text-[var(--signal)]">~</span>
       </span>
     </div>
 

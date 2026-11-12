@@ -1,5 +1,7 @@
 ---
 import TerminalCursor from './TerminalCursor.astro';
+import { portfolioData } from '../../../data/portfolio';
+import { deriveShortHandle } from '../forkfolio-renderers';
 
 interface Props {
   user?: string;
@@ -14,8 +16,9 @@ interface Props {
   id?: string;
 }
 
+const defaultUser = deriveShortHandle(portfolioData);
 const {
-  user = 'quan',
+  user = defaultUser,
   host = 'portfolio',
   path = '~',
   command,
@@ -42,7 +45,7 @@ const {
     <svg class="size-2.5 inline-block text-[var(--signal)] fill-current" viewBox="0 0 6 10" aria-hidden="true">
       <path d="M1.3 2.2 4.6 5 1.3 7.8"></path>
     </svg>
-    <span>{user}@{host}</span>
+    <span data-ff-shell-prompt>{user}@{host}</span>
     <span class="text-[var(--muted-fg)] font-normal">:</span>
     <span class="text-[var(--primary)] font-semibold">{path}</span>
     <span class="text-[var(--muted-fg)] font-normal">{promptSymbol}</span>

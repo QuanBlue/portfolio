@@ -1,12 +1,16 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, getCareerSettings } from '../../data/portfolio';
 import { renderAvatar, safeUrl } from '../../lib/render';
+import { deriveShortHandle, renderForkfolioQuickProjectsHtml } from './forkfolio-renderers';
 import TerminalPrompt from './terminal/TerminalPrompt.astro';
 import TerminalStatus from './terminal/TerminalStatus.astro';
 import './terminal/terminal.css';
 
-const { identity, telemetry, projects } = portfolioData;
-const quickProjects = projects.slice(0, 3);
+const { identity, projects, skills, experience } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const showCv = career.openToWork && Boolean(career.cvUrl);
+const currentCompany = experience[0]?.company ?? '';
+const shortHandle = deriveShortHandle(portfolioData);
 ---
 
 <section id="top" class="relative pt-10 pb-16 sm:pt-16 sm:pb-24 border-b border-[var(--border)] overflow-hidden" data-terminal-section="hero" data-terminal-state="ready">
@@ -21,8 +25,8 @@ const quickProjects = projects.slice(0, 3);
     <div class="ff-hero-boot pb-6 mb-6 border-b border-[var(--border)]/70">
       <TerminalStatus
         lines={[
-          { status: 'OK', text: 'Loaded profile', target: 'quanblue' },
-          { status: 'OK', text: 'Started session', target: 'quanblue@portfolio' },
+          { status: 'OK', text: 'Loaded profile', target: shortHandle, bindTarget: 'handle' },
+          { status: 'OK', text: 'Started session', target: `${shortHandle}@portfolio`, bindTarget: 'prompt' },
         ]}
       />
     </div>
@@ -33,7 +37,7 @@ const quickProjects = projects.slice(0, 3);
         <!-- 1. Primary Command Prompt: whoami -->
         <TerminalPrompt
           command="whoami"
-          user="quan"
+          user={shortHandle}
           host="portfolio"
           path="~"
           typeSpeed={35}
@@ -50,7 +54,7 @@ const quickProjects = projects.slice(0, 3);
             </h1>
             <p class="font-mono text-base sm:text-xl font-bold text-[var(--signal)] tracking-tight">
               <span data-bind="role">{identity.role}</span>
-              <span class="text-[var(--muted-fg)] font-medium"> @ Viettel · High-Availability &amp; Supply Chain Security</span>
+              <span data-bind-company data-company-prefix=" @ " class={`text-[var(--muted-fg)] font-medium ${currentCompany ? '' : 'hidden'}`}>{currentCompany ? ` @ ${currentCompany}` : ''}</span>
             </p>
           </div>
 
@@ -70,7 +74,8 @@ const quickProjects = projects.slice(0, 3);
             <button
               type="button"
               data-open-cv="1"
-              class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 cursor-pointer"
+              data-cv-gate
+              class={`ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 cursor-pointer ${showCv ? '' : 'hidden'}`}
             >
               <i class="fa-regular fa-file-lines text-xs"></i>
               <span>[ view_cv.pdf ]</span>
@@ -83,7 +88,7 @@ const quickProjects = projects.slice(0, 3);
               class="ff-btn"
             >
               <i class="fa-brands fa-github text-xs"></i>
-              <span>[ github ↗ ]</span>
+              <span>[ github: <span data-bind-handle="github">{identity.github.handle}</span> ↗ ]</span>
             </a>
             <a
               data-bind="linkedin"
@@ -93,7 +98,7 @@ const quickProjects = projects.slice(0, 3);
               class="ff-btn"
             >
               <i class="fa-brands fa-linkedin text-xs"></i>
-              <span>[ linkedin ↗ ]</span>
+              <span>[ linkedin: <span data-bind-handle="linkedin">{identity.linkedin.handle}</span> ↗ ]</span>
             </a>
           </div>
 
@@ -104,40 +109,21 @@ const quickProjects = projects.slice(0, 3);
               <span class="text-[var(--fg)] font-semibold">ls -t ~/projects | head -3</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-mono text-xs">
-              {quickProjects.map((qp, idx) => (
-                <a
-                  href={`#projects`}
-                  class="p-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] hover:border-[var(--signal)] transition group flex flex-col justify-between"
-                >
-                  <div class="flex items-center justify-between">
-                    <span class="font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors truncate">
-                      {qp.title}
-                    </span>
-                    <span class="text-[10px] text-[var(--signal)] font-semibold">0{idx + 1}</span>
-                  </div>
-                  <span class="text-[10px] text-[var(--muted-fg)] mt-1 truncate">
-                    {qp.tags[0] || 'DevOps'} · {qp.status}
-                  </span>
-                </a>
-              ))}
-            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-mono text-xs" data-ff-quick-projects set:html={renderForkfolioQuickProjectsHtml(projects)} />
           </div>
 
-          <!-- System Telemetry Ticker -->
+          <!-- System Session Ticker (Factual Published Portfolio State Only) -->
           <div class="pt-3 border-t border-[var(--border)] flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[11px] text-[var(--muted-fg)]">
             <span class="inline-flex items-center gap-1.5 text-[var(--signal)] font-semibold">
               <span class="size-1.5 rounded-full bg-[var(--signal)] animate-pulse"></span>
-              CLUSTER: ONLINE
+              SESSION: ACTIVE
             </span>
-            <span>·</span>
-            <span>SLA: <strong class="text-[var(--fg)]">{telemetry.uptimeSLA}</strong></span>
             <span>·</span>
             <span>NODE: <strong class="text-[var(--fg)]" data-bind="node">{identity.node}</strong></span>
             <span>·</span>
-            <span>IP: <strong class="text-[var(--fg)]" data-bind="ip">{identity.ip}</strong></span>
+            <span>PROJECTS: <strong class="text-[var(--fg)]" data-ff-stat="projects">{projects.length}</strong></span>
             <span>·</span>
-            <span class="hidden sm:inline">SUPPLY CHAIN: <strong class="text-[var(--signal)]">TRIVY + SBOM + COSIGN</strong></span>
+            <span>SKILLS: <strong class="text-[var(--signal)]" data-ff-stat="skills">{skills.length}</strong></span>
           </div>
         </div>
       </div>
@@ -154,7 +140,7 @@ const quickProjects = projects.slice(0, 3);
           <!-- Header info on avatar plate -->
           <div class="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border)] font-mono text-[11px] text-[var(--muted-fg)]">
             <span class="font-bold text-[var(--fg)]">[ PROFILE_NODE ]</span>
-            <span class="text-[var(--signal)] font-semibold">● ACTIVE</span>
+            <span class="text-[var(--signal)] font-semibold">● PUBLISHED</span>
           </div>
 
           <!-- Avatar Image -->
@@ -172,7 +158,7 @@ const quickProjects = projects.slice(0, 3);
               <i class="fa-solid fa-location-dot text-[var(--signal)] text-[10px]"></i>
               <span data-bind="location" class="truncate">{identity.location}</span>
             </div>
-            <span class="text-[10px] text-[var(--faint)]">VN_SRE_01</span>
+            <span class="text-[10px] text-[var(--faint)]" data-ff-handle-tag>{`@${shortHandle}`}</span>
           </div>
         </div>
       </div>

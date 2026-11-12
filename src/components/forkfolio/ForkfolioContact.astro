@@ -1,8 +1,12 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, getCareerSettings } from '../../data/portfolio';
 import { safeUrl } from '../../lib/render';
+import { deriveShortHandle } from './forkfolio-renderers';
 import TerminalPrompt from './terminal/TerminalPrompt.astro';
 const { identity } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const showCv = career.openToWork && Boolean(career.cvUrl);
+const shortHandle = deriveShortHandle(portfolioData);
 ---
 
 <section
@@ -14,8 +18,8 @@ const { identity } = portfolioData;
     <!-- Command Introduction -->
     <div class="space-y-2">
       <TerminalPrompt
-        command="mail quanblue"
-        user="quan"
+        command={`mail ${shortHandle}`}
+        user={shortHandle}
         host="portfolio"
         path="~"
         typeSpeed={28}
@@ -27,15 +31,13 @@ const { identity } = portfolioData;
           LET'S TALK.
         </h2>
         <span class="font-mono text-xs text-[var(--muted-fg)]">
-          [07] ~/mail · <span class="text-[var(--signal)]">To: {identity.name}</span>
+          [07] ~/mail · <span class="text-[var(--signal)]" data-ff-contact-to>To: {identity.name}</span>
         </span>
       </div>
       <p
         class="text-sm sm:text-base text-[var(--muted-fg)] max-w-xl font-mono ff-contact-sub"
-        data-en="Open for high-impact DevOps, SRE, and Cloud Native Infrastructure engineering opportunities."
-        data-vi="Luôn sẵn sàng trao đổi về kiến trúc Kubernetes HA, hạ tầng mạng Linux vật lý hoặc cơ hội hợp tác mới."
       >
-        Open for high-impact DevOps, SRE, and Cloud Native Infrastructure engineering opportunities.
+        Open to discuss infrastructure engineering, automation, and new collaborations.
       </p>
     </div>
 
@@ -57,12 +59,13 @@ const { identity } = portfolioData;
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <a
             data-bind="email"
+            data-bind-keep-text="true"
             href={`mailto:${identity.email}`}
             class="p-5 rounded-xl border border-[var(--border)] bg-[var(--muted-bg)]/40 hover:border-[var(--signal)] hover:bg-[var(--muted-bg)] transition group flex items-start justify-between"
           >
             <div>
               <span class="font-mono text-xs text-[var(--signal)] block mb-1">[ DIRECT_EMAIL ]</span>
-              <span class="font-mono text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
+              <span data-ff-email-display class="font-mono text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
                 {identity.email}
               </span>
             </div>
@@ -79,7 +82,7 @@ const { identity } = portfolioData;
             <div>
               <span class="font-mono text-xs text-[var(--signal)] block mb-1">[ PROFESSIONAL_NETWORK ]</span>
               <span class="font-mono text-sm sm:text-base font-bold text-[var(--fg)] group-hover:text-[var(--signal)] transition-colors">
-                LinkedIn ({identity.linkedin.handle})
+                LinkedIn (<span data-bind-handle="linkedin">{identity.linkedin.handle}</span>)
               </span>
             </div>
             <span class="font-mono text-xs text-[var(--muted-fg)] group-hover:translate-x-1 transition-transform">↗</span>
@@ -90,13 +93,14 @@ const { identity } = portfolioData;
       <!-- Message Composer -->
       <div class="pt-4 border-t border-[var(--border)] space-y-4">
         <div class="font-mono text-xs text-[var(--muted-fg)] flex items-center justify-between">
-          <span class="ff-form-note" data-en="// DISPATCH A DIRECT MESSAGE" data-vi="// GỬI TIN NHẮN TRỰC TIẾP">
+          <span class="ff-form-note">
             // DISPATCH A DIRECT MESSAGE
           </span>
-          <span class="text-[11px] text-[var(--signal)] font-mono">mail daemon ready</span>
+          <span class="text-[11px] text-[var(--signal)] font-mono">mailto dispatch</span>
         </div>
 
         <form
+          data-ff-contact-form
           action={`mailto:${identity.email}`}
           method="POST"
           enctype="text/plain"
@@ -164,7 +168,8 @@ const { identity } = portfolioData;
         <button
           type="button"
           data-open-cv="1"
-          class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 cursor-pointer"
+          data-cv-gate
+          class={`ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 cursor-pointer ${showCv ? '' : 'hidden'}`}
         >
           <i class="fa-regular fa-file-lines text-xs"></i>
           <span>[ view_cv_document ]</span>
@@ -178,52 +183,9 @@ const { identity } = portfolioData;
           class="ff-btn"
         >
           <i class="fa-brands fa-github text-xs"></i>
-          <span>[ github: @QuanBlue ↗ ]</span>
+          <span>[ github: <span data-bind-handle="github">{identity.github.handle}</span> ↗ ]</span>
         </a>
       </div>
     </div>
   </div>
 </section>
-
-<script is:inline>
-  (function () {
-    function updateContactLocale(locale) {
-      var isVi = locale === 'vi';
-      var heading = document.querySelector('.ff-contact-heading');
-      if (heading) heading.textContent = isVi ? 'KẾT NỐI NGAY.' : "LET'S TALK.";
-
-      var sub = document.querySelector('.ff-contact-sub');
-      if (sub) {
-        var text = isVi ? sub.getAttribute('data-vi') : sub.getAttribute('data-en');
-        if (text) sub.textContent = text;
-      }
-
-      var note = document.querySelector('.ff-form-note');
-      if (note) {
-        var text = isVi ? note.getAttribute('data-vi') : note.getAttribute('data-en');
-        if (text) note.textContent = text;
-      }
-
-      var lblName = document.querySelector('.ff-lbl-name');
-      if (lblName) lblName.textContent = isVi ? 'Họ & Tên' : 'Name';
-      var lblEmail = document.querySelector('.ff-lbl-email');
-      if (lblEmail) lblEmail.textContent = isVi ? 'Email liên hệ' : 'Email';
-      var lblMsg = document.querySelector('.ff-lbl-msg');
-      if (lblMsg) lblMsg.textContent = isVi ? 'Nội dung trao đổi' : 'Message';
-
-      var btnSend = document.querySelector('.ff-btn-send');
-      if (btnSend) {
-        var text = isVi ? btnSend.getAttribute('data-vi') : btnSend.getAttribute('data-en');
-        if (text) btnSend.textContent = text;
-      }
-    }
-
-    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
-    updateContactLocale(initialLoc);
-
-    window.addEventListener('locale:changed', function (e) {
-      var loc = (e && e.detail && e.detail.locale) || 'en';
-      updateContactLocale(loc);
-    });
-  })();
-</script>

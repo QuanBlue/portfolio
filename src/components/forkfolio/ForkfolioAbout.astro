@@ -1,7 +1,11 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, getCareerSettings } from '../../data/portfolio';
+import { deriveShortHandle, renderForkfolioAboutSummaryHtml } from './forkfolio-renderers';
 import TerminalPrompt from './terminal/TerminalPrompt.astro';
-const { identity } = portfolioData;
+const { identity, projects, skills, experience } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const currentCompany = experience[0]?.company ?? '';
+const shortHandle = deriveShortHandle(portfolioData);
 ---
 
 <section
@@ -14,7 +18,7 @@ const { identity } = portfolioData;
     <div class="space-y-2">
       <TerminalPrompt
         command="cat ~/about.md"
-        user="quan"
+        user={shortHandle}
         host="portfolio"
         path="~"
         typeSpeed={28}
@@ -33,99 +37,21 @@ const { identity } = portfolioData;
 
     <!-- Output Content (Reveals after command typing) -->
     <div class="ff-term-output grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-      <!-- Left Narrative Story (lg:col-span-7) -->
+      <!-- Left Narrative & Summary (lg:col-span-7) -->
       <div class="lg:col-span-7 space-y-5 text-sm sm:text-base text-[var(--muted-fg)] leading-relaxed font-mono">
         <p class="text-base sm:text-lg text-[var(--fg)] font-medium font-mono">
-          <span
-            class="ff-about-lead"
-            data-en="Graduating in Computer Networks and Distributed Systems, I built my career from managing on-premise Linux environments to working as a DevOps &amp; Infrastructure Engineer at Viettel."
-            data-vi="Tốt nghiệp chuyên ngành Mạng máy tính và Hệ thống Phân tán, mình xây dựng sự nghiệp từ quản trị hệ thống Linux nội bộ trước khi đảm nhận vai trò Kỹ sư DevOps tại Viettel."
-          >
-            Graduating in Computer Networks and Distributed Systems, I built my career from managing on-premise Linux environments to working as a DevOps &amp; Infrastructure Engineer at Viettel.
-          </span>
+          &gt; <span data-bind="role">{identity.role}</span> <span data-bind-company data-company-prefix="@ " class={`text-[var(--signal)] font-bold ${currentCompany ? '' : 'hidden'}`}>{currentCompany ? `@ ${currentCompany}` : ''}</span>
         </p>
 
-        <p>
-          <span
-            class="ff-about-p1"
-            data-en="My core strength lies in bridging physical bare-metal infrastructure (Linux Kernel tuning, L4/L7 load balancing, Keepalived/HAProxy) with cloud-native automation platforms (Kubernetes, Ansible, Jenkins CI/CD, and Prometheus observability)."
-            data-vi="Điểm mạnh cốt lõi của mình là khả năng kết hợp sâu rộng giữa hạ tầng vật lý (Linux Kernel, cấu hình mạng L4/L7, HAProxy/Keepalived) và nền tảng Cloud-Native tự động hóa (Kubernetes, Ansible, CI/CD Jenkins, Prometheus)."
-          >
-            My core strength lies in bridging physical bare-metal infrastructure (Linux Kernel tuning, L4/L7 load balancing, Keepalived/HAProxy) with cloud-native automation platforms (Kubernetes, Ansible, Jenkins CI/CD, and Prometheus observability).
-          </span>
+        <p data-bind="bio" class="whitespace-pre-line">
+          {identity.bio}
         </p>
 
-        <p>
-          <span
-            class="ff-about-p2"
-            data-en="Every infrastructure architecture I design targets Zero Single-Point-of-Failure (Zero SPOF), 100% automated deployment in air-gapped environments, and automated supply-chain security from the very first commit."
-            data-vi="Mọi kiến trúc mình thiết kế đều hướng đến mục tiêu: Zero Single-Point-of-Failure (Zero SPOF), tự động hóa 100% quy trình triển khai trong môi trường biệt lập và bảo mật chuỗi cung ứng phần mềm ngay từ bước commit đầu tiên."
-          >
-            Every infrastructure architecture I design targets <strong class="text-[var(--fg)]">Zero Single-Point-of-Failure (Zero SPOF)</strong>, 100% automated deployment in air-gapped environments, and automated supply-chain security from the very first commit.
-          </span>
-        </p>
-
-        <!-- 4 Architecture Pillars -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
-            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
-              <i class="fa-solid fa-server text-[var(--signal)]"></i>
-              <span>01. HA Platform</span>
-            </div>
-            <p
-              class="text-xs text-[var(--muted-fg)] ff-pillar-1"
-              data-en="High-availability multi-master K8s clusters, Keepalived/HAProxy with zero single point of failure."
-              data-vi="Cụm K8s multi-master chịu lỗi cao, Keepalived/HAProxy không điểm nghẽn đơn lẻ."
-            >
-              High-availability multi-master K8s clusters, Keepalived/HAProxy with zero single point of failure.
-            </p>
-          </div>
-
-          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
-            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
-              <i class="fa-solid fa-code text-[var(--signal)]"></i>
-              <span>02. Air-Gapped IaC</span>
-            </div>
-            <p
-              class="text-xs text-[var(--muted-fg)] ff-pillar-2"
-              data-en="Automated Ansible Playbooks deployed seamlessly in completely isolated air-gapped datacenters."
-              data-vi="Ansible Playbooks triển khai 100% tự động trong môi trường biệt lập không có internet."
-            >
-              Automated Ansible Playbooks deployed seamlessly in completely isolated air-gapped datacenters.
-            </p>
-          </div>
-
-          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
-            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
-              <i class="fa-solid fa-shield-halved text-[var(--signal)]"></i>
-              <span>03. DevSecOps Supply Chain</span>
-            </div>
-            <p
-              class="text-xs text-[var(--muted-fg)] ff-pillar-3"
-              data-en="Trivy vulnerability scanning, automated SBOM generation, image signing and verification."
-              data-vi="Quét Trivy, sinh SBOM tự động, ký số &amp; xác thực Image trước khi deploy vào cụm."
-            >
-              Trivy vulnerability scanning, automated SBOM generation, image signing and verification.
-            </p>
-          </div>
-
-          <div class="ff-panel p-4 space-y-1.5 border-[var(--border)]">
-            <div class="font-mono text-xs font-bold text-[var(--fg)] flex items-center gap-2">
-              <i class="fa-solid fa-chart-line text-[var(--signal)]"></i>
-              <span>04. Observability &amp; SRE</span>
-            </div>
-            <p
-              class="text-xs text-[var(--muted-fg)] ff-pillar-4"
-              data-en="Prometheus, Grafana, Alertmanager &amp; ELK stack for 24/7 proactive monitoring."
-              data-vi="Prometheus, Grafana, Alertmanager &amp; ELK Stack giám sát toàn diện 24/7."
-            >
-              Prometheus, Grafana, Alertmanager &amp; ELK stack for 24/7 proactive monitoring.
-            </p>
-          </div>
-        </div>
+        <!-- 4 Data-Driven Terminal Summary Panels -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4" data-ff-about-summary set:html={renderForkfolioAboutSummaryHtml(portfolioData, 'en')} />
       </div>
 
-      <!-- Right Infrastructure Fact Sheet Table (lg:col-span-5) -->
+      <!-- Right Published Specification Sheet Table (lg:col-span-5) -->
       <div class="lg:col-span-5">
         <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4 shadow-sm">
           <span class="ff-cross-tl">+</span>
@@ -137,37 +63,39 @@ const { identity } = portfolioData;
             <h3 class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--fg)]">
               // SPECIFICATION_DATA
             </h3>
-            <span class="font-mono text-[11px] text-[var(--signal)] font-semibold">● VERIFIED</span>
+            <span class="font-mono text-[11px] text-[var(--signal)] font-semibold" data-ff-about="badge">
+              {career.openToWork ? '● OPEN TO WORK' : '● PUBLISHED'}
+            </span>
           </div>
 
           <dl class="divide-y divide-[var(--border)] font-mono text-xs">
+            <div class="py-2.5 flex justify-between gap-4">
+              <dt class="text-[var(--muted-fg)]">Name</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right" data-ff-about="name">{identity.name}</dd>
+            </div>
             <div class="py-2.5 flex justify-between gap-4">
               <dt class="text-[var(--muted-fg)]">Role</dt>
               <dd class="text-[var(--fg)] font-semibold text-right" data-bind="role">{identity.role}</dd>
             </div>
             <div class="py-2.5 flex justify-between gap-4">
               <dt class="text-[var(--muted-fg)]">Organization</dt>
-              <dd class="text-[var(--fg)] font-semibold text-right">Viettel Group</dd>
+              <dd class="text-[var(--fg)] font-semibold text-right" data-ff-about="org">{currentCompany || '—'}</dd>
             </div>
             <div class="py-2.5 flex justify-between gap-4">
               <dt class="text-[var(--muted-fg)]">Location</dt>
               <dd class="text-[var(--fg)] font-semibold text-right" data-bind="location">{identity.location}</dd>
             </div>
             <div class="py-2.5 flex justify-between gap-4">
-              <dt class="text-[var(--muted-fg)]">Architecture</dt>
-              <dd class="text-[var(--fg)] font-semibold text-right">Bare-metal / Multi-zone HA</dd>
+              <dt class="text-[var(--muted-fg)]">Node</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right" data-bind="node">{identity.node}</dd>
             </div>
             <div class="py-2.5 flex justify-between gap-4">
-              <dt class="text-[var(--muted-fg)]">CI/CD Engine</dt>
-              <dd class="text-[var(--fg)] font-semibold text-right">Jenkins (Trivy + SBOM + Cosign)</dd>
+              <dt class="text-[var(--muted-fg)]">Projects / Skills</dt>
+              <dd class="text-[var(--fg)] font-semibold text-right" data-ff-about="projectsSkills">{`${projects.length} / ${skills.length}`}</dd>
             </div>
             <div class="py-2.5 flex justify-between gap-4">
-              <dt class="text-[var(--muted-fg)]">IaC Platform</dt>
-              <dd class="text-[var(--fg)] font-semibold text-right">Ansible Core</dd>
-            </div>
-            <div class="py-2.5 flex justify-between gap-4">
-              <dt class="text-[var(--muted-fg)]">Availability SLA</dt>
-              <dd class="text-[var(--signal)] font-bold text-right">99.9% Zero-Downtime</dd>
+              <dt class="text-[var(--muted-fg)]">Career Status</dt>
+              <dd class="text-[var(--signal)] font-bold text-right" data-ff-about="careerStatus">{career.openToWork ? 'Open to Work' : 'Focused'}</dd>
             </div>
           </dl>
         </div>
@@ -175,27 +103,3 @@ const { identity } = portfolioData;
     </div>
   </div>
 </section>
-
-<script is:inline>
-  (function () {
-    function updateAboutLocale(locale) {
-      var isVi = locale === 'vi';
-      var els = document.querySelectorAll('#about [data-en]');
-      els.forEach(function (el) {
-        var text = isVi ? el.getAttribute('data-vi') : el.getAttribute('data-en');
-        if (text) el.innerHTML = text;
-      });
-
-      var heading = document.querySelector('.ff-about-heading');
-      if (heading) heading.textContent = isVi ? 'GIỚI THIỆU' : 'ABOUT';
-    }
-
-    var initialLoc = localStorage.getItem('portfolio-locale') === 'vi' ? 'vi' : 'en';
-    updateAboutLocale(initialLoc);
-
-    window.addEventListener('locale:changed', function (e) {
-      var loc = (e && e.detail && e.detail.locale) || 'en';
-      updateAboutLocale(loc);
-    });
-  })();
-</script>

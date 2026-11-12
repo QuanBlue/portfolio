@@ -33,6 +33,11 @@ jobs:
       - name: Execute Automated Tests
         run: npm run test
 
+      - name: Sync Configured GitHub Activity Snapshot
+        run: node scripts/sync-github-activity.mjs --keep-existing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Static Site (Astro SSG)
         run: npm run build
         env:

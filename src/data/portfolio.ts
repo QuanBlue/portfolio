@@ -1,3 +1,5 @@
+import type { ActivitySourceType, ContributionDay } from '../lib/github-activity';
+
 export interface Identity {
   name: string;
   role: string;
@@ -22,14 +24,33 @@ export interface Identity {
   };
   bio: string;
   bio_vi?: string;
-  /** Avatar image (data URL or path). Optional. */
+  /** Avatar image (data URL or public storage URL). Optional. */
   avatar?: string;
+  /** Revision timestamp/hash updated when avatar changes so caches invalidate cleanly. */
+  avatarUpdatedAt?: string;
   /** Optional CV / Resume PDF URL or uploaded file URL. */
   cvUrl?: string;
   /** Open to Work availability status. When true and cvUrl is available, public CV action is shown. */
   openToWork?: boolean;
   /** Active theme layout: 'ascii' (Forkfolio ASCII Art) | 'knight' (Forkfolio Minimalist) | 'editorial' (DevOps 3D) | 'forkfolio' (Modern Mono) */
   themeVariant?: 'forkfolio' | 'editorial' | 'ascii' | 'knight';
+}
+
+export interface ActivityConfig {
+  enabled: boolean;
+  username?: string;
+  source?: ActivitySourceType;
+  fetchedAt?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  days?: ContributionDay[];
+  weeks?: number;
+  heatmapString?: string;
+  totalContributions?: string;
+  activeDays?: number;
+  longestStreak?: string;
+  busiestDay?: string;
+  months?: { name: string; index: number; offset: number; isOld?: boolean }[];
 }
 
 export interface CareerSettings {
@@ -173,6 +194,21 @@ export interface PortfolioData {
   gallery: GalleryItem[];
   appearance?: AppearanceConfig;
   careerSettings?: CareerSettings;
+  activity?: ActivityConfig;
+}
+
+/**
+ * Resolves the canonical published avatar URL safely without falling back to demo/meme images.
+ * Appends revision parameter only when `avatarUpdatedAt` is present on HTTP(S)/path URLs.
+ */
+export function resolveAvatarUrl(data?: Partial<PortfolioData> | null): string {
+  const raw = String(data?.identity?.avatar ?? '').trim();
+  if (!raw) return '';
+  if (!/^(https?:\/\/|\/|\.\/|data:image\/)/i.test(raw)) return '';
+  const rev = data?.identity?.avatarUpdatedAt ? String(data.identity.avatarUpdatedAt).trim() : '';
+  if (!rev || /^data:/i.test(raw)) return raw;
+  const sep = raw.includes('?') ? '&' : '?';
+  return `${raw}${sep}v=${encodeURIComponent(rev)}`;
 }
 
 export const defaultPortfolioData: PortfolioData = {
@@ -180,7 +216,7 @@ export const defaultPortfolioData: PortfolioData = {
     name: 'Nguyễn Thanh Quân',
     role: 'DevOps Engineer',
     role_vi: 'Kỹ sư DevOps',
-    avatar: 'https://ywjdrrmdnkdydeqprcib.supabase.co/storage/v1/object/public/portfolio/avatar/mw95dpo2-xvsbsl.jpg',
+    avatar: '',
     node: 'HCM-VNM-01',
     ip: '192.168.1.104',
     location: 'Ho Chi Minh, VN',
@@ -364,27 +400,52 @@ export function mergePortfolioData(
   override?: Partial<PortfolioData> | null,
 ): PortfolioData {
   if (!override) return base;
-  const mergedIdentity = { ...base.identity, ...(override.identity ?? {}) };
-  const mergedCareerSettings: CareerSettings = {
-    openToWork:
-      override.careerSettings?.openToWork ??
-      override.identity?.openToWork ??
-      base.careerSettings?.openToWork ??
-      base.identity?.openToWork ??
-      true,
-    cvUrl:
-      override.careerSettings?.cvUrl ??
-      override.identity?.cvUrl ??
-      base.careerSettings?.cvUrl ??
-      base.identity?.cvUrl ??
-      '/cv.pdf',
+  const mergedIdentity: Identity = {
+    ...base.identity,
+    ...(override.identity ?? {}),
   };
+
+  const hasCareerOpen = override.careerSettings && typeof override.careerSettings.openToWork === 'boolean';
+  const hasIdentOpen = override.identity && typeof override.identity.openToWork === 'boolean';
+  const resolvedOpen = hasCareerOpen
+    ? Boolean(override.careerSettings!.openToWork)
+    : hasIdentOpen
+      ? Boolean(override.identity!.openToWork)
+      : Boolean(base.careerSettings?.openToWork ?? base.identity?.openToWork ?? true);
+
+  const hasCareerCv = override.careerSettings && 'cvUrl' in override.careerSettings && override.careerSettings.cvUrl !== undefined;
+  const hasIdentCv = override.identity && 'cvUrl' in override.identity && override.identity.cvUrl !== undefined;
+  const resolvedCv = hasCareerCv
+    ? (override.careerSettings!.cvUrl ?? '')
+    : hasIdentCv
+      ? (override.identity!.cvUrl ?? '')
+      : (base.careerSettings?.cvUrl ?? base.identity?.cvUrl ?? '');
+
+  mergedIdentity.openToWork = resolvedOpen;
+  mergedIdentity.cvUrl = resolvedCv;
+
+  const mergedCareerSettings: CareerSettings = {
+    openToWork: resolvedOpen,
+    cvUrl: resolvedCv,
+  };
+
+  const pickList = <T>(ov: T[] | undefined, bs: T[] | undefined): T[] =>
+    Array.isArray(ov) ? ov : (bs ?? []);
+
   return {
     ...base,
     ...override,
     identity: mergedIdentity,
+    skills: pickList(override.skills, base.skills),
+    certifications: pickList(override.certifications, base.certifications),
+    experience: pickList(override.experience, base.experience),
+    education: pickList(override.education, base.education),
+    projects: pickList(override.projects, base.projects),
+    gallery: pickList(override.gallery, base.gallery),
+    telemetry: { ...base.telemetry, ...(override.telemetry ?? {}) },
     appearance: { ...(base.appearance ?? { activeTheme: 'ascii', colorMode: 'dark' }), ...(override.appearance ?? {}) },
     careerSettings: mergedCareerSettings,
+    activity: override.activity ?? base.activity,
   } as PortfolioData;
 }
 

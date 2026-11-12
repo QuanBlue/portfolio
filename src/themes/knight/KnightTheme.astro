@@ -18,11 +18,13 @@ import {
   getKnightProfile,
   getKnightProjects,
   getKnightMoreProjects,
+  getKnightActivityResolution,
 } from '../core/data-adapter';
 
 const profile = getKnightProfile(portfolioData);
 const featuredProjects = getKnightProjects(portfolioData);
 const moreProjects = getKnightMoreProjects(portfolioData);
+const activity = getKnightActivityResolution(portfolioData, 'en');
 ---
 
 <div
@@ -51,8 +53,8 @@ const moreProjects = getKnightMoreProjects(portfolioData);
   <KnightCertifications certifications={portfolioData.certifications} />
   <KnightSkills skills={portfolioData.skills} />
   <KnightProjects projects={featuredProjects} />
-  {moreProjects.length > 0 && <KnightMoreWork moreProjects={moreProjects} />}
-  <KnightActivity />
+  <KnightMoreWork moreProjects={moreProjects} />
+  <KnightActivity activity={activity} />
   <KnightContact profile={profile} />
 </div>
 
@@ -62,11 +64,22 @@ const moreProjects = getKnightMoreProjects(portfolioData);
   import { initKnightScroll, type KnightScrollController } from './scripts/knight-scroll';
   import { formatKnightAsciiTitle } from '../core/ascii-title';
   import {
+    getKnightProjects,
+    getKnightMoreProjects,
+    getKnightActivityResolution,
+  } from '../core/data-adapter';
+  import {
     renderKnightExperience,
     renderKnightEducation,
     renderKnightCertifications,
     renderKnightSkills,
+    renderKnightProjects,
+    renderKnightMoreWork,
+    renderKnightActivity,
   } from '../core/render-knight';
+  import { getCareerSettings, portfolioData, resolveAvatarUrl, type PortfolioData } from '../../data/portfolio';
+  import { initials, safeUrl } from '../../lib/render';
+  import { localizePortfolioData } from '../../i18n/translate';
 
   // Knight Theme Interactive Runtime Controller
   let teardown: (() => void) | null = null;
@@ -75,6 +88,15 @@ const moreProjects = getKnightMoreProjects(portfolioData);
   let safetyTimer: ReturnType<typeof setTimeout> | null = null;
   let transitionTimer: ReturnType<typeof setTimeout> | null = null;
   let isKnightActive = false;
+  let knightInitToken = 0;
+  let lastAppliedAvatarKey = '';
+
+  function normalizeAsciiName(rawName: string): string {
+    return (rawName || 'NGUYEN THANH QUAN')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, (m) => (m === 'đ' ? 'd' : 'D'));
+  }
 
   function revealKnight(root: HTMLElement, _source: string, isFallback = false) {
     if (safetyTimer) {
@@ -94,7 +116,7 @@ const moreProjects = getKnightMoreProjects(portfolioData);
     }, 220);
   }
 
-  function updateKnightLabels(root: HTMLElement, locale: 'en' | 'vi') {
+  function updateKnightLabels(root: HTMLElement, locale: 'en' | 'vi', personName?: string) {
     const isVi = locale === 'vi';
     const navItems = root.querySelectorAll<HTMLElement>('[data-kn-nk]');
     const navMap: Record<string, string> = isVi
@@ -123,15 +145,13 @@ const moreProjects = getKnightMoreProjects(portfolioData);
       const key = item.dataset.knNk;
       if (key && navMap[key]) {
         if (key === 'admin') {
-          const dot = item.querySelector('.kn-admin-dot');
-          item.childNodes[0].nodeValue = isVi ? 'quản trị ⚙' : 'admin ⚙';
+          if (item.childNodes[0]) item.childNodes[0].nodeValue = isVi ? 'quản trị ⚙' : 'admin ⚙';
         } else {
           item.textContent = navMap[key];
         }
       }
     });
 
-    // Update data-labels on root for stage watermark/indicator
     const stageLabels = isVi
       ? JSON.stringify({
           hero: '',
@@ -170,14 +190,29 @@ const moreProjects = getKnightMoreProjects(portfolioData);
       certH2.style.setProperty('--km', kVal);
     }
 
-    // Update Contact section texts
-    const contactPrompt = root.querySelector<HTMLElement>('.kn-end-box .kn-k');
+    const actH2 = root.querySelector<HTMLElement>('#kn-h-act');
+    if (actH2) {
+      const actTitle = isVi ? 'HOẠT ĐỘNG' : 'ACTIVITY';
+      actH2.dataset.ld = actTitle;
+      actH2.dataset.lm = actTitle;
+      actH2.textContent = isVi ? 'Hoạt động' : 'Activity';
+      const kVal = (actTitle.length * 0.66 + 0.06).toFixed(3);
+      actH2.style.setProperty('--kd', kVal);
+      actH2.style.setProperty('--km', kVal);
+    }
+
+    const shortName = (personName || root.querySelector('.kn-asc.kn-name')?.textContent || 'Quan')
+      .trim()
+      .split(/\s+/)
+      .slice(-1)[0] || 'Quan';
+
+    const contactPrompt = root.querySelector<HTMLElement>('[data-kn-contact-k="true"], .kn-end-box .kn-k');
     if (contactPrompt) {
-      contactPrompt.textContent = isVi ? 'Gửi tin nhắn cho Quân' : 'Write to Nguyen';
+      contactPrompt.textContent = isVi ? `Gửi tin nhắn cho ${shortName}` : `Write to ${shortName}`;
     }
     const notePrompt = root.querySelector<HTMLElement>('.kn-form-k');
     if (notePrompt) {
-      notePrompt.textContent = isVi ? 'hoặc để lại lời nhắn cho Quân tại đây' : 'or leave Nguyen a note here';
+      notePrompt.textContent = isVi ? `hoặc để lại lời nhắn cho ${shortName} tại đây` : 'or leave a note here';
     }
     const submitBtn = root.querySelector<HTMLElement>('#knight-contact-form button[type="submit"]');
     if (submitBtn) {
@@ -197,28 +232,195 @@ const moreProjects = getKnightMoreProjects(portfolioData);
     }
   }
 
-  function initKnightTheme() {
+  /**
+   * Synchronizes canonical published PortfolioData into all Knight DOM sections
+   * and triggers avatar / ASCII re-sampling if the stage is active.
+   */
+  function applyLiveKnightData(root: HTMLElement, rawOrLocalized: any, locale: 'en' | 'vi') {
+    const rawData: PortfolioData = rawOrLocalized._raw || rawOrLocalized;
+    const detail = rawOrLocalized._raw ? rawOrLocalized : localizePortfolioData(rawData, locale);
+
+    updateKnightLabels(root, locale, detail?.identity?.name);
+
+    const i = detail.identity;
+    let avatarChanged = false;
+
+    if (i) {
+      const nextName = i.name || 'Nguyen Thanh Quan';
+      const nameEl = root.querySelector<HTMLElement>('#kn-h-name');
+      if (nameEl) {
+        nameEl.textContent = nextName;
+        const nameInfo = formatKnightAsciiTitle(normalizeAsciiName(nextName));
+        nameEl.dataset.ld = nameInfo.desktopLines.join('\n');
+        nameEl.dataset.lm = nameInfo.mobileLines.join('\n');
+        nameEl.style.setProperty('--kd', nameInfo.kd);
+        nameEl.style.setProperty('--ld', String(nameInfo.ld));
+        nameEl.style.setProperty('--km', nameInfo.km);
+        nameEl.style.setProperty('--lm', String(nameInfo.lm));
+      }
+
+      const navBrand = root.querySelector<HTMLElement>('.kn-nav-n');
+      if (navBrand) {
+        navBrand.textContent = nextName.toLowerCase().trim().replace(/\s+/g, '.');
+        navBrand.setAttribute('aria-label', nextName);
+      }
+
+      const footerName = root.querySelector<HTMLElement>('[data-kn-footer-name="true"]');
+      if (footerName) footerName.textContent = nextName;
+
+      // Sync bio cleanly (render single paragraph once rather than duplicating)
+      const paragraphs = String(i.bio || '')
+        .split(/\n\n+/)
+        .map((p: string) => p.trim())
+        .filter(Boolean);
+      const leadEl = root.querySelector<HTMLElement>('[data-kn-lead-bio="true"], .kn-lead');
+      const extraEl = root.querySelector<HTMLElement>('[data-kn-extra-bio="true"], .kn-more-bio');
+      if (leadEl) leadEl.textContent = paragraphs[0] || '';
+      if (extraEl) {
+        const rest = paragraphs.slice(1).join('\n\n');
+        extraEl.textContent = rest;
+        extraEl.classList.toggle('hidden', !rest);
+      }
+
+      const locEl = root.querySelector<HTMLElement>('.kn-facts [data-bind="location"]');
+      if (locEl) locEl.textContent = i.location || '';
+
+      const roleEl = root.querySelector<HTMLElement>('.kn-role');
+      if (roleEl) roleEl.textContent = i.role || '';
+
+      // Update About facts links
+      const aboutGh = root.querySelector<HTMLAnchorElement>('[data-kn-about-github="true"]');
+      if (aboutGh && i.github) {
+        aboutGh.href = safeUrl(i.github.url);
+        const h = (i.github.handle || '').replace(/^@/, '');
+        aboutGh.textContent = h ? `@${h}` : i.github.url;
+      }
+      const aboutEmail = root.querySelector<HTMLAnchorElement>('[data-kn-about-email="true"]');
+      if (aboutEmail) {
+        aboutEmail.href = i.email ? `mailto:${i.email}` : '#';
+        aboutEmail.textContent = i.email || '';
+      }
+
+      // Update Contact links and form action
+      const contactGh = root.querySelector<HTMLAnchorElement>('[data-kn-contact-github="true"]');
+      if (contactGh && i.github) contactGh.href = safeUrl(i.github.url);
+      const contactLi = root.querySelector<HTMLAnchorElement>('[data-kn-contact-linkedin="true"]');
+      if (contactLi && i.linkedin) contactLi.href = safeUrl(i.linkedin.url);
+      const contactEm = root.querySelector<HTMLAnchorElement>('[data-kn-contact-email="true"]');
+      if (contactEm) contactEm.href = i.email ? `mailto:${i.email}` : '#';
+      const contactForm = root.querySelector<HTMLFormElement>('#knight-contact-form');
+      if (contactForm) contactForm.action = i.email ? `mailto:${i.email}` : '';
+
+      // Live update Canonical Avatar across DOM attribute + fallback image
+      const resolvedAvatarUrl = resolveAvatarUrl(rawData);
+      const nextIni = initials(nextName);
+      const figEl = root.querySelector<HTMLElement>('[data-kn-fig="true"]');
+      const figImg = root.querySelector<HTMLImageElement>('.kn-fig-img');
+      const figFallback = root.querySelector<HTMLElement>('.kn-fig-fallback');
+      const nextAvatarKey = `${resolvedAvatarUrl}::${nextIni}`;
+
+      if (figEl) {
+        figEl.dataset.av = resolvedAvatarUrl;
+        figEl.dataset.ini = nextIni;
+      }
+      if (figFallback) {
+        figFallback.textContent = nextIni;
+      }
+      if (figImg) {
+        figImg.alt = nextName;
+        if (resolvedAvatarUrl) {
+          figImg.src = resolvedAvatarUrl;
+        } else {
+          figImg.removeAttribute('src');
+        }
+      }
+      if (nextAvatarKey !== lastAppliedAvatarKey) {
+        lastAppliedAvatarKey = nextAvatarKey;
+        avatarChanged = true;
+      }
+
+      // Career Settings (Open to Work & CV action)
+      const career = getCareerSettings(detail);
+      const showCv = Boolean(career.openToWork) && Boolean(career.cvUrl);
+      const cvItem = root.querySelector<HTMLElement>('[data-kn-cv-item]');
+      const cvMob = root.querySelector<HTMLElement>('[data-kn-cv-mob]');
+      if (cvItem) cvItem.classList.toggle('hidden', !showCv);
+      if (cvMob) cvMob.classList.toggle('hidden', !showCv);
+    }
+
+    if (Array.isArray(detail.experience)) {
+      const expListEl = root.querySelector<HTMLElement>('[data-kn-exp-list="true"]');
+      if (expListEl) {
+        expListEl.innerHTML = renderKnightExperience(detail.experience, locale);
+      }
+    }
+
+    if (Array.isArray(detail.education)) {
+      const eduListEl = root.querySelector<HTMLElement>('[data-kn-edu-list="true"]');
+      if (eduListEl) {
+        eduListEl.innerHTML = renderKnightEducation(detail.education || [], [], locale);
+      }
+    }
+
+    if (Array.isArray(detail.certifications)) {
+      const certListEl = root.querySelector<HTMLElement>('[data-kn-cert-list="true"]');
+      if (certListEl) {
+        certListEl.innerHTML = renderKnightCertifications(detail.certifications || [], locale);
+      }
+    }
+
+    if (Array.isArray(detail.skills)) {
+      const skillsFieldEl = root.querySelector<HTMLElement>('[data-kn-skills="true"]');
+      if (skillsFieldEl) {
+        skillsFieldEl.innerHTML = renderKnightSkills(detail.skills, locale);
+      }
+    }
+
+    if (Array.isArray(detail.projects)) {
+      const projectListEl = root.querySelector<HTMLElement>('[data-kn-pj-list="true"]');
+      if (projectListEl) {
+        const featured = getKnightProjects(detail);
+        projectListEl.innerHTML = renderKnightProjects(featured, locale);
+      }
+      const moreSecEl = root.querySelector<HTMLElement>('[data-kn-more-sec="true"]');
+      const moreListEl = root.querySelector<HTMLElement>('[data-kn-more-list="true"]');
+      const more = getKnightMoreProjects(detail);
+      if (moreSecEl && moreListEl) {
+        moreListEl.innerHTML = renderKnightMoreWork(more);
+        moreSecEl.classList.toggle('hidden', more.length === 0);
+      }
+    }
+
+    const actWrap = root.querySelector<HTMLElement>('[data-kn-activity-wrap="true"]');
+    if (actWrap) {
+      const resolution = getKnightActivityResolution(detail, locale);
+      actWrap.innerHTML = renderKnightActivity(resolution, locale);
+    }
+
+    if (stopStage) {
+      root.dispatchEvent(new CustomEvent('knight:refresh', { detail: { forceAvatar: avatarChanged } }));
+    }
+  }
+
+  async function initKnightTheme() {
     const root = document.querySelector<HTMLElement>('[data-kn-root="true"]');
     if (!root) return;
 
-    // Apply current locale labels
     const currentLoc = (document.documentElement.lang as 'en' | 'vi') || 'en';
     updateKnightLabels(root, currentLoc);
 
-    // If Knight is already initializing or running with an active stage, preserve it
     if (isKnightActive && stopStage) {
       return;
     }
     isKnightActive = true;
+    const myInitToken = ++knightInitToken;
 
-    // If not already running/fallback, mark loading state and ensure loader visible
     if (root.dataset.knStatus !== 'running' && root.dataset.knStatus !== 'fallback') {
       root.dataset.knStatus = 'loading';
       const loader = root.querySelector<HTMLElement>('#knight-loader');
       if (loader) loader.style.display = '';
     }
 
-    // Clean up previous listeners if switching back to Knight
     if (safetyTimer) {
       clearTimeout(safetyTimer);
       safetyTimer = null;
@@ -240,6 +442,34 @@ const moreProjects = getKnightMoreProjects(portfolioData);
       scrollController = null;
     }
 
+    // Safety timeout (2200ms) across network data readiness + asset decoding so visitor never hangs
+    safetyTimer = setTimeout(() => {
+      if (root.dataset.knStatus === 'loading' && knightInitToken === myInitToken) {
+        console.warn('[Knight Theme] Render-ready safety timeout reached, revealing gracefully');
+        revealKnight(root, 'timeout', false);
+      }
+    }, 2200);
+
+    // Wait for canonical remote/local data resolution BEFORE downloading/rasterizing avatar
+    // so Knight never downloads or converts build-time defaults while Supabase is resolving.
+    if (!(window as any).__PORTFOLIO__ && (window as any).__PORTFOLIO_READY__) {
+      await Promise.race([
+        (window as any).__PORTFOLIO_READY__,
+        new Promise((resolve) => setTimeout(resolve, 1400)),
+      ]);
+    }
+
+    if (!isKnightActive || knightInitToken !== myInitToken || document.documentElement.dataset.portfolioTheme !== 'knight') {
+      return;
+    }
+
+    // Sync any already-resolved canonical portfolio data before sampling the stage
+    const livePortfolio = (window as any).__PORTFOLIO_LOCALIZED__ || (window as any).__PORTFOLIO__;
+    if (livePortfolio) {
+      const loc = (document.documentElement.lang as 'en' | 'vi') || 'en';
+      applyLiveKnightData(root, livePortfolio, loc);
+    }
+
     // Initialize inertial smooth scrolling controller (Lenis single-RAF)
     scrollController = initKnightScroll(root);
 
@@ -253,23 +483,18 @@ const moreProjects = getKnightMoreProjects(portfolioData);
       }
     };
 
-    // Safety timeout (1800ms) to ensure visitor is NEVER stuck on loading screen
-    safetyTimer = setTimeout(() => {
-      if (root.dataset.knStatus === 'loading') {
-        console.warn('[Knight Theme] Render-ready safety timeout reached, revealing gracefully');
-        revealKnight(root, 'timeout', false);
-      }
-    }, 1800);
-
-    // Initialize authentic ASCII stage & WebGL point sprite / 2D canvas scene
     try {
       stopStage = initKnightStage(root, {
         onReady() {
-          revealKnight(root, 'stage', false);
+          if (knightInitToken === myInitToken) {
+            revealKnight(root, 'stage', false);
+          }
         },
         onError(err) {
           console.warn('[Knight Theme] ASCII stage reported error, falling back:', err);
-          revealKnight(root, 'stage-error', true);
+          if (knightInitToken === myInitToken) {
+            revealKnight(root, 'stage-error', true);
+          }
         },
       });
       root.dataset.knStageStatus = 'initialized';
@@ -278,142 +503,35 @@ const moreProjects = getKnightMoreProjects(portfolioData);
       console.error('[Knight Theme] Fatal error initializing ASCII stage:', err);
       revealKnight(root, 'fatal-init-error', true);
     }
-
-    // Listen to shared portfolio data updates (from LiveData / CMS)
-    window.addEventListener('portfolio:data', (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (!detail) return;
-
-      const locale: 'en' | 'vi' = detail._locale || (document.documentElement.lang as 'en' | 'vi') || 'en';
-      updateKnightLabels(root, locale);
-
-      const i = detail.identity;
-      if (i) {
-        const nameEls = root.querySelectorAll<HTMLElement>('.kn-asc.kn-name');
-        nameEls.forEach((el) => {
-          if (i.name) el.textContent = i.name;
-        });
-
-        const navBrand = root.querySelector<HTMLElement>('.kn-nav-n');
-        if (navBrand && i.name) {
-          navBrand.textContent = i.name.toLowerCase().replace(/\s+/g, '.');
-        }
-
-        const bioEl = root.querySelector<HTMLElement>('.kn-more-bio');
-        if (bioEl && i.bio) {
-          bioEl.textContent = i.bio;
-        }
-
-        const leadBioEl = root.querySelector<HTMLElement>('.kn-lead');
-        if (leadBioEl && i.bio) {
-          leadBioEl.textContent = i.bio;
-        }
-
-        const locEl = root.querySelector<HTMLElement>('[data-bind="location"]');
-        if (locEl && i.location) {
-          locEl.textContent = i.location;
-        }
-
-        const roleEl = root.querySelector<HTMLElement>('.kn-role');
-        if (roleEl && i.role) {
-          roleEl.textContent = i.role;
-        }
-
-        // Live update Career Settings (Open to Work & CV action)
-        const openToWork = detail.careerSettings?.openToWork ?? detail.identity?.openToWork ?? true;
-        const cvUrl = (detail.careerSettings?.cvUrl ?? detail.identity?.cvUrl ?? '').trim();
-        const showCv = Boolean(openToWork) && Boolean(cvUrl);
-        const cvItem = root.querySelector<HTMLElement>('[data-kn-cv-item]');
-        const cvMob = root.querySelector<HTMLElement>('[data-kn-cv-mob]');
-        if (cvItem) cvItem.classList.toggle('hidden', !showCv);
-        if (cvMob) cvMob.classList.toggle('hidden', !showCv);
-      }
-
-      // Live update Experience
-      if (Array.isArray(detail.experience)) {
-        const expListEl = root.querySelector<HTMLElement>('[data-kn-exp-list="true"]');
-        if (expListEl) {
-          expListEl.innerHTML = renderKnightExperience(detail.experience, locale);
-        }
-      }
-
-      // Live update Education
-      if (Array.isArray(detail.education)) {
-        const eduListEl = root.querySelector<HTMLElement>('[data-kn-edu-list="true"]');
-        if (eduListEl) {
-          eduListEl.innerHTML = renderKnightEducation(detail.education || [], [], locale);
-        }
-      }
-
-      // Live update Certifications
-      if (Array.isArray(detail.certifications)) {
-        const certListEl = root.querySelector<HTMLElement>('[data-kn-cert-list="true"]');
-        if (certListEl) {
-          certListEl.innerHTML = renderKnightCertifications(detail.certifications || [], locale);
-        }
-      }
-
-      // Live update Skills
-      if (Array.isArray(detail.skills)) {
-        const skillsFieldEl = root.querySelector<HTMLElement>('[data-kn-skills="true"]');
-        if (skillsFieldEl) {
-          skillsFieldEl.innerHTML = renderKnightSkills(detail.skills, locale);
-        }
-      }
-
-      // Live update projects showcase
-      if (Array.isArray(detail.projects)) {
-        const projectListEl = root.querySelector<HTMLElement>('[data-kn-pj-list="true"]');
-        if (projectListEl) {
-          const cards = projectListEl.querySelectorAll<HTMLElement>('.kn-p');
-          const total = detail.projects.length;
-          const totalFormatted = String(Math.min(6, total)).padStart(2, '0');
-
-          cards.forEach((card, idx) => {
-            const proj = detail.projects[idx];
-            if (!proj) {
-              card.style.display = 'none';
-              return;
-            }
-            card.style.display = '';
-
-            const idxEl = card.querySelector<HTMLElement>('.kn-idx');
-            if (idxEl) {
-              idxEl.textContent = `${String(idx + 1).padStart(2, '0')} / ${totalFormatted}`;
-            }
-
-            const titleEl = card.querySelector<HTMLElement>('.kn-pn');
-            if (titleEl && proj.title) {
-              titleEl.textContent = proj.title;
-              const titleInfo = formatKnightAsciiTitle(proj.title);
-              titleEl.dataset.ld = titleInfo.desktopLines.join('\n');
-              titleEl.dataset.lm = titleInfo.mobileLines.join('\n');
-              titleEl.style.setProperty('--kd', titleInfo.kd);
-              titleEl.style.setProperty('--ld', String(titleInfo.ld));
-              titleEl.style.setProperty('--km', titleInfo.km);
-              titleEl.style.setProperty('--lm', String(titleInfo.lm));
-            }
-
-            const descEl = card.querySelector<HTMLElement>('.kn-desc');
-            if (descEl) {
-              descEl.textContent = proj.shortDesc || proj.description || '';
-            }
-
-            const linkEl = card.querySelector<HTMLAnchorElement>('.kn-meta a');
-            if (linkEl && proj.link) {
-              linkEl.href = proj.link;
-              linkEl.textContent = proj.link.replace(/^https?:\/\//, '');
-            }
-          });
-        }
-      }
-
-      // Trigger stage re-sampling for updated elements
-      window.dispatchEvent(new Event('resize'));
-    });
   }
 
-  // Initialize on load only if Knight is the active theme
+  // Register global data/locale listeners unconditionally so Knight never misses data
+  // fetched before Knight is activated (e.g. from initial 'resolving' state or theme switches).
+  window.addEventListener('portfolio:data', (e: Event) => {
+    const root = document.querySelector<HTMLElement>('[data-kn-root="true"]');
+    const detail = (e as CustomEvent).detail;
+    if (!root || !detail) return;
+    const locale: 'en' | 'vi' = detail._locale || (document.documentElement.lang as 'en' | 'vi') || 'en';
+    applyLiveKnightData(root, detail, locale);
+  });
+
+  window.addEventListener('locale:changed', (e: Event) => {
+    const root = document.querySelector<HTMLElement>('[data-kn-root="true"]');
+    if (!root) return;
+    const detail = (e as CustomEvent).detail;
+    const loc: 'en' | 'vi' = detail?.locale || 'en';
+    updateKnightLabels(root, loc);
+    const liveData = (window as any).__PORTFOLIO_LOCALIZED__ || (window as any).__PORTFOLIO__ || portfolioData;
+    const actWrap = root.querySelector<HTMLElement>('[data-kn-activity-wrap="true"]');
+    if (actWrap && liveData) {
+      const resolution = getKnightActivityResolution(liveData, loc);
+      actWrap.innerHTML = renderKnightActivity(resolution, loc);
+      if (stopStage) {
+        root.dispatchEvent(new CustomEvent('knight:refresh', { detail: { forceAvatar: false } }));
+      }
+    }
+  });
+
   function checkAndInitKnight() {
     if (document.documentElement.dataset.portfolioTheme === 'knight') {
       initKnightTheme();
@@ -430,10 +548,11 @@ const moreProjects = getKnightMoreProjects(portfolioData);
     const detail = (e as CustomEvent).detail;
     if (detail?.theme === 'knight') {
       if (!isKnightActive || !stopStage) {
-        requestAnimationFrame(initKnightTheme);
+        requestAnimationFrame(() => initKnightTheme());
       }
     } else {
       isKnightActive = false;
+      knightInitToken++;
       if (safetyTimer) {
         clearTimeout(safetyTimer);
         safetyTimer = null;
@@ -457,13 +576,5 @@ const moreProjects = getKnightMoreProjects(portfolioData);
         if (loader) loader.style.display = '';
       }
     }
-  });
-
-  window.addEventListener('locale:changed', (e: Event) => {
-    const root = document.querySelector<HTMLElement>('[data-kn-root="true"]');
-    if (!root) return;
-    const detail = (e as CustomEvent).detail;
-    const loc: 'en' | 'vi' = detail?.locale || 'en';
-    updateKnightLabels(root, loc);
   });
 </script>

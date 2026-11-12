@@ -1,7 +1,17 @@
 ---
-import { portfolioData } from '../../data/portfolio';
+import { portfolioData, getCareerSettings, resolveAvatarUrl } from '../../data/portfolio';
 import { safeUrl } from '../../lib/render';
-const { identity, telemetry } = portfolioData;
+import { renderAsciiAvatarImgOrFallback } from './ascii-renderers';
+import { DEFAULT_SLANT_BANNER, buildAsciiBannerText } from './ascii-live';
+
+const { identity, projects, skills, experience, education } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const showCv = career.openToWork && Boolean(career.cvUrl);
+const currentCompany = experience[0]?.company ?? '';
+const handle = String(identity.github?.handle || 'quan').replace(/^@/, '').toLowerCase() || 'quan';
+const nodeHost = String(identity.node || 'infra-node');
+const bannerText = buildAsciiBannerText(identity.name, 'slant') || DEFAULT_SLANT_BANNER;
+const avatarUrl = resolveAvatarUrl(portfolioData);
 ---
 
 <section id="top" class="relative pt-10 pb-16 sm:pt-16 sm:pb-20 border-b border-[var(--border)] overflow-hidden font-mono">
@@ -13,7 +23,7 @@ const { identity, telemetry } = portfolioData;
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-3 text-xs text-[var(--muted-fg)]">
       <div class="flex items-center gap-2">
         <span class="inline-block size-2 rounded-full bg-[var(--signal)] animate-pulse"></span>
-        <span class="text-[var(--signal)] font-bold">quan@infra-node:~$</span>
+        <span data-ascii-prompt class="text-[var(--signal)] font-bold">{`${handle.split(/[^a-z0-9]/)[0] || 'quan'}@${nodeHost}:~$`}</span>
         <span class="text-[var(--fg)]">cat /etc/banner.ascii</span>
       </div>
       <div class="flex items-center gap-3 text-[11px]">
@@ -23,25 +33,20 @@ const { identity, telemetry } = portfolioData;
           <span class="text-[var(--border)]">|</span>
           <button type="button" id="btn-font-ansi" class="font-medium text-[var(--muted-fg)] hover:text-[var(--fg)] transition cursor-pointer" title="Switch to ANSI Cyber Shadow font">ANSI</button>
         </div>
-        <span>[ ARCH: X86_64 ]</span>
-        <span>[ UPTIME: <strong class="text-[var(--signal)]">{telemetry.uptimeSLA}</strong> ]</span>
-        <span>[ STATUS: <strong class="text-[var(--signal)]">ONLINE</strong> ]</span>
+        <span>[ SHELL: INTERACTIVE_SIM ]</span>
+        <span>[ PROJECTS: <strong class="text-[var(--signal)]" data-ascii-stat="projects">{projects.length}</strong> ]</span>
+        <span>[ SKILLS: <strong class="text-[var(--signal)]" data-ascii-stat="skills">{skills.length}</strong> ]</span>
       </div>
     </div>
 
-    <!-- Giant ASCII Art Title Banner (Authentic Slant: NGUYEN THANH QUAN) -->
+    <!-- Giant ASCII Art Title Banner -->
     <div class="overflow-x-auto py-2">
       <pre
         id="ascii-banner-pre"
+        data-ascii-font="slant"
         class="font-mono text-[9px] sm:text-[13px] md:text-[15px] lg:text-[17px] leading-[1.1] font-bold text-[var(--fg)] select-all tracking-tight whitespace-pre"
-        aria-label="NGUYEN THANH QUAN"
-      >
-    _   __________  ____  _________   __   ________  _____    _   ____  __   ____  __  _____    _   __
-   / | / / ____/ / / /\ \/ / ____/ | / /  /_  __/ / / /   |  / | / / / / /  / __ \/ / / /   |  / | / /
-  /  |/ / / __/ / / /  \  / __/ /  |/ /    / / / /_/ / /| | /  |/ / /_/ /  / / / / / / / /| | /  |/ / 
- / /|  / /_/ / /_/ /   / / /___/ /|  /    / / / __  / ___ |/ /|  / __  /  / /_/ / /_/ / ___ |/ /|  /  
-/_/ |_/\____/\____/   /_/_____/_/ |_/    /_/ /_/ /_/_/  |_/_/ |_/_/ /_/   \___\_\____/_/  |_/_/ |_/   
-      </pre>
+        aria-label={identity.name}
+      >{bannerText}</pre>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -60,10 +65,11 @@ const { identity, telemetry } = portfolioData;
         <!-- Subtitle & Role -->
         <div class="space-y-1">
           <p class="text-sm sm:text-base font-bold text-[var(--signal)]">
-            &gt; <span data-bind="role">{identity.role}</span> @ Viettel Group
+            &gt; <span data-bind="role">{identity.role}</span> <span data-bind-company data-company-prefix="@ " class={`font-normal text-[var(--fg)] ${currentCompany ? '' : 'hidden'}`}>{currentCompany ? `@ ${currentCompany}` : ''}</span>
           </p>
-          <p class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed">
-            High-Availability Kubernetes · 100% Air-Gapped Ansible Automation · DevSecOps Supply Chain
+          <p class="text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed flex flex-wrap items-center gap-2">
+            <span data-bind="location">{identity.location}</span>
+            <span data-career-badge class={`text-[var(--signal)] font-semibold ${career.openToWork ? '' : 'hidden'}`}>· Open to Work</span>
           </p>
         </div>
 
@@ -80,34 +86,39 @@ const { identity, telemetry } = portfolioData;
           <a href="#experience" class="ff-btn">
             [ career_path ↓ ]
           </a>
-          <button type="button" data-open-cv="1" class="ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10">
-            [ view_cv.pdf 📄 ]
+          <button
+            type="button"
+            data-open-cv="1"
+            data-cv-gate
+            class={`ff-btn text-[var(--signal)] border-[var(--signal)]/40 hover:bg-emerald-500/10 ${showCv ? '' : 'hidden'}`}
+          >
+            [ view_cv.pdf ]
           </button>
           <a data-bind="github" href={safeUrl(identity.github.url)} target="_blank" rel="noopener noreferrer" class="ff-btn">
-            [ github: @QuanBlue ↗ ]
+            [ github: <span data-bind-handle="github">{identity.github.handle}</span> ↗ ]
           </a>
           <a data-bind="linkedin" href={safeUrl(identity.linkedin.url)} target="_blank" rel="noopener noreferrer" class="ff-btn">
-            [ linkedin: in/quanblue ↗ ]
+            [ linkedin: <span data-bind-handle="linkedin">{identity.linkedin.handle}</span> ↗ ]
           </a>
         </div>
 
-        <!-- System Node Info Box -->
+        <!-- System Node Info Box (Factual Published Metadata Only) -->
         <div class="p-3.5 rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)] text-[11px] text-[var(--muted-fg)] grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <span class="text-[var(--faint)] block uppercase text-[10px]">Node</span>
             <span class="text-[var(--fg)] font-bold" data-bind="node">{identity.node}</span>
           </div>
           <div>
-            <span class="text-[var(--faint)] block uppercase text-[10px]">Host IP</span>
-            <span class="text-[var(--fg)] font-bold" data-bind="ip">{identity.ip}</span>
-          </div>
-          <div>
             <span class="text-[var(--faint)] block uppercase text-[10px]">Location</span>
             <span class="text-[var(--fg)] font-bold truncate block" data-bind="location">{identity.location}</span>
           </div>
           <div>
-            <span class="text-[var(--faint)] block uppercase text-[10px]">SPOF Tolerance</span>
-            <span class="text-[var(--signal)] font-bold">Zero-Downtime</span>
+            <span class="text-[var(--faint)] block uppercase text-[10px]">Experience</span>
+            <span class="text-[var(--fg)] font-bold" data-ascii-stat="experience">{experience.length} roles</span>
+          </div>
+          <div>
+            <span class="text-[var(--faint)] block uppercase text-[10px]">Education</span>
+            <span class="text-[var(--signal)] font-bold" data-ascii-stat="education">{education.length} entries</span>
           </div>
         </div>
       </div>
@@ -150,16 +161,10 @@ const { identity, telemetry } = portfolioData;
           <div class="aspect-square w-full rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--muted-bg)] relative flex items-center justify-center group shadow-inner">
             <!-- 1. Real Avatar Photo (Clear & Crisp) -->
             <div id="avatar-photo-view" class="w-full h-full relative">
-              <img
-                id="ascii-hero-avatar-img"
-                src={safeUrl(identity.avatar || '')}
-                alt={identity.name}
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                data-bind="avatar"
-              />
+              <div id="ascii-avatar-media-slot" class="w-full h-full" set:html={renderAsciiAvatarImgOrFallback(portfolioData)} />
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-              <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[10px] text-white/90 drop-shadow">
-                <span>[ PROFILE: ONLINE ]</span>
+              <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[10px] text-white/90 drop-shadow pointer-events-none">
+                <span>[ PROFILE ]</span>
                 <span data-bind="node">{identity.node}</span>
               </div>
             </div>
@@ -169,7 +174,9 @@ const { identity, telemetry } = portfolioData;
               <pre
                 id="ascii-avatar-art"
                 class="font-mono text-[6px] sm:text-[7px] leading-[1.0] text-[var(--signal)] select-none text-center tracking-tighter"
-                data-src={identity.avatar || ''}
+                data-src={avatarUrl}
+                data-name={identity.name}
+                data-role={identity.role}
               ></pre>
             </div>
           </div>
@@ -191,12 +198,13 @@ const { identity, telemetry } = portfolioData;
 
 <!-- Client-side Avatar Handler, Mode Switcher & Matrix background -->
 <script>
+  import { buildAsciiBannerText } from './ascii-live';
+
   const photoView = document.getElementById('avatar-photo-view');
   const asciiView = document.getElementById('avatar-ascii-view');
   const btnPhoto = document.getElementById('btn-avatar-photo');
   const btnAscii = document.getElementById('btn-avatar-ascii');
   const asciiPre = document.getElementById('ascii-avatar-art');
-  const avatarImg = document.getElementById('ascii-hero-avatar-img') as HTMLImageElement | null;
   const nameEl = document.getElementById('ascii-typewriter-name');
   const cursorEl = document.getElementById('ascii-typewriter-cursor');
 
@@ -221,12 +229,12 @@ const { identity, telemetry } = portfolioData;
 
     // Guard: only run decoder when ASCII theme is active
     if (document.documentElement.dataset.portfolioTheme !== 'ascii') {
-      const targetName = nameEl.dataset.target || nameEl.textContent?.trim() || 'Nguyễn Thanh Quân';
+      const targetName = nameEl.dataset.target || nameEl.textContent?.trim() || 'Portfolio';
       nameEl.textContent = targetName;
       return;
     }
 
-    const target = nameEl.dataset.target || nameEl.textContent?.trim() || 'Nguyễn Thanh Quân';
+    const target = nameEl.dataset.target || nameEl.textContent?.trim() || 'Portfolio';
     const cipherChars = '01#@$%&*+=~_/?\\<>[];:!XABCDEF';
     let currentIndex = 0;
     let scrambleTicks = 0;
@@ -240,7 +248,6 @@ const { identity, telemetry } = portfolioData;
         if (typewriterTimer) clearInterval(typewriterTimer);
         nameEl.textContent = target;
 
-        // Pause for ~10 seconds, then repeat the typewriter decryption loop
         pauseTimer = setTimeout(() => {
           runNameCipherDecoder();
         }, 10000);
@@ -293,8 +300,12 @@ const { identity, telemetry } = portfolioData;
   // High-Contrast Normalized ASCII Rasterizer
   function generateAsciiPortrait() {
     if (!asciiPre) return;
-    const src = asciiPre.dataset.src || avatarImg?.src;
-    if (!src) return;
+    const liveImg = document.getElementById('ascii-hero-avatar-img') as HTMLImageElement | null;
+    const src = asciiPre.dataset.src || liveImg?.src || '';
+    if (!src) {
+      renderFallbackAscii();
+      return;
+    }
 
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -373,9 +384,11 @@ const { identity, telemetry } = portfolioData;
 
   function renderFallbackAscii() {
     if (!asciiPre) return;
+    const labelName = (asciiPre.dataset.name || 'PORTFOLIO').toUpperCase().slice(0, 22).padEnd(22, ' ');
+    const labelRole = (asciiPre.dataset.role || 'ENGINEER').toUpperCase().slice(0, 22).padEnd(22, ' ');
     asciiPre.textContent = [
       '    +------------------------------+    ',
-      '    |      [ NGUYEN THANH QUAN ]   |    ',
+      `    |    ${labelName}    |    `,
       '    |                              |    ',
       '    |           .::+*+=:.          |    ',
       '    |         -#@@@@@@@@#-         |    ',
@@ -389,7 +402,7 @@ const { identity, telemetry } = portfolioData;
       '    |    *@@@@@@@@@@@@@@@@@@@@*    |    ',
       '    |   #@@@@@@@@@@@@@@@@@@@@@@#   |    ',
       '    |                              |    ',
-      '    |      DEVOPS · SRE ENGINEER   |    ',
+      `    |    ${labelRole}    |    `,
       '    +------------------------------+    ',
     ].join('\n');
   }
@@ -399,7 +412,7 @@ const { identity, telemetry } = portfolioData;
     const bg = document.querySelector('.ascii-matrix-bg');
     if (!bg) return;
     const chars = '01#@$%&*+-=~.:;/\\|';
-    let lines = [];
+    const lines = [];
     for (let i = 0; i < 28; i++) {
       let line = '';
       for (let j = 0; j < 90; j++) {
@@ -410,7 +423,6 @@ const { identity, telemetry } = portfolioData;
     bg.textContent = lines.join('\n');
   }
 
-  // Guard initial triggers: only run when ASCII theme is active
   if (document.documentElement.dataset.portfolioTheme === 'ascii') {
     initMatrixBg();
     runNameCipherDecoder();
@@ -421,24 +433,11 @@ const { identity, telemetry } = portfolioData;
   const btnFontSlant = document.getElementById('btn-font-slant');
   const btnFontAnsi = document.getElementById('btn-font-ansi');
 
-  const BANNER_FONTS = {
-    slant: `    _   __________  ____  _________   __   ________  _____    _   ____  __   ____  __  _____    _   __
-   / | / / ____/ / / /\\ \\/ / ____/ | / /  /_  __/ / / /   |  / | / / / / /  / __ \\/ / / /   |  / | / /
-  /  |/ / / __/ / / /  \\  / __/ /  |/ /    / / / /_/ / /| | /  |/ / /_/ /  / / / / / / / /| | /  |/ / 
- / /|  / /_/ / /_/ /   / / /___/ /|  /    / / / __  / ___ |/ /|  / __  /  / /_/ / /_/ / ___ |/ /|  /  
-/_/ |_/\\____/\\____/   /_/_____/_/ |_/    /_/ /_/ /_/_/  |_/_/ |_/_/ /_/   \\___\\_\\____/_/  |_/_/ |_/   `,
-
-    ansi: `███╗   ██╗ ██████╗ ██╗   ██╗██╗   ██╗███████╗███╗   ██╗    ████████╗██╗  ██╗ █████╗ ███╗   ██╗██╗  ██╗     ██████╗ ██╗   ██╗ █████╗ ███╗   ██╗
-████╗  ██║██╔════╝ ██║   ██║╚██╗ ██╔╝██╔════╝████╗  ██║    ╚══██╔══╝██║  ██║██╔══██╗████╗  ██║██║  ██║    ██╔═══██╗██║   ██║██╔══██╗████╗  ██║
-██╔██╗ ██║██║  ███╗██║   ██║ ╚████╔╝ █████╗  ██╔██╗ ██║       ██║   ███████║███████║██╔██╗ ██║███████║    ██║   ██║██║   ██║███████║██╔██╗ ██║
-██║╚██╗██║██║   ██║██║   ██║  ╚██╔╝  ██╔══╝  ██║╚██╗██║       ██║   ██╔══██║██╔══██║██║╚██╗██║██╔══██║    ██║▄▄ ██║██║   ██║██╔══██║██║╚██╗██║
-██║ ╚████║╚██████╔╝╚██████╔╝   ██║   ███████╗██║ ╚████║       ██║   ██║  ██║██║  ██║██║ ╚████║██║  ██║    ╚██████╔╝╚██████╔╝██║  ██║██║ ╚████║
-╚═╝  ╚═══╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚═╝  ╚═══╝       ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝     ╚══▀▀═╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝`
-  };
-
   function setBannerFont(font: 'slant' | 'ansi') {
     if (!bannerPre) return;
-    bannerPre.textContent = BANNER_FONTS[font];
+    bannerPre.dataset.asciiFont = font;
+    const activeName = nameEl?.dataset.target || bannerPre.getAttribute('aria-label') || 'PORTFOLIO';
+    bannerPre.textContent = buildAsciiBannerText(activeName, font);
     if (font === 'slant') {
       btnFontSlant?.classList.add('text-[var(--signal)]', 'font-bold');
       btnFontSlant?.classList.remove('text-[var(--muted-fg)]');
@@ -455,7 +454,6 @@ const { identity, telemetry } = portfolioData;
   btnFontSlant?.addEventListener('click', () => setBannerFont('slant'));
   btnFontAnsi?.addEventListener('click', () => setBannerFont('ansi'));
 
-  // Listen to theme variant switches
   window.addEventListener('theme:changed', (e: Event) => {
     const theme = (e as CustomEvent).detail?.theme;
     if (theme === 'ascii') {
@@ -466,21 +464,28 @@ const { identity, telemetry } = portfolioData;
     }
   });
 
-  window.addEventListener('portfolio:data', (e) => {
-    const detail = (e as CustomEvent).detail;
-    if (detail?.identity?.avatar) {
-      if (avatarImg) avatarImg.src = detail.identity.avatar;
-      if (asciiPre) {
-        asciiPre.dataset.src = detail.identity.avatar;
-        if (!asciiView?.classList.contains('hidden')) {
-          generateAsciiPortrait();
-        }
+  window.addEventListener('ascii:avatar-updated', (e: Event) => {
+    const detail = (e as CustomEvent).detail || {};
+    if (asciiPre) {
+      asciiPre.dataset.src = detail.avatarUrl || '';
+      if (detail.name) asciiPre.dataset.name = detail.name;
+      if (!asciiView?.classList.contains('hidden')) {
+        generateAsciiPortrait();
       }
     }
-    if (detail?.identity?.name) {
-      if (nameEl) {
-        nameEl.dataset.target = detail.identity.name;
+  });
+
+  window.addEventListener('portfolio:data', (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    if (asciiPre && detail?.identity?.role) {
+      asciiPre.dataset.role = detail.identity.role;
+    }
+    if (detail?.identity?.name && nameEl) {
+      nameEl.dataset.target = detail.identity.name;
+      if (document.documentElement.dataset.portfolioTheme === 'ascii') {
         runNameCipherDecoder();
+      } else {
+        nameEl.textContent = detail.identity.name;
       }
     }
   });

@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { portfolioData, getCareerSettings } from '../data/portfolio';
-import { renderCvSheetHtml } from '../lib/render';
+import { renderCvSheetHtml, safeUrl } from '../lib/render';
 
 const career = getCareerSettings(portfolioData);
 const isAllowed = career.openToWork === true && Boolean(career.cvUrl);
+const isCustomPdf = Boolean(career.cvUrl && career.cvUrl !== '/cv.pdf');
 const cvHtml = isAllowed ? renderCvSheetHtml(portfolioData) : '';
 ---
 
@@ -13,62 +14,114 @@ const cvHtml = isAllowed ? renderCvSheetHtml(portfolioData) : '';
   description="Curriculum Vitae Document Viewer"
 >
   <main class="min-h-screen py-8 sm:py-12 px-3 sm:px-6 flex flex-col items-center justify-center bg-zinc-950 text-zinc-100 font-mono">
-    {isAllowed ? (
-      <div class="w-full max-w-4xl space-y-4">
-        <!-- Top Sticky Action Bar -->
-        <div class="flex flex-wrap items-center justify-between gap-3 border border-zinc-800 bg-zinc-900/90 backdrop-blur-md px-4 sm:px-6 py-3 rounded-xl shadow-lg">
-          <div class="min-w-0">
-            <h1 class="text-sm sm:text-base font-bold text-zinc-100 truncate">
-              Curriculum Vitae — {portfolioData.identity.name}
-            </h1>
-            <p class="text-xs text-zinc-400 truncate">
-              {portfolioData.identity.role} · {portfolioData.identity.location}
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <a
-              href={career.cvUrl}
-              download={`${portfolioData.identity.name.replace(/\s+/g, '-')}-CV.pdf`}
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 text-xs font-bold hover:bg-emerald-400 transition cursor-pointer"
-              title="Download published CV file"
-            >
-              <i class="fa-solid fa-download text-xs"></i>
-              <span>Download CV</span>
-            </a>
-            <a
-              href="/"
-              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 text-xs hover:border-zinc-500 hover:text-white transition"
-            >
-              <span>← Back</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- Authentic Printable CV Sheet Body -->
-        <article class="mx-auto bg-white text-zinc-900 rounded-xl shadow-2xl p-6 sm:p-10 font-sans border border-zinc-200 select-text leading-normal">
-          <Fragment set:html={cvHtml} />
-        </article>
-      </div>
-    ) : (
-      <div class="text-center space-y-4 p-8 border border-zinc-800 rounded-2xl bg-zinc-900/60 max-w-md shadow-2xl">
-        <div class="inline-grid size-12 place-items-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 text-lg">
-          <i class="fa-solid fa-lock"></i>
-        </div>
-        <div>
-          <h2 class="text-base font-bold text-zinc-100">403 · Access Restricted</h2>
-          <p class="text-xs text-zinc-400 mt-1.5 leading-relaxed">
-            Curriculum Vitae viewing is currently unavailable. The candidate is not actively seeking opportunities or has restricted public access.
+    <div id="cv-allowed-view" class={`w-full max-w-4xl space-y-4 ${isAllowed ? '' : 'hidden'}`}>
+      <!-- Top Sticky Action Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border border-zinc-800 bg-zinc-900/90 backdrop-blur-md px-4 sm:px-6 py-3 rounded-xl shadow-lg">
+        <div class="min-w-0">
+          <h1 id="cv-page-title" class="text-sm sm:text-base font-bold text-zinc-100 truncate">
+            Curriculum Vitae — {portfolioData.identity.name}
+          </h1>
+          <p id="cv-page-sub" class="text-xs text-zinc-400 truncate">
+            {portfolioData.identity.role} · {portfolioData.identity.location}
           </p>
         </div>
-        <div class="pt-2">
+        <div class="flex items-center gap-2">
+          <a
+            id="cv-page-download"
+            href={isCustomPdf ? safeUrl(career.cvUrl) : '#'}
+            download={isCustomPdf ? `${portfolioData.identity.name.replace(/\s+/g, '-')}-CV.pdf` : undefined}
+            class={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 text-xs font-bold hover:bg-emerald-400 transition cursor-pointer ${isCustomPdf ? '' : 'hidden'}`}
+            title="Download published CV file"
+          >
+            <i class="fa-solid fa-download text-xs"></i>
+            <span>Download CV</span>
+          </a>
+          <button
+            id="cv-page-print"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold hover:bg-emerald-500/25 transition cursor-pointer"
+            title="Print or Save as PDF"
+          >
+            <i class="fa-solid fa-print text-xs"></i>
+            <span>Print / PDF</span>
+          </button>
           <a
             href="/"
-            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:text-white hover:border-zinc-500 transition"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 text-xs hover:border-zinc-500 hover:text-white transition"
           >
-            ← Return to Portfolio
+            <span>← Back</span>
           </a>
         </div>
       </div>
-    )}
+
+      <!-- Authentic Printable CV Sheet Body -->
+      <article id="cv-sheet-content" class="mx-auto bg-white text-zinc-900 rounded-xl shadow-2xl p-6 sm:p-10 font-sans border border-zinc-200 select-text leading-normal">
+        <Fragment set:html={cvHtml} />
+      </article>
+    </div>
+
+    <div id="cv-restricted-view" class={`text-center space-y-4 p-8 border border-zinc-800 rounded-2xl bg-zinc-900/60 max-w-md shadow-2xl ${isAllowed ? 'hidden' : ''}`}>
+      <div class="inline-grid size-12 place-items-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 text-lg">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-zinc-100">403 · Access Restricted</h2>
+        <p class="text-xs text-zinc-400 mt-1.5 leading-relaxed">
+          Curriculum Vitae viewing is currently unavailable. The candidate is not actively seeking opportunities or has restricted public access.
+        </p>
+      </div>
+      <div class="pt-2">
+        <a
+          href="/"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:text-white hover:border-zinc-500 transition"
+        >
+          ← Return to Portfolio
+        </a>
+      </div>
+    </div>
   </main>
 </BaseLayout>
+
+<script>
+  import { getCareerSettings, type PortfolioData } from '../data/portfolio';
+  import { renderCvSheetHtml, safeUrl } from '../lib/render';
+
+  const allowedEl = document.getElementById('cv-allowed-view');
+  const restrictedEl = document.getElementById('cv-restricted-view');
+  const sheetEl = document.getElementById('cv-sheet-content');
+  const titleEl = document.getElementById('cv-page-title');
+  const subEl = document.getElementById('cv-page-sub');
+  const downloadEl = document.getElementById('cv-page-download') as HTMLAnchorElement | null;
+  const printBtn = document.getElementById('cv-page-print');
+
+  printBtn?.addEventListener('click', () => window.print());
+
+  function syncCvView(d: PortfolioData) {
+    const career = getCareerSettings(d);
+    const allowed = career.openToWork === true && Boolean(career.cvUrl);
+    allowedEl?.classList.toggle('hidden', !allowed);
+    restrictedEl?.classList.toggle('hidden', allowed);
+
+    document.title = allowed ? `Curriculum Vitae — ${d.identity.name}` : 'CV Access Restricted';
+    if (!allowed) return;
+
+    if (titleEl) titleEl.textContent = `Curriculum Vitae — ${d.identity.name}`;
+    if (subEl) subEl.textContent = `${d.identity.role} · ${d.identity.location}`;
+    if (downloadEl) {
+      const customPdf = Boolean(career.cvUrl && career.cvUrl !== '/cv.pdf');
+      downloadEl.classList.toggle('hidden', !customPdf);
+      if (customPdf) {
+        downloadEl.href = safeUrl(career.cvUrl);
+        downloadEl.download = `${(d.identity.name || 'Portfolio').replace(/\s+/g, '-')}-CV.pdf`;
+      }
+    }
+    if (sheetEl) {
+      sheetEl.innerHTML = renderCvSheetHtml(d);
+    }
+  }
+
+  window.addEventListener('portfolio:data', (e: Event) => {
+    const detail = (e as CustomEvent).detail as PortfolioData;
+    if (detail) syncCvView(detail);
+  });
+</script>

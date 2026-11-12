@@ -3,7 +3,14 @@
  * Provides normalized, typed data structures for GitHub-oriented themes (e.g. Knight)
  * without duplicating business logic or mutating the core portfolio store.
  */
-import type { PortfolioData, Project } from '../../data/portfolio';
+import { resolveAvatarUrl, type PortfolioData, type Project } from '../../data/portfolio';
+import {
+  formatUtcDate,
+  resolvePortfolioActivity,
+  type ActivityResolution,
+  type NormalizedActivityDataset,
+} from '../../lib/github-activity';
+import type { Locale } from '../../i18n/types';
 
 export interface KnightProjectItem {
   id: string;
@@ -31,6 +38,7 @@ export interface KnightMoreProjectItem {
 }
 
 export interface KnightActivityData {
+  username?: string;
   weeks: number;
   heatmapString: string;
   totalContributions: string;
@@ -304,7 +312,83 @@ export function getLanguageGlyphs(lang?: string): string {
 }
 
 /**
- * Returns normalized profile details for Knight using live PortfolioData
+ * Resolves verified GitHub activity resolution for the configured `identity.github` account.
+ */
+export function getKnightActivityResolution(
+  data?: Partial<PortfolioData> | null,
+  locale: Locale = 'en',
+): ActivityResolution {
+  return resolvePortfolioActivity(data, locale);
+}
+
+/**
+ * Projects a verified NormalizedActivityDataset into the legacy KnightActivityData view
+ * (also consumed cleanly by ASCII/Forkfolio summary renderers), or returns null if unavailable.
+ */
+export function getKnightActivity(
+  data?: Partial<PortfolioData> | null,
+  locale: Locale = 'en',
+): KnightActivityData | null {
+  const res = resolvePortfolioActivity(data, locale);
+  if (!res.available) {
+    return null;
+  }
+  return toLegacyActivityData(res, locale);
+}
+
+const LEVEL_TO_DIGIT = ['0', '2', '4', '6', '9'] as const;
+
+export function toLegacyActivityData(
+  res: NormalizedActivityDataset,
+  locale: Locale = 'en',
+): KnightActivityData {
+  const heatmapString = res.weeks
+    .map((w) => w.days.map((d) => (d ? LEVEL_TO_DIGIT[d.level ?? 0] ?? '0' : '-')).join(''))
+    .join('');
+
+  return {
+    username: res.username,
+    weeks: res.weeks.length,
+    heatmapString,
+    totalContributions: new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US').format(
+      res.summary.totalContributions,
+    ),
+    activeDays: res.summary.activeDays,
+    longestStreak: `${res.summary.longestStreak} ${
+      locale === 'vi' ? 'ngày' : res.summary.longestStreak === 1 ? 'day' : 'days'
+    }`,
+    busiestDay: res.summary.busiestDay
+      ? `${res.summary.busiestDay.count} (${formatUtcDate(res.summary.busiestDay.date, locale)})`
+      : '—',
+    months: res.months.map((m) => ({
+      name: m.label,
+      index: m.weekIndex,
+      offset: m.weekIndex - Math.max(0, res.weeks.length - 26),
+      isOld: m.weekIndex < Math.max(0, res.weeks.length - 26),
+    })),
+  };
+}
+
+/**
+ * Parses a flat heatmap string into a [weeks][7] matrix of intensity levels (0..4).
+ */
+export function parseHeatmapWeeks(heatmapString: string, weeks = 52): number[][] {
+  const result: number[][] = [];
+  for (let i = 0; i < weeks; i++) {
+    const week: number[] = [];
+    for (let d = 0; d < 7; d++) {
+      const val = Number(heatmapString[i * 7 + d]) || 0;
+      const lvl = val === 0 ? 0 : val <= 3 ? 1 : val <= 5 ? 2 : val <= 7 ? 3 : 4;
+      week.push(lvl);
+    }
+    result.push(week);
+  }
+  return result;
+}
+
+/**
+ * Returns normalized profile details for Knight using live PortfolioData.
+ * Uses canonical `resolveAvatarUrl` and never substitutes hardcoded sample/meme images.
  */
 export function getKnightProfile(data: PortfolioData): KnightProfileData {
   const i = data.identity;
@@ -315,11 +399,11 @@ export function getKnightProfile(data: PortfolioData): KnightProfileData {
     leadBio: i.bio || '',
     detailedBio: i.bio || '',
     location: i.location || 'Ho Chi Minh, VN',
-    email: i.email || 'quannguyenthanh558@gmail.com',
-    githubUrl: i.github?.url || 'https://github.com/QuanBlue',
-    githubHandle: i.github?.handle?.replace(/^@/, '') || 'quanblue',
-    linkedinUrl: i.linkedin?.url || 'https://linkedin.com/in/quanblue',
-    avatarUrl: i.avatar || 'https://avatars.githubusercontent.com/u/73626660?v=4&s=400',
+    email: i.email || '',
+    githubUrl: i.github?.url || '',
+    githubHandle: i.github?.handle?.replace(/^@/, '') || '',
+    linkedinUrl: i.linkedin?.url || '',
+    avatarUrl: resolveAvatarUrl(data),
     repoCount: projectCount,
   };
 }

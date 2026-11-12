@@ -2,6 +2,30 @@ import { DEFAULT_THEME_ID, getDefaultTheme, getTheme, hasTheme } from './registr
 import { THEME_CACHE_KEY, APPEARANCE_STORAGE_KEY, persistLocalTheme } from './settings';
 import type { ResolvedTheme, ThemeDefinition, ThemeId } from './types';
 
+export const ADMIN_PREVIEW_GRANT_KEY = 'portfolio-admin-preview-grant';
+
+export interface PreviewAuthContext {
+  isDev?: boolean;
+  isSupabaseConfigured?: boolean;
+  isOwnerSession?: boolean;
+  hasLocalAdminGrant?: boolean;
+}
+
+/**
+ * Authorizes `?preview=<themeId>` strictly for:
+ * - Development (`isDev === true`), OR
+ * - Authenticated Admin owner session when Supabase Auth is active, OR
+ * - Explicit Local Mode Admin preview grant when Supabase is unconfigured.
+ * Public production visitors and non-owner guests are denied.
+ */
+export function isThemePreviewAuthorized(ctx: PreviewAuthContext = {}): boolean {
+  if (ctx.isDev) return true;
+  if (ctx.isSupabaseConfigured) {
+    return Boolean(ctx.isOwnerSession);
+  }
+  return Boolean(ctx.hasLocalAdminGrant);
+}
+
 /**
  * Resolves a given theme ID string to a registered ThemeDefinition.
  * If the ID is unknown or falsy, safely returns the default theme with `isFallback: true`.
@@ -29,20 +53,21 @@ export function resolveTheme(
 
 /**
  * Client-side theme determination following strict priority order:
- * 1. Explicit URL search param (`preview` or `theme`) when valid.
+ * 1. Explicit URL search param (`preview` or `theme`) ONLY when both `allowUrlParam` and `isPreviewAuthorized` are true.
  * 2. Canonical remote/published settings (`remoteTheme`). When provided, updates cached storage.
  * 3. Valid cached copy of published theme setting (`portfolio-published-theme` / `user-theme-variant`).
  * 4. Build-time default ('ascii').
  */
 export function resolveClientTheme(options?: {
   allowUrlParam?: boolean;
+  isPreviewAuthorized?: boolean;
   allowLocalStorage?: boolean;
   remoteTheme?: string | null;
 }): ResolvedTheme {
-  const allowUrl = options?.allowUrlParam ?? true;
+  const allowUrl = Boolean(options?.allowUrlParam) && Boolean(options?.isPreviewAuthorized);
   const allowStorage = options?.allowLocalStorage ?? true;
 
-  // 1. Explicit preview param (highest priority, ephemeral, does not mutate published cache)
+  // 1. Authorized ephemeral preview param (does not mutate published cache)
   if (typeof window !== 'undefined' && allowUrl) {
     const params = new URLSearchParams(window.location.search);
     const urlTheme = params.get('preview') || params.get('theme');

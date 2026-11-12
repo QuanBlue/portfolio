@@ -1,55 +1,14 @@
 ---
 import { portfolioData } from '../../data/portfolio';
-import { renderSkills } from '../../lib/render';
+import { groupSkillsByCategory, renderSkills } from '../../lib/render';
 const { skills } = portfolioData;
-
-const layers = [
-  {
-    num: '01',
-    category: 'Orchestration & Mesh',
-    desc: 'Kubernetes HA clusters, container runtime & zero-trust service mesh.',
-    tools: [
-      { name: 'Kubernetes', tag: 'k8s-core', primary: true },
-      { name: 'Docker / Containerd', tag: 'runtime', primary: true },
-      { name: 'Istio', tag: 'svc-mesh', primary: false },
-    ],
-  },
-  {
-    num: '02',
-    category: 'IaC & Supply Chain',
-    desc: 'Air-gapped automation, vulnerability scanning & image signing.',
-    tools: [
-      { name: 'Ansible', tag: 'cfg-mgmt', primary: true },
-      { name: 'Jenkins CI/CD', tag: 'pipeline', primary: true },
-      { name: 'Trivy + SBOM + Cosign', tag: 'devsecops', primary: true },
-    ],
-  },
-  {
-    num: '03',
-    category: 'Observability & SRE',
-    desc: 'Full-stack metrics, distributed traces & proactive alerting.',
-    tools: [
-      { name: 'Prometheus', tag: 'metrics-tsdb', primary: true },
-      { name: 'Grafana', tag: 'dashboards', primary: true },
-      { name: 'Alertmanager + ELK', tag: 'logs-alert', primary: false },
-    ],
-  },
-  {
-    num: '04',
-    category: 'Linux & Networking',
-    desc: 'Kernel tuning, high-availability load balancing & networking.',
-    tools: [
-      { name: 'Linux / Ubuntu Kernel', tag: 'sys-kernel', primary: true },
-      { name: 'HAProxy', tag: 'l4-l7-proxy', primary: true },
-      { name: 'Keepalived (VRRP)', tag: 'vip-failover', primary: false },
-    ],
-  },
-];
+const skillGroups = groupSkillsByCategory(skills, 'en');
+const activeCount = skills.filter((s) => s.status === 'ACTIVE').length;
 ---
 
 <section id="skills" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
   <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-10">
-    <!-- Eyebrow & Headline matching user screenshot -->
+    <!-- Eyebrow & Headline -->
     <div class="space-y-2">
       <p class="reveal font-mono text-xs text-[var(--signal)] tracking-wider uppercase font-semibold">
         // 05. SKILLS &amp; ARCHITECTURE
@@ -59,49 +18,50 @@ const layers = [
       </h2>
     </div>
 
-    <!-- 4 Architectural Layer Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-      {layers.map((layer, idx) => (
-        <div
-          class="reveal ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4 hover:border-[var(--line-strong)] transition"
-          style={`--d: ${idx * 0.06}s`}
-        >
-          <span class="ff-cross-tl">+</span>
-          <span class="ff-cross-tr">+</span>
-          <span class="ff-cross-bl">+</span>
-          <span class="ff-cross-br">+</span>
+    <!-- Dynamic Grouped Skills Grid (Derived from PortfolioData.skills) -->
+    <div id="ed-skill-layers" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {skillGroups.length === 0 ? (
+        <p class="col-span-full text-xs font-mono text-[var(--muted-fg)]">[ No published skills ]</p>
+      ) : (
+        skillGroups.map((group, idx) => (
+          <div
+            class="reveal is-visible ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4 hover:border-[var(--line-strong)] transition"
+            style={`--d: ${idx * 0.06}s`}
+          >
+            <span class="ff-cross-tl">+</span>
+            <span class="ff-cross-tr">+</span>
+            <span class="ff-cross-bl">+</span>
+            <span class="ff-cross-br">+</span>
 
-          <!-- Card Header: // 01 ... LAYER -->
-          <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-2.5">
-            <span class="text-[var(--signal)] font-bold">// {layer.num}</span>
-            <span class="text-[var(--muted-fg)] uppercase tracking-wider text-[11px]">LAYER</span>
-          </div>
+            <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-2.5">
+              <span class="text-[var(--signal)] font-bold">// {String(idx + 1).padStart(2, '0')}</span>
+              <span class="text-[var(--muted-fg)] uppercase tracking-wider text-[11px]">MODULE</span>
+            </div>
 
-          <!-- Layer Name & Description -->
-          <div class="space-y-1">
-            <h3 class="font-mono text-base font-bold text-[var(--fg)] tracking-tight">
-              {layer.category}
-            </h3>
-            <p class="text-xs text-[var(--muted-fg)] leading-relaxed font-sans">
-              {layer.desc}
-            </p>
-          </div>
+            <div class="space-y-1">
+              <h3 class="font-mono text-base font-bold text-[var(--fg)] tracking-tight">
+                {group.category}
+              </h3>
+              <p class="text-xs text-[var(--muted-fg)] leading-relaxed font-mono">
+                {group.items.length} published tool{group.items.length === 1 ? '' : 's'}
+              </p>
+            </div>
 
-          <!-- Tools List with [tags] -->
-          <div class="space-y-2.5 pt-3 border-t border-[var(--border)] font-mono text-xs">
-            {layer.tools.map((t) => (
-              <div class="flex items-center justify-between gap-2">
-                <span class={t.primary ? 'font-semibold text-[var(--fg)]' : 'text-[var(--muted-fg)]'}>
-                  {t.name}
-                </span>
-                <span class="text-[10px] text-[var(--signal)] font-medium">
-                  [{t.tag}]
-                </span>
-              </div>
-            ))}
+            <div class="space-y-2.5 pt-3 border-t border-[var(--border)] font-mono text-xs">
+              {group.items.map((item) => (
+                <div class="flex items-center justify-between gap-2">
+                  <span class={item.status === 'ACTIVE' ? 'font-semibold text-[var(--fg)]' : 'text-[var(--muted-fg)]'}>
+                    {item.name}
+                  </span>
+                  <span class="text-[10px] text-[var(--signal)] font-medium">
+                    {item.tag || `[${item.status}]`}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
 
     <!-- Active Modules Register Box -->
@@ -113,22 +73,69 @@ const layers = [
 
       <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-3">
         <span class="font-bold text-[var(--fg)] tracking-wider">[ ACTIVE_MODULES_REGISTER ]</span>
-        <span class="inline-flex items-center gap-1.5 text-[var(--signal)] font-semibold text-[11px]">
+        <span id="ed-skills-status" class="inline-flex items-center gap-1.5 text-[var(--signal)] font-semibold text-[11px]">
           <span class="size-1.5 rounded-full bg-[var(--signal)] animate-pulse"></span>
-          ALL GREEN
+          {skills.length > 0 ? `${activeCount}/${skills.length} ACTIVE` : 'EMPTY'}
         </span>
       </div>
 
       <!-- Live Dynamic Skills from Store -->
-      <ul id="bind-skills" class="flex flex-wrap gap-2.5" set:html={renderSkills(skills)}>
-        {skills.map((s) => (
-          <li class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--muted-bg)]/60 text-xs font-mono text-[var(--fg)]">
-            <span class="size-1.5 rounded-full bg-[var(--signal)]"></span>
-            <span class="font-semibold">{s.name}</span>
-            <span class="text-[10px] text-[var(--muted-fg)]">{s.tag}</span>
-          </li>
-        ))}
-      </ul>
+      <ul id="bind-skills" class="flex flex-wrap gap-2.5" set:html={renderSkills(skills)} />
     </div>
   </div>
 </section>
+
+<script>
+  import { esc, groupSkillsByCategory } from '../../lib/render';
+
+  window.addEventListener('portfolio:data', (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    if (!detail) return;
+    const isVi = detail._locale === 'vi';
+    const skills = detail.skills || [];
+    const groups = groupSkillsByCategory(skills, isVi ? 'vi' : 'en');
+    const layersEl = document.getElementById('ed-skill-layers');
+    const statusEl = document.getElementById('ed-skills-status');
+
+    if (statusEl) {
+      const activeCount = skills.filter((s: any) => s.status === 'ACTIVE').length;
+      const label = skills.length > 0 ? `${activeCount}/${skills.length} ACTIVE` : (isVi ? 'TRỐNG' : 'EMPTY');
+      statusEl.innerHTML = `<span class="size-1.5 rounded-full bg-[var(--signal)] animate-pulse"></span>${esc(label)}`;
+    }
+
+    if (layersEl) {
+      if (groups.length === 0) {
+        layersEl.innerHTML = `<p class="col-span-full text-xs font-mono text-[var(--muted-fg)]">${esc(isVi ? '[ Chưa có kỹ năng đăng tải ]' : '[ No published skills ]')}</p>`;
+        return;
+      }
+      layersEl.innerHTML = groups
+        .map(
+          (group, idx) => `<div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4 hover:border-[var(--line-strong)] transition">
+            <span class="ff-cross-tl">+</span>
+            <span class="ff-cross-tr">+</span>
+            <span class="ff-cross-bl">+</span>
+            <span class="ff-cross-br">+</span>
+            <div class="flex items-center justify-between font-mono text-xs border-b border-[var(--border)] pb-2.5">
+              <span class="text-[var(--signal)] font-bold">// ${String(idx + 1).padStart(2, '0')}</span>
+              <span class="text-[var(--muted-fg)] uppercase tracking-wider text-[11px]">${isVi ? 'NHÓM' : 'MODULE'}</span>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-mono text-base font-bold text-[var(--fg)] tracking-tight">${esc(group.category)}</h3>
+              <p class="text-xs text-[var(--muted-fg)] leading-relaxed font-mono">${group.items.length} ${isVi ? 'công cụ công khai' : `published tool${group.items.length === 1 ? '' : 's'}`}</p>
+            </div>
+            <div class="space-y-2.5 pt-3 border-t border-[var(--border)] font-mono text-xs">
+              ${group.items
+                .map(
+                  (item) => `<div class="flex items-center justify-between gap-2">
+                <span class="${item.status === 'ACTIVE' ? 'font-semibold text-[var(--fg)]' : 'text-[var(--muted-fg)]'}">${esc(item.name)}</span>
+                <span class="text-[10px] text-[var(--signal)] font-medium">${esc(item.tag || `[${item.status}]`)}</span>
+              </div>`,
+                )
+                .join('')}
+            </div>
+          </div>`,
+        )
+        .join('');
+    }
+  });
+</script>

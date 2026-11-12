@@ -9,9 +9,9 @@ const { identity } = portfolioData;
     <div class="reveal panel p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
       <div>
         <p class="text-label text-[var(--signal)] mb-2">06 · Get in touch</p>
-        <h2 class="reveal-wipe text-h2 text-[var(--fg)]">Let's talk infrastructure.</h2>
-        <p class="text-sm sm:text-base text-[var(--muted-fg)] mt-2 max-w-xl">
-          Luôn sẵn sàng trao đổi về kiến trúc Kubernetes, tự động hóa hệ thống hoặc các cơ hội hợp tác mới.
+        <h2 class="reveal-wipe text-h2 text-[var(--fg)]" data-ed-contact-title>Let's talk infrastructure.</h2>
+        <p class="text-sm sm:text-base text-[var(--muted-fg)] mt-2 max-w-xl" data-ed-contact-sub>
+          Always open to discuss infrastructure engineering, automation, and new collaborations.
         </p>
       </div>
       <div class="flex flex-wrap gap-3">
@@ -48,3 +48,21 @@ const { identity } = portfolioData;
     </div>
   </div>
 </footer>
+
+<script>
+  window.addEventListener('portfolio:data', (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    if (!detail) return;
+    const isVi = detail._locale === 'vi';
+    const titleEl = document.querySelector('#contact [data-ed-contact-title]');
+    const subEl = document.querySelector('#contact [data-ed-contact-sub]');
+    if (titleEl) {
+      titleEl.textContent = isVi ? 'Trao đổi về hạ tầng & hệ thống.' : "Let's talk infrastructure.";
+    }
+    if (subEl) {
+      subEl.textContent = isVi
+        ? 'Luôn sẵn sàng trao đổi về kỹ thuật hạ tầng, tự động hóa hệ thống hoặc các cơ hội hợp tác mới.'
+        : 'Always open to discuss infrastructure engineering, automation, and new collaborations.';
+    }
+  });
+</script>

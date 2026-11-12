@@ -60,6 +60,7 @@ const themes: ThemeDefinition[] = getAllThemes();
             </button>
             <a
               href={`/?preview=${t.id}`}
+              data-preview-theme={t.id}
               target="_blank"
               rel="noopener noreferrer"
               class="theme-btn-preview py-1.5 px-3 rounded-lg border border-[var(--border)] hover:bg-[var(--muted-bg)] font-medium transition cursor-pointer text-center"

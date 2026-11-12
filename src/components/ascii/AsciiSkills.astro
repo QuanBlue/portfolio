@@ -1,49 +1,8 @@
 ---
 import { portfolioData } from '../../data/portfolio';
+import { renderAsciiSkillChipsHtml, renderAsciiSkillGroupsHtml } from './ascii-renderers';
 const { skills } = portfolioData;
-
-const layers = [
-  {
-    num: '01',
-    category: 'Orchestration & Mesh',
-    desc: 'Kubernetes HA clusters, container runtime & zero-trust service mesh.',
-    tools: [
-      { name: 'Kubernetes', tag: 'k8s-core', primary: true },
-      { name: 'Docker / Containerd', tag: 'runtime', primary: true },
-      { name: 'Istio', tag: 'svc-mesh', primary: false },
-    ],
-  },
-  {
-    num: '02',
-    category: 'IaC & Supply Chain',
-    desc: 'Air-gapped automation, vulnerability scanning & image signing.',
-    tools: [
-      { name: 'Ansible', tag: 'cfg-mgmt', primary: true },
-      { name: 'Jenkins CI/CD', tag: 'pipeline', primary: true },
-      { name: 'Trivy + SBOM + Cosign', tag: 'devsecops', primary: true },
-    ],
-  },
-  {
-    num: '03',
-    category: 'Observability & SRE',
-    desc: 'Full-stack metrics, distributed traces & proactive alerting.',
-    tools: [
-      { name: 'Prometheus', tag: 'metrics-tsdb', primary: true },
-      { name: 'Grafana', tag: 'dashboards', primary: true },
-      { name: 'Alertmanager + ELK', tag: 'logs-alert', primary: false },
-    ],
-  },
-  {
-    num: '04',
-    category: 'Linux & Networking',
-    desc: 'Kernel tuning, high-availability load balancing & networking.',
-    tools: [
-      { name: 'Linux / Ubuntu Kernel', tag: 'sys-kernel', primary: true },
-      { name: 'HAProxy', tag: 'l4-l7-proxy', primary: true },
-      { name: 'Keepalived (VRRP)', tag: 'vip-failover', primary: false },
-    ],
-  },
-];
+const activeCount = skills.filter((s) => s.status === 'ACTIVE').length;
 ---
 
 <section id="skills" class="scroll-mt-20 py-16 sm:py-24 border-b border-[var(--border)] font-mono">
@@ -67,61 +26,19 @@ const layers = [
       </div>
     </div>
 
-    <!-- 4 Architecture Layers Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {layers.map((layer) => (
-        <div class="ff-cross-box rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4 hover:border-[var(--line-strong)] transition">
-          <span class="ff-cross-tl">+</span>
-          <span class="ff-cross-tr">+</span>
-          <span class="ff-cross-bl">+</span>
-          <span class="ff-cross-br">+</span>
-
-          <div class="text-xs text-[var(--muted-fg)] border-b border-[var(--border)] pb-2 flex items-center justify-between">
-            <span class="text-[var(--signal)] font-bold">// {layer.num}</span>
-            <span>LAYER</span>
-          </div>
-
-          <div>
-            <h3 class="text-base font-bold text-[var(--fg)] tracking-tight">
-              {layer.category}
-            </h3>
-            <p class="text-xs text-[var(--muted-fg)] mt-1 leading-relaxed font-sans">
-              {layer.desc}
-            </p>
-          </div>
-
-          <div class="space-y-2 pt-2 border-t border-[var(--border)]">
-            {layer.tools.map((t) => (
-              <div class="flex items-center justify-between text-xs">
-                <span class={t.primary ? 'font-semibold text-[var(--fg)]' : 'text-[var(--muted-fg)]'}>
-                  {t.name}
-                </span>
-                <span class="text-[10px] text-[var(--signal)] opacity-80">
-                  [{t.tag}]
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+    <!-- Dynamic Grouped Skills Grid (Derived from PortfolioData.skills) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-ascii-skill-groups set:html={renderAsciiSkillGroupsHtml(skills, 'en')} />
 
     <!-- Live Dynamic Skill Tag Cloud from Central Store -->
     <div class="ff-panel p-6 sm:p-7 space-y-4">
       <div class="flex items-center justify-between border-b border-[var(--border)] pb-3 text-xs text-[var(--muted-fg)]">
         <span class="font-bold text-[var(--fg)]">[ ACTIVE_MODULES_REGISTER ]</span>
-        <span class="text-[var(--signal)]">● ALL GREEN</span>
+        <span class="text-[var(--signal)]" data-ascii-skills-status>
+          {skills.length > 0 ? `● ${activeCount}/${skills.length} ACTIVE` : '○ EMPTY'}
+        </span>
       </div>
 
-      <div class="flex flex-wrap gap-2.5">
-        {skills.map((s) => (
-          <div class="ff-btn !cursor-default">
-            <span class="size-1.5 rounded-full bg-[var(--signal)]"></span>
-            <span class="font-semibold text-[var(--fg)]">{s.name}</span>
-            <span class="text-[10px] text-[var(--muted-fg)]">[{s.tag}]</span>
-          </div>
-        ))}
-      </div>
+      <div class="flex flex-wrap gap-2.5" data-ascii-skill-chips set:html={renderAsciiSkillChipsHtml(skills, 'en')} />
     </div>
   </div>
 </section>

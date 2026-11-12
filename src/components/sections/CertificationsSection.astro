@@ -1,0 +1,24 @@
+---
+import { portfolioData } from '../../data/portfolio';
+import { renderCerts } from '../../lib/render';
+const { certifications } = portfolioData;
+---
+
+<section id="certifications" class="scroll-mt-20 py-14 sm:py-20 border-t border-[var(--border)]">
+  <div class="mx-auto max-w-[76rem] px-4 sm:px-6 lg:px-8 space-y-8">
+    <div class="space-y-2">
+      <p class="reveal font-mono text-xs text-[var(--signal)] tracking-wider uppercase font-semibold">
+        // 04. CERTIFICATIONS &amp; CREDENTIALS
+      </p>
+      <h2 class="reveal-wipe font-mono text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--fg)]">
+        CERTIFICATIONS
+      </h2>
+    </div>
+
+    <div
+      id="bind-certs"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      set:html={renderCerts(certifications, '[ No published certifications ]')}
+    />
+  </div>
+</section>

@@ -17,8 +17,6 @@ import '../forkfolio/terminal/terminal.css';
 import { portfolioData } from '../../data/portfolio';
 
 const allProjects = portfolioData.projects ?? [];
-const featuredProjects = allProjects.length > 4 ? allProjects.slice(0, 4) : allProjects;
-const moreProjects = allProjects.length > 4 ? allProjects.slice(4) : [];
 ---
 
 <!-- Single Master Terminal Application Container with Viewport Margins -->
@@ -37,10 +35,10 @@ const moreProjects = allProjects.length > 4 ? allProjects.slice(4) : [];
       <ForkfolioAbout />
 
       <!-- 2.3 Featured Projects with ls ~/projects & progress simulation -->
-      <ForkfolioProjects projects={featuredProjects} />
+      <ForkfolioProjects projects={allProjects} />
 
       <!-- 2.4 Optional Additional Repositories Table with ls -la ~/src -->
-      {moreProjects.length > 0 && <ForkfolioAdditionalProjects projects={moreProjects} />}
+      <ForkfolioAdditionalProjects projects={allProjects} />
 
       <!-- 2.5 Experience Timeline with cat ~/career.log -->
       <ForkfolioExperience experience={portfolioData.experience} />
@@ -71,7 +69,10 @@ const moreProjects = allProjects.length > 4 ? allProjects.slice(4) : [];
 
 <script>
   import { initTerminalSequences } from '../forkfolio/terminal/terminal-sequence';
+  import { initForkfolioLiveUpdates } from '../forkfolio/forkfolio-live';
   import { getSession, isOwnerSession } from '../../lib/supabase';
+
+  initForkfolioLiveUpdates();
 
   let cleanupTerminal: (() => void) | null = null;
 

@@ -44,30 +44,44 @@ export async function clearStored(): Promise<void> {
   await tx('readwrite', (s) => s.delete(KEY));
 }
 
+export type PortfolioDataSource = 'supabase' | 'local-draft' | 'build-default' | 'fallback';
+
 /**
- * Data shown to visitors: build-time data overlaid with Supabase (when configured),
- * otherwise with this browser's local edits.
+ * Data shown to visitors: build-time data overlaid with Supabase published record (when configured),
+ * otherwise with this browser's local IndexedDB edits (Local Mode).
  */
 export async function loadLiveData(): Promise<PortfolioData> {
   let data: PortfolioData;
+  let source: PortfolioDataSource = 'build-default';
   try {
     let override: Partial<PortfolioData> | null = null;
     if (isSupabaseConfigured) {
       override = await fetchRemote();
-      if (!override) {
-        override = await loadStored();
+      if (override) {
+        source = 'supabase';
+      } else {
+        source = 'fallback';
+        if (import.meta.env.DEV) {
+          console.warn('[Portfolio Store] Supabase remote content unavailable or empty; using build-time fallback without reading local drafts.');
+        }
       }
     } else {
       override = await loadStored();
+      source = override ? 'local-draft' : 'build-default';
     }
     data = mergePortfolioData(portfolioData, override);
     (window as any).__PORTFOLIO_OVERRIDE__ = override;
-  } catch {
+  } catch (err) {
     data = portfolioData;
+    source = 'fallback';
     (window as any).__PORTFOLIO_OVERRIDE__ = null;
+    if (import.meta.env.DEV) {
+      console.warn('[Portfolio Store] Failed to load live portfolio data; using build-time fallback:', err);
+    }
   } finally {
     document.documentElement.classList.remove('cms-loading');
   }
+  (window as any).__PORTFOLIO_SOURCE__ = source;
   (window as any).__PORTFOLIO__ = data;
   return data;
 }

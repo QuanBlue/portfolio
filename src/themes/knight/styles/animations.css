@@ -129,8 +129,9 @@
   cursor: pointer;
 }
 
-.kn-cal-cell:hover {
-  transform: scale(1.4);
+.kn-cal-cell:hover,
+.kn-cal-cell:focus-visible {
+  transform: scale(1.35);
   outline: 1px solid var(--ink);
   z-index: 10;
   position: relative;
@@ -139,9 +140,9 @@
 /* Monospace Heatmap Tooltip */
 .kn-tooltip {
   position: fixed;
-  z-index: 100;
+  z-index: 120;
   pointer-events: none;
-  padding: 5px 10px;
+  padding: 6px 10px;
   background: #141417;
   border: 1px solid #3d3b37;
   color: #e9e6df;
@@ -151,13 +152,21 @@
   white-space: nowrap;
   opacity: 0;
   transform: translate(-50%, -100%) translateY(-6px);
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.72);
 }
 
 .kn-tooltip.is-visible {
   opacity: 1;
   transform: translate(-50%, -100%) translateY(-10px);
+}
+
+.kn-tooltip.is-below {
+  transform: translate(-50%, 6px);
+}
+
+.kn-tooltip.is-below.is-visible {
+  transform: translate(-50%, 10px);
 }
 
 /* 8. Magnetic Button Base & Form Transitions */

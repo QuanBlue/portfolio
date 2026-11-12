@@ -1,6 +1,9 @@
 ---
-import { portfolioData } from '../../data/portfolio';
-const { identity } = portfolioData;
+import { portfolioData, getCareerSettings } from '../../data/portfolio';
+const { identity, experience, projects, education, skills } = portfolioData;
+const career = getCareerSettings(portfolioData);
+const currentCompany = experience[0]?.company ?? '';
+const topSkillNames = skills.slice(0, 3).map((s) => s.name).join(', ') || '—';
 ---
 
 <section id="about" class="scroll-mt-20 py-16 sm:py-20 border-b border-[var(--border)] font-mono">
@@ -28,37 +31,45 @@ const { identity } = portfolioData;
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       <div class="lg:col-span-7 space-y-5 text-xs sm:text-sm text-[var(--muted-fg)] leading-relaxed font-sans">
         <p class="text-base text-[var(--fg)] font-medium font-mono">
-          &gt; Tốt nghiệp Kỹ sư CNTT chuyên ngành Mạng &amp; Hệ thống phân tán, mình đảm nhận vai trò <strong class="text-[var(--signal)]"><span data-bind="role">{identity.role}</span> tại Viettel</strong>.
+          &gt; <span data-bind="role">{identity.role}</span> <span data-bind-company data-company-prefix="@ " class={`text-[var(--signal)] font-bold ${currentCompany ? '' : 'hidden'}`}>{currentCompany ? `@ ${currentCompany}` : ''}</span>
         </p>
-        <p>
-          Với kinh nghiệm xây dựng các hệ thống chịu tải cao từ cấp độ bare-metal kernel cho đến orchestration đám mây, mình luôn chú trọng vào độ ổn định 99.9% uptime, tự động hóa toàn diện và tính bảo mật của chuỗi cung ứng container.
+        <p data-bind="bio" class="whitespace-pre-line">
+          {identity.bio}
         </p>
 
-        <!-- 4 Architecture ASCII Boxes -->
+        <!-- 4 Data-Driven Summary Boxes -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 font-mono text-xs">
           <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
-            <span class="text-[var(--signal)] font-bold">[ 01. HA_PLATFORM ]</span>
-            <p class="text-[11px] text-[var(--muted-fg)]">Cụm K8s multi-master chịu lỗi cao, Keepalived/HAProxy không điểm nghẽn.</p>
+            <span class="text-[var(--signal)] font-bold">[ 01. EXPERIENCE ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]" data-ascii-about="exp">
+              {experience[0] ? `${experience[0].role} @ ${experience[0].company} (${experience[0].period})` : 'No published experience'}
+            </p>
           </div>
 
           <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
-            <span class="text-[var(--signal)] font-bold">[ 02. AIRGAP_IAC ]</span>
-            <p class="text-[11px] text-[var(--muted-fg)]">Ansible Playbooks triển khai 100% tự động trong môi trường biệt lập.</p>
+            <span class="text-[var(--signal)] font-bold">[ 02. PROJECTS ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]" data-ascii-about="projects">
+              {`${projects.length} published project${projects.length === 1 ? '' : 's'}`}
+            </p>
           </div>
 
           <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
-            <span class="text-[var(--signal)] font-bold">[ 03. SUPPLY_CHAIN ]</span>
-            <p class="text-[11px] text-[var(--muted-fg)]">Quét Trivy, sinh SBOM tự động, ký số &amp; xác thực Image trước khi deploy.</p>
+            <span class="text-[var(--signal)] font-bold">[ 03. EDUCATION ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]" data-ascii-about="edu">
+              {education[0] ? `${education[0].degree} — ${education[0].school}` : 'No published education'}
+            </p>
           </div>
 
           <div class="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] space-y-1.5">
-            <span class="text-[var(--signal)] font-bold">[ 04. SRE_METRICS ]</span>
-            <p class="text-[11px] text-[var(--muted-fg)]">Prometheus, Grafana, Alertmanager &amp; ELK Stack giám sát toàn diện 24/7.</p>
+            <span class="text-[var(--signal)] font-bold">[ 04. SKILLS_STACK ]</span>
+            <p class="text-[11px] text-[var(--muted-fg)]" data-ascii-about="skills">
+              {`${skills.length} skills · ${topSkillNames}`}
+            </p>
           </div>
         </div>
       </div>
 
-      <!-- Right Infrastructure Fact Sheet Table -->
+      <!-- Right Published Fact Sheet Table -->
       <div class="lg:col-span-5">
         <div class="ff-cross-box rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 space-y-4">
           <span class="ff-cross-tl">+</span>
@@ -68,37 +79,43 @@ const { identity } = portfolioData;
 
           <div class="flex items-center justify-between border-b border-[var(--border)] pb-2 text-xs">
             <span class="font-bold text-[var(--fg)]">// SPECS_TABLE</span>
-            <span class="text-[var(--signal)]">[ VALIDATED ]</span>
+            <span class="text-[var(--signal)]" data-ascii-about="specsBadge">
+              {career.openToWork ? '[ OPEN_TO_WORK ]' : '[ PUBLISHED_PROFILE ]'}
+            </span>
           </div>
 
           <dl class="divide-y divide-[var(--border)] text-xs">
+            <div class="py-2 flex justify-between gap-3">
+              <dt class="text-[var(--muted-fg)]">Name</dt>
+              <dd class="text-[var(--fg)] font-bold text-right" data-ascii-about="specsName">{identity.name}</dd>
+            </div>
             <div class="py-2 flex justify-between gap-3">
               <dt class="text-[var(--muted-fg)]">Role</dt>
               <dd class="text-[var(--fg)] font-bold text-right" data-bind="role">{identity.role}</dd>
             </div>
             <div class="py-2 flex justify-between gap-3">
-              <dt class="text-[var(--muted-fg)]">Company</dt>
-              <dd class="text-[var(--fg)] font-bold text-right">Viettel Group</dd>
+              <dt class="text-[var(--muted-fg)]">Organization</dt>
+              <dd class="text-[var(--fg)] font-bold text-right" data-ascii-about="specsOrg">{currentCompany || '—'}</dd>
             </div>
             <div class="py-2 flex justify-between gap-3">
               <dt class="text-[var(--muted-fg)]">Location</dt>
               <dd class="text-[var(--fg)] font-bold text-right" data-bind="location">{identity.location}</dd>
             </div>
             <div class="py-2 flex justify-between gap-3">
-              <dt class="text-[var(--muted-fg)]">Networking</dt>
-              <dd class="text-[var(--fg)] font-bold text-right">BGP / VRRP / Calico CNI</dd>
+              <dt class="text-[var(--muted-fg)]">Node</dt>
+              <dd class="text-[var(--fg)] font-bold text-right" data-bind="node">{identity.node}</dd>
             </div>
             <div class="py-2 flex justify-between gap-3">
-              <dt class="text-[var(--muted-fg)]">Supply Chain</dt>
-              <dd class="text-[var(--fg)] font-bold text-right">Trivy + SBOM + Cosign</dd>
+              <dt class="text-[var(--muted-fg)]">Projects / Skills</dt>
+              <dd class="text-[var(--fg)] font-bold text-right">
+                <span data-ascii-about="specsProjects">{projects.length}</span> / <span data-ascii-about="specsSkills">{skills.length}</span>
+              </dd>
             </div>
             <div class="py-2 flex justify-between gap-3">
-              <dt class="text-[var(--muted-fg)]">IaC Engine</dt>
-              <dd class="text-[var(--fg)] font-bold text-right">Ansible Core Playbooks</dd>
-            </div>
-            <div class="py-2 flex justify-between gap-3">
-              <dt class="text-[var(--muted-fg)]">Uptime SLA</dt>
-              <dd class="text-[var(--signal)] font-bold text-right">99.9% Zero-SPOF</dd>
+              <dt class="text-[var(--muted-fg)]">Career Status</dt>
+              <dd class="text-[var(--signal)] font-bold text-right" data-ascii-about="specsCareer">
+                {career.openToWork ? 'Open to Work' : 'Focused'}
+              </dd>
             </div>
           </dl>
         </div>

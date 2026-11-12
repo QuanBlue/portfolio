@@ -4,6 +4,7 @@ interface Props {
     status?: string;
     text: string;
     target?: string;
+    bindTarget?: 'handle' | 'prompt';
   }>;
   class?: string;
 }
@@ -16,8 +17,14 @@ const { lines, class: className = '' } = Astro.props;
     <div class="ff-term-status flex items-center gap-2">
       <span class="ff-term-ok">[{line.status || 'OK'}]</span>
       <span class="text-[var(--muted-fg)]">
-        {line.text}
-        {line.target && <span class="text-[var(--signal)] font-semibold"> {line.target}</span>}
+        {line.text}{line.target && ' '}
+        {line.target && (
+          <span
+            class="text-[var(--signal)] font-semibold"
+            data-ff-shell-handle={line.bindTarget === 'handle' ? '' : undefined}
+            data-ff-shell-prompt={line.bindTarget === 'prompt' ? '' : undefined}
+          >{line.target}</span>
+        )}
       </span>
     </div>
   ))}

@@ -66,6 +66,25 @@ export interface Translations {
     moreWork: string;
     empty: string;
   };
+  activity?: {
+    heading: string;
+    contributions: string;
+    activeDays: string;
+    longestStreak: string;
+    busiestDay: string;
+    lastUpdated: string;
+    unavailable: string;
+    disabled: string;
+    accountMismatch: string;
+    noContributions: string;
+    contributionSingular: string;
+    contributionPlural: string;
+    daySingular: string;
+    dayPlural: string;
+    snapshotLabel: string;
+    lessLabel: string;
+    moreLabel: string;
+  };
   contact: {
     heading: string;
     lead: string;

@@ -104,9 +104,9 @@ describe('Terminal Engine Command Registry', () => {
   it('executes "neofetch" returning ASCII summary', async () => {
     const output = await COMMAND_LIST['neofetch'].execute([], dummyContext);
     const text = output.map((l) => l.text).join('\n');
-    expect(text).toContain('ntquan@devops-engineer');
     expect(text).toContain(portfolioData.identity.name);
-    expect(text).toContain('CLUSTER ONLINE');
+    expect(text).toContain(portfolioData.identity.role);
+    expect(text).toContain('[SIMULATED PORTFOLIO SHELL]');
   });
 
   it('executes "clear" and triggers clearTerminal callback', async () => {
